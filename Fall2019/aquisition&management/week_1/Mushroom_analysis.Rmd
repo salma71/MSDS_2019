@@ -1,0 +1,112 @@
+---
+title: "607_week_1_assignment"
+author: "Salma Elshahawy"
+date: "8/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## In this study, We want to investigate where is edible and poisonous mushrooms mainly habitat. Also, need to know which species acording to either gill_color or odor exist. 
+
+## Importing the dataset as a dataframe 
+
+```{r}
+library(RCurl)
+library(plyr)
+library(dplyr)
+library(htmlTable)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+# Importing dataset as a dataframe from the UCI repo.
+mushroom_df <- getURL("https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data",header=FALSE)
+frame <- data.frame(read.csv(text = mushroom_df, header = F))
+# show the data frame dimention
+dim(frame)
+```
+#### Note: KableExtra library was used to format the ouput dataframe table 
+
+```{r}
+# display the first 10 rows only from the data frame.
+head(frame, 10) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+## Renaming columns to make it easy to study it - according to UCI Repo
+#### a table with variable name was created and uploaded to my personal GitHub account. After that, that table was imported as a dataframe. 
+```{r}
+mush_df <- as.data.frame(read.table("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management/week_1/attributes_name.txt",row.names = 1,header = TRUE, sep="\t"))
+mush_df <- cbind(Variable=rownames(mush_df), mush_df)
+rownames(mush_df)<- NULL
+mush_df
+```
+
+#### Now, rename the columns of frame according to the mush_df and style it. 
+
+```{r}
+names(frame) <- mush_df$Variable
+head(frame) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+
+## Then take the subset data that contains poisonous and edible attribute, plus 3-4 other attributes to compare
+
+```{r}
+mushroom_sub_df <- subset(frame, select = c(1, 4, 6, 10, 22, 23))
+head(mushroom_sub_df) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+## Rename letter codes according to dataset key associated with the dataset for more readability
+
+```{r}
+
+mushroom_sub_df$edible_poisonous <- revalue(mushroom_sub_df$edible_poisonous, c("p"="poisonous", "e"="edible"))
+
+mushroom_sub_df$cap_color <- revalue(mushroom_sub_df$cap_color, c("n"="brown","b"="buff","c"="cinnamon","g"="gray","r"="green", "p"="pink","u"="purple","e"="red","w"="white","y"="yellow"))
+
+mushroom_sub_df$gill_color <- revalue(mushroom_sub_df$gill_color, c("k"="black","n"="brown","b"="buff","h"="chocolate","g"="gray","r"="green","o"="orange","p"="pink","u"="purple","e"="red","w"="white","y"="yellow"))
+
+mushroom_sub_df$odor <- revalue(mushroom_sub_df$odor, c("a"="almond","l"="anise","c"="creosote","y"="fishy","f"="foul","m"="musty","n"="none","p"="pungent","s"="spicy"))
+
+mushroom_sub_df$population <- revalue(mushroom_sub_df$population, c("a"="abundant","c"="clustered","n"="numerous","s"="scattered","v"="several","y"="solitary"))
+
+mushroom_sub_df$habitat <- revalue(mushroom_sub_df$habitat, c("g"="grasses","l"="leaves","m"="meadows","p"="paths","u"="urban","w"="waste","d"="woods"))
+
+head(mushroom_sub_df) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+## Getting the summary of the subset dataset
+
+```{r}
+summary(mushroom_sub_df) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+## Visualizing the dataset using graphics and charts
+
+```{r}
+c1 <- ggplot(mushroom_sub_df, aes(x = edible_poisonous, y = habitat))
+c1 + geom_jitter(aes(colour = edible_poisonous)) + labs(title="The majority of habitat per each mushrom type")
+
+```
+### As shown in the jitter plot, we can conclude that both grass and woods are the most suitable environments for growing both edible and poisonous mushrooms. However, paths is more convenient for growing poisonous type. In the other hands, meadows is more suitable to grow an edible mushrooms. 
+
+## In the following analysis, I will go indetails of each type to get insights of quantities for each type. 
+
+```{r}
+
+mush_pois_df <- subset(mushroom_sub_df, mushroom_sub_df$edible_poisonous == "poisonous" & mushroom_sub_df$cap_color == "brown")
+c <- ggplot(mush_pois_df, aes(cap_color, habitat))
+c + geom_count(aes(color = ..n.., size = ..n..)) + guides(color = 'legend') + ggtitle("Habitat environment for the brown poisonous mushroom") 
+
+# get mean and median
+
+```
+ 
+
+```{r}
+mush_ed_df <- subset(mushroom_sub_df, mushroom_sub_df$edible_poisonous == "edible" & mushroom_sub_df$cap_color == "brown")
+c <- ggplot(mush_ed_df, aes(cap_color, habitat))
+c + geom_count(aes(color = ..n.., size = ..n..)) + guides(color = 'legend') + ggtitle("Habitat environment for the brown edible mushroom")
+```
+
+### For mushrooms with gill_color brown edible type, it seems that it can habitat in all places - 6 places with numbers ranging from 100 in the leaves to 500 in the woods. However, the poisonous type can habitat in leaves, paths, and woods with a less number - around 300.  
