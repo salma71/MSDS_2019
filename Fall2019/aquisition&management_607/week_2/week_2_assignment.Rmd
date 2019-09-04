@@ -1,0 +1,55 @@
+---
+title: "607_week_2_assignment"
+author: "Salma Elshahawy"
+date: "9/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## SQL and R 
+
+In this report, a basic survey was performed to rate the most recent top Box Office movies. The sample taken is six-6 movies from different Genres. The basic survey taken from friends and family members. 
+
+#### Technologies used: 
+  1. PostgeSQL Database.
+  2. PgAdmin 4 software to create/execute sql scripts.
+  3. RPostgreSQL pakage for database connection.
+  4. KableExtra for styling the output tables.
+
+### First step: Connect DB - PostgreSQL to RStudio.
+
+```{r}
+#Connect postgresql db to Rstudio
+require("RPostgreSQL")
+
+pw <- {
+  "yahia2010"
+}
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname = "movies_rating",
+                 host = "localhost",
+                 port = 5432,
+                 user = "postgres",
+                 pw)
+# clearing the pw 
+rm(pw)
+dbExistsTable(con, "movie_rating")
+
+```
+
+
+```{r}
+library(kableExtra)
+
+movie_rating_df = read.csv("/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_2/movie_rating", header = TRUE) 
+
+movie_rating_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+```{r}
+dim(movie_rating_df)
+```
+

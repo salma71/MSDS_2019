@@ -1,0 +1,147 @@
+---
+title: "606_week_1_Lab"
+author: "Salma Elshahawy"
+date: "8/31/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction to R and RStudio
+
+
+```{r}
+arbuthnot = read.table("arbuthnot.dat", header = TRUE)
+arbuthnot
+dim(arbuthnot)
+names(arbuthnot)
+arbuthnot$boys
+```
+### What command would you use to extract just the counts of girls baptized? Try it!
+
+```{r}
+arbuthnot$girls
+```
+
+```{r}
+plot(x = arbuthnot$year, y = arbuthnot$girls)
+```
+
+```{r}
+plot(x = arbuthnot$year, y = arbuthnot$girls, type = "l")
+```
+```{r}
+?plot
+```
+
+### Is there an apparent trend in the number of girls baptized over the years? How would you describe it?
+
+Yes, the number of girls baptized increased significantly from year 1660 to 1700 from 3000 to more than 7000 girls per year. 
+
+```{r}
+5218 + 4683
+```
+```{r}
+arbuthnot$boys + arbuthnot$girls
+```
+
+```{r}
+plot(arbuthnot$year, arbuthnot$boys + arbuthnot$girls, type = "l")
+```
+
+```{r}
+5218 / 4683
+```
+
+```{r}
+arbuthnot$boys / arbuthnot$girls
+```
+
+```{r}
+arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls)
+```
+
+### Now, make a plot of the proportion of boys over time. What do you see? Tip: If you use the up and down arrow keys, you can scroll through your previous commands, your so-called command history. You can also access it by clicking on the history tab in the upper right panel. This will save you a lot of typing in the future.
+
+```{r}
+plot(arbuthnot$year, arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls), type = "l")
+```
+### Observation:- 
+The propotion of the number of boys increased during year 1660 - about 0.535. However, the propotion seems to be uniiform ranging from 0.505 and 0.535.  
+
+### On Your Own
+1. What years are included in this data set? What are the dimensions of the data frame and what are the variable or column names?
+```{r}
+source("/Users/salmaelshahawy/desktop/MSDS_2019/Fall2019/statistics_606/week_1/lab_1/DATA606-master/data/present.R")
+("data/present.R")
+```
+
+```{r}
+present$year
+```
+
+```{r}
+dim(present)
+```
+
+```{r}
+names(present)
+
+```
+
+2. How do these counts compare to Arbuthnot’s? Are they on a similar scale?
+
+```{r}
+range(present$year)
+```
+
+```{r}
+range(arbuthnot$year)
+```
+
+```{r}
+dim(present)
+```
+
+```{r}
+dim(arbuthnot)
+```
+
+```{r}
+names(present)
+```
+
+```{r}
+names(arbuthnot)
+
+```
+
+Only the variable names are on a similar scale. Both the dimensions and the years are not on the same scale. Present’s data is newer and smaller dimension-wise than Arbuthnot’s.
+
+3. Make a plot that displays the boy-to-girl ratio for every year in the data set. What   do you see? Does Arbuthnot’s observation about boys being born in greater proportion   than girls hold up in the U.S.? Plot included.
+
+```{r}
+sex_prop = present$boys/present$girls
+plot(present$year, sex_prop, type = "l")
+```
+
+#### Arbuthnot’s observation seems to hold for the mid 1940s; however even that proportion of (at its highest 1.058) between 1940 and 1950 it overall decreases as the years pass to reach to the lowest point on 2000 on 1.046 sex_prop.
+
+4. In what year did we see the most total number of births in the U.S.?
+
+```{r}
+total_birth = present$boys+ present$girls
+pres_df = matrix(c(present$year,total_birth), ncol = 2, byrow = F)
+colnames(pres_df) = c("Year", "Births")
+head(as.table(pres_df))
+```
+
+```{r}
+x = row(pres_df)[pres_df == max(pres_df)]
+pres_df[x,]
+```
+At yeat 1961

@@ -1,0 +1,16 @@
+CREATE TABLE Movie_rating (
+	movie_name varchar(225),
+	movie_year text,
+	movie_rating integer
+);
+
+INSERT INTO movie_rating (movie_name, movie_year, movie_rating)
+VALUES 
+('Angel Has Fallen', '2019', 5),
+('Good Boys', '2019', 3),
+('The Lion King', '2019', 5),
+('Overcommer', '2019', 1),
+('Spider-Man: Far From Home', '2019', 5),
+('The Angry Birds Movie 2', '2019', 4);
+
+select * from movie_rating;

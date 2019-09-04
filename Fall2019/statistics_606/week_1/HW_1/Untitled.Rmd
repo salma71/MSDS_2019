@@ -1,0 +1,59 @@
+---
+title: "606_Homework_week_1"
+author: "Salma Elshahawy"
+date: "8/31/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 1 - Introduction to Data
+
+### Smoking habits of UK residents.
+
+#### a. What does each row of the data matrix represent? 
+
+Each row represents:
+* index, counting the persons taken the survey,
+* sex of the person, 
+* age,
+* marital status, 
+* Gross income,
+* If the surveyed person is either smoking or not,
+* amount of cigarettes per day during weekends,
+* amount of cigarettes per day during weekdays.
+
+#### b. How many participants were included in the survey? 
+
+According to the collected sample, about 1691 persons.
+
+#### c. Indicate wether each variable in the study is numerical or categorical. If numerical, identify as continuous or discrete. If catergorical, indicate if the variable is ordinal. 
+
+variable name | type of the variable | type 2
+------------- | -------------------- | -------------
+index         | numerical            | continuous
+sex           | categorical          | regular
+age           | Numerical            | discrete
+marital       | categorical          | ordinal
+grossIncome   | categorical          | ordinal
+smoke         | categorical          | regular
+amtWeekends   | numerical            | discrete
+amtWeekdays   | numerical            | discrete
+
+_______________________________________________________________________________________________________
+### Cheaters, scope of inference.
+
+#### a. Identify the population of interest and the sample in this study. 
+
+The population is all the children - 160 child, between age 5 to 15 years old
+
+#### b. Comment on wether or not the results of the study can be generalized to the population, and if the findings of the study can be used to establish causal relationships. 
+This study can't be generalized because the region of those children is unkown. 
+
+Yes, this study can be used to establish causal relationships. 
+
+_______________________________________________________________________________________________________
+
+

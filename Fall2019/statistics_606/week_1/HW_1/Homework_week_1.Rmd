@@ -1,0 +1,96 @@
+---
+title: "606_Homework_week_1"
+author: "Salma Elshahawy"
+date: "8/31/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 1 - Introduction to Data
+
+### Smoking habits of UK residents.
+
+#### a. What does each row of the data matrix represent? 
+
+Each row represents:
+* index, counting the persons taken the survey,
+* sex of the person, 
+* age,
+* marital status, 
+* Gross income,
+* If the surveyed person is either smoking or not,
+* amount of cigarettes per day during weekends,
+* amount of cigarettes per day during weekdays.
+
+#### b. How many participants were included in the survey? 
+
+According to the collected sample, about 1691 persons.
+
+#### c. Indicate wether each variable in the study is numerical or categorical. If numerical, identify as continuous or discrete. If catergorical, indicate if the variable is ordinal. 
+
+variable name | type of the variable | type 2
+------------- | -------------------- | -------------
+index         | numerical            | continuous
+sex           | categorical          | regular
+age           | Numerical            | discrete
+marital       | categorical          | ordinal
+grossIncome   | categorical          | ordinal
+smoke         | categorical          | regular
+amtWeekends   | numerical            | discrete
+amtWeekdays   | numerical            | discrete
+
+_______________________________________________________________________________________________________
+### Cheaters, scope of inference.
+
+#### a. Identify the population of interest and the sample in this study. 
+
+The population is all the children - 160 child, between age 5 to 15 years old
+
+#### b. Comment on wether or not the results of the study can be generalized to the population, and if the findings of the study can be used to establish causal relationships. 
+
+If the children in this sample, who are likely not randomly sampled, can be considered to be representative of all children aged 5-15, then the results are generalizable to the population. Additionally, since the study is experimental, the findings can be used to establish causal relationships.
+ 
+_______________________________________________________________________________________________________
+### Reading the paper
+
+#### a. Based on this study, can we conclude that smoking causes dementia later in life? Explain your reasoning.
+
+No, as this study is observational, and it was a voluntary survey which mean that it could be biased. To determine causal connection, an experiment should be done. 
+
+#### b. A friend of yours who read the article says, “The study shows that sleep disorders lead to bullying in school children.” Is this statement justified? If not, how best can you describe the conclusion that can be drawn from this study?
+
+No! I would say that the study shows there is an association between sleep disorders and bullying but it does not prove one is caused by the other. 
+
+_______________________________________________________________________________________________________
+### Exercise and mental health
+
+#### a. What type of study is this?
+
+Randomly expermintal study.
+
+#### b. What are the treatment and control groups in this study?
+
+The treatment group is the participants who received instructions to exercise.
+
+The control group is the group of participants who instructed not to exercise.
+
+#### c. Does this study make use of blocking? If so, what is the blocking variable?
+
+Yes, age 
+
+#### d. Does this study make use of blinding?
+
+No, the control group knows who they are.
+
+#### e. Comment on whether or not the results of the study can be used to establish a causal relationship between exercise and mental health, and indicate whether or not the conclusions can be generalized to the population at large.
+
+This is an experimental study. It can be used to find out the causal relationship. The study can be generalized to the population if the sample size is large enough.
+
+#### f. Suppose you are given the task of determining if this proposed study should get funding. Would you have any reservations about the study proposal?
+
+I would recomend to give instructions to the control group to get more data. Also, I would recommend to make the sample more bigger. 

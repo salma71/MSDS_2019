@@ -1,0 +1,16 @@
+Package: DATA606
+Type: Package
+Title: DATA606 Statistics and Probability for Data Analytics
+Version: 0.2
+Date: 2017-08-29
+Author: Jason Bryer
+Maintainer: Jason Bryer <jason@bryer.org>
+Description: Package to support CUNY DATA606 Statistics and Probability for
+    Analytics course.
+License: Creative Commons
+LazyData: TRUE
+Depends: shiny, openintro, OIdata, ggplot2, markdown
+Suggests:
+    R.rsp, grid, png, scales, BHH2, gridExtra, plotrix, shinythemes, tidyr, dplyr, reshape2, readxl, knitr
+VignetteBuilder: R.rsp
+RoxygenNote: 6.1.1
