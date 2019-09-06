@@ -11,6 +11,8 @@ VALUES
 ('The Lion King', '2019', 5),
 ('Overcommer', '2019', 1),
 ('Spider-Man: Far From Home', '2019', 5),
-('The Angry Birds Movie 2', '2019', 4);
+('The Angry Birds Movie 2', '2019', 4),
+('Brain On Fire', '2019', NULL),
+('Brain On Fire', '2019', NULL);
 
 select * from movie_rating;

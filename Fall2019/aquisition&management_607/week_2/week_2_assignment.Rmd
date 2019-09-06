@@ -18,6 +18,9 @@ In this report, a basic survey was performed to rate the most recent top Box Off
   3. RPostgreSQL pakage for database connection.
   4. KableExtra for styling the output tables.
 
+#### The table was created and filled with data using PgAdmin software, the SQL script is attached to this assignment on the blackboard portal. 
+______________________________________________________________
+
 ### First step: Connect DB - PostgreSQL to RStudio.
 
 ```{r}
@@ -35,6 +38,7 @@ con <- dbConnect(drv, dbname = "movies_rating",
                  pw)
 # clearing the pw 
 rm(pw)
+#check if the database is connected
 dbExistsTable(con, "movie_rating")
 
 ```
@@ -43,13 +47,44 @@ dbExistsTable(con, "movie_rating")
 ```{r}
 library(kableExtra)
 
-movie_rating_df = read.csv("/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_2/movie_rating", header = TRUE) 
+# return the table 
+dtab = dbGetQuery(con, "select * from movie_rating")
 
-movie_rating_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+dtab %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
 ```{r}
-dim(movie_rating_df)
+## here we have to clean the data set first before we start to analyise it.
+str(dtab)
+```
+
+```{r}
+#The results of complete.cases() is a logical vector with the value TRUE for rows that are complete, and FALSE for rows that have some NA values. To remove the rows with missing data
+complete.cases(dtab)
+```
+
+
+```{r}
+# Here we delete the last two rows from the dataset
+#clean_data <- dtab[complete.cases(dtab), ]
+#str(clean_data)
+
+## we can use na.omit() function to omit all rows that contain NA values
+clean_data <- na.omit(dtab)
+clean_data  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+```{r}
+## Building a dotplot graph to illustrate the data
+require(ggplot2)
+ggplot(clean_data, aes(x = movie_rating, y = movie_name)) + geom_boxplot() + theme_bw()
+```
+
+```{r}
+# close the connection
+dbDisconnect(con)
+
 ```
 
