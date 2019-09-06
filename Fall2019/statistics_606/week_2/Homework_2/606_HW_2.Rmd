@@ -1,0 +1,141 @@
+---
+title: "606_HW_2"
+author: "Salma Elshahawy"
+date: "9/5/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter_2 - Summarizing Data
+
+### 1. Create a box plot of the distribution of these scores. The five number summary provided below may be useful.
+
+```{r}
+library(ggplot2)
+student_df <- data.frame("SN" = 1:20,"score" = c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 88, 89, 94), stringsAsFactors = FALSE)
+(student_df)
+```
+#### Drawing boxplot 
+```{r}
+b <- boxplot(student_df$score, main = "Mean score for students in probability class", xlab = "student's score", ylab = "student", col = "blue", border = "red", horizontal = TRUE, notch = TRUE)
+
+```
+
+
+#### Pulling out the boxplot data to compare with the given summary
+```{r}
+b
+```
+From the observation we can conclude that: 
+1. Q1 = 72.5
+2. Q2(median) = 78.5
+3. Q3 = 82.5
+4. Max = 94
+5. Min = 66 
+
+Outlaier point is 57 with index(1) in the dataframe.
+
+_________________________________________________________________
+
+### 2. Mix-and-match: Describe the distribution in the histograms below and match them to the box plots.
+
+a. ![normal distribution](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/normal_distribution.png)
+
+This graph has a symmetric, __single-peaked(unimodal)__ distribution where the histogram forms an approximate mirror imagewith respect to the center of the distribution. 
+
+
+This histogram is match with boxplot number #2 
+
+![boxplot matching_2](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/boxplot_2.png)
+
+b. ![uniform distribution](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/uniform_distribution.png)
+
+This graph has a symmetric, bimodal __uniform__ distribution.
+
+![boxplot matching_3](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/boxplot_3.png)
+
+c. ![skewed-right distribution](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/skright_distribution.png)
+
+This graph is __skewed-right__ distribution.
+
+![boxplot matching_1](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_2/Homework_2/boxplot_1.png)
+
+
+### Distributions and appropriate statistics, Part II
+
+#### a. Housing prices in a country where 25% of the houses cost below $350,000, 50% of the houses cost below $450,000, 75% of the houses cost below $1,000,000 and there are a meaningful number of houses that cost more than $6,000,000.
+
+__Skewed-Left__ Distribution, mean < median. The distribution of house prices are likely left skewed as there is a natural boundary at 0 and meaningful number of houses cost more than $6M. Therefore the center would be best described by the median, and variability would be best described by the IQR.
+
+#### b. Housing prices in a country where 25% of the houses cost below $300,000, 50% of the houses cost below $600,000, 75% of the houses cost below $900,000 and very few houses that cost more than $1,200,000.
+
+__Skewed-Right__ Distribution. The distribution of house prices are likely right skewed as there is a natural boundary at 0 and only a few number of houses cost more than $1.2M. Therefore the center would be best described by the median, and variability would be best described by the IQR.
+
+#### c. Number of alcoholic drinks consumed by college students in a given week. Assume that most of these students don’t drink since they are under 21 years old, and only a few drink excessively.
+
+The distribution of number of alcoholic drinks consumed is likely __right skewed__ as there is a natural boundary at 0 and only a few drinks are allowed. Therefore the center would be best described by the median, and variability would be best described by the IQR.
+
+#### d. Annual salaries of the employees at a Fortune 500 company where only a few high level executives earn much higher salaries than the all other employees.
+
+The distribution of annual salaries are likely __left skewed__ as there is a natural boundary at 0 and only a few people have much higher salaries. Therefore the center would be best described by the median, and variability would be best described by the IQR. The IQR is a much better measure of variability in the amounts earned by nearly all of employees. The standard deviation gets affected greatly by the two high salaries, but the IQR is robust to these extreme observations.
+
+_________________________________________________________________
+
+### Heart transplants:
+
+#### a. Based on the mosaic plot, is survival independent of whether or not the patient got a transplant? Explain your reasoning.
+
+The variables survival time and transplant are not independent. The difference in the survival time between who got transplant or not was not due to chance, and heart transplant affected the rate of survival time.
+
+#### b. What do the box plots below suggest about the efficacy (effectiveness) of the heart transplant treatment.
+
+It suggestes that the median survival time for patient who had treatment is much higher than median for the control group. In addition, the max survival time for patients who had treatment is over 1500 days compared to the control group who lived around 100 days without treatment.
+
+#### c. What proportion of patients in the treatment group and what proportion of patients in the control group died?
+
+```{r}
+#propotion of patients died in thetreatment group
+prop_treat = 45/69
+prop_treat
+```
+```{r}
+prop_cont = 30/34
+prop_cont
+```
+#### d. One approach for investigating whether or not the treatment is effective is to use a randomization technique.
+  
+  __i. What are the claims being tested?__
+  
+Heart transplant increase lifespan
+
+___________________________________________________________________________
+
+  ii. We write alive on ___28___ cards representing patients who were alive at the end of the study, and dead on ___75___ cards representing patients who were not. Then, we shuffle these cards and split them into two groups: one group of size ___69____ representing treatment, and another group of size ___34___ representing control. We calculate the difference between the proportion of dead cards in the treatment and control groups (treatment - control) and record this value. We repeat this 100 times to build a distribution centered at ___around 0___. Lastly, we calculate the fraction of simulations where the simulated differences in proportions are __due to chance__. If this fraction is low, we conclude that it is unlikely to have observed such an outcome by chance and that the null hypothesis should be rejected in favor of the alternative.
+
+___________________________________________________________________________
+
+  __iii. What do the simulation results shown below suggest about the effectiveness of the transplant program?__
+  
+  We can conclude that the data provide strong evidence that the transplant provides a longer lifespan in this clinical setting.
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
