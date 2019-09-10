@@ -1,0 +1,170 @@
+---
+title: "week_3_assignment_607"
+author: "Salma Elshahawy"
+date: "9/10/2019"
+output:
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: lumen
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Chapter_8 :Automated Data Collection in R
+
+## Problem_3
+
+Copy the introductory example. The vector name stores the extracted names.
+
+```{r}
+#R> name
+     #[1] "Moe Szyslak"       "Burns, C. Montgomery" "Rev. Timothy Lovejoy"
+     #[4] "Ned Flanders"      "Simpson, Homer"       "Dr. Julius Hibbert"
+```
+
+##### a. Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+
+```{r}
+# we create a variable to store the raw data given in the problem
+library(stringr)
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+raw.data
+```
+
+```{r}
+# 1. we need to extract the alphabetic characters, we use [[:alpha:]., ]
+# 2. we add a qualifier to impose the restriction that contents of the character class have to be matched at least twice to be considered a match. 
+names <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+names
+```
+
+```{r}
+# check if names is df
+is.data.frame(names)
+```
+
+```{r}
+# convert names to dataframe vector
+require(devtools)
+library(kableExtra)
+
+names_df <- as.data.frame(names)
+names_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+```{r}
+# loop over the vector elements and if the the name contains ',' then make the first last and vise versa else keep the the string the same
+splits <- str_split_fixed(names_df$names, ",", 2)
+
+splits
+
+```
+
+```{r}
+# rejoin the 2 columns to get proper names
+names_df <- paste(splits[,2], splits[,1], sep = ' ')
+names_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+##### b. Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+
+```{r}
+# I used the built in function within stringr package str_detect witha a regex pattern to detect the title.
+
+has_title <- str_detect(names_df, "^\\s[A-Za-z]{2,3}\\W+\\B\\s")
+has_title
+```
+
+##### c. Construct a logical vector indicating whether a character has a second name.
+
+```{r}
+# I used the same built in function to see if there is a match for S. name pattern using regex
+has_second_name <- str_detect(names_df, "[A-Z]{1}\\.\\s")
+has_second_name
+```
+
+## Problem_4 
+
+Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+##### a. "[0-9]+\\$" 
+- type: This is a numeric type \n
+- from 0 to 9 match any charcter, case  sensitive \n
+- the + sign is the quantifier means match one or more from the preceding token.\n
+- the \$ the excape character match $ sign.\n
+- example: 500$\n
+
+##### b. "\\b[a-z]{1,4}\\b"
+- type: This is a alphabetic type \n 
+- "b" means that this is the word boundry \n
+- "[a-z]" alphabetic characters from a to z \n
+- "{1,4}" the qualifier match one to 4 times of the preceding token \n
+- example: "bees" and "sara" \n
+
+##### c. ".*?\\.txt$"
+
+- type: Mixed with numeric, alphabetic, and special characters - more general pattern \n
+- "." matches any char except the line breaks \n
+- "*" the quantifier matches 0 or more from the preceding token. \n
+- "?" lazy token makes the preceding quantifier lazy - matching as few chars as possible. \n
+- "txt" match exactly 3 chars t, x, and t following the same order. \n
+- "$" end of the string or end of the line. \n 
+- example: " c.txt", "a.txt", "        a.txt" \n
+
+##### d. "\\d{2}/\\d{2}/\\d{4}"
+
+- type: This a numeric characters - most likely only integers of 7 digits \n
+- "d" matches any digit \n
+- "{2}" the quantifier matches 2 from the preceding token. \n
+- "{4}" the quantifier matches 4 from the preceding token. \n
+- example: "23984560" and "20708090" \n
+
+##### e. "<(.+?)>.+?</\\1>"
+
+- type: This a mixed type numeric alphabetic characters - most likely used for selecting DOM(HTML) tags
+- "<" matches the char of < \n
+- "()" means a group of regex. \n
+- "." matches any char except line break. \n
+- "+" is the quantifier means match one or more from the preceding token.\n
+- "?" lazy token makes the preceding quantifier lazy - matching as few chars as possible. \n
+- ">" matches the char of >
+- example: an HTML tag "<a>hi<a>" and "< a>hi< a>" \n
+
+## Problem_9
+
+The following code hides a secret message. Crack it with R and regular expressions. Hint: Some of the characters are more revealing than others! 
+
+> clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+     Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+     d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+     fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+     
+```{r}
+secret_msg = "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+     Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+     d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+     fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+# First, I extracted all the upper case letters from the text and the dots
+msg <- str_extract_all(secret_msg, "[[:upper:][:punct:]]{1,}")
+# converting the string into a vector of chars
+msg_df <- unlist(msg)
+msg_df
+# concatenate all the chars with each other
+msg_df <- str_c(msg_df, collapse = "")
+# replace all the dots with white spaces
+msg <- str_replace_all(msg_df, "\\.", " ")
+msg
+
+```
+
+
