@@ -3028,7 +3028,7 @@ Dr. Julius Hibbert
 </tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># loop over the vector elements and if the the name contains ',' then make the first last and vise versa else keep the the string the same</span></a>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># split the name into 2 columns on , character</span></a>
 <a class="sourceLine" id="cb12-2" data-line-number="2">splits &lt;-<span class="st"> </span><span class="kw">str_split_fixed</span>(names_df<span class="op">$</span>names, <span class="st">&quot;,&quot;</span>, <span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb12-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb12-4" data-line-number="4">splits</a></code></pre></div>
@@ -3039,7 +3039,7 @@ Dr. Julius Hibbert
 ## [4,] &quot;Ned Flanders&quot;         &quot;&quot;              
 ## [5,] &quot;Simpson&quot;              &quot; Homer&quot;        
 ## [6,] &quot;Dr. Julius Hibbert&quot;   &quot;&quot;</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co"># rejoin the 2 columns to get proper names</span></a>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co"># rejoin the 2 columns to get proper names plus reverse the order of the columns to get proper first and last name</span></a>
 <a class="sourceLine" id="cb14-2" data-line-number="2">names_df &lt;-<span class="st"> </span><span class="kw">paste</span>(splits[,<span class="dv">2</span>], splits[,<span class="dv">1</span>], <span class="dt">sep =</span> <span class="st">' '</span>)</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3">names_df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">scroll_box</span>(<span class="dt">width=</span><span class="st">&quot;100%&quot;</span>,<span class="dt">height=</span><span class="st">&quot;300px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:300px; overflow-x: scroll; width:100%; ">
@@ -3088,7 +3088,7 @@ Dr. Julius Hibbert
 </div>
 <div id="b.-construct-a-logical-vector-indicating-whether-a-character-has-a-title-i.e.-rev.and-dr.." class="section level5">
 <h5>b. Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).</h5>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># I used the built in function within stringr package str_detect witha a regex pattern to detect the title.</span></a>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># I used the built-in function within stringr package str_detect with a regex pattern to detect the title.</span></a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb15-3" data-line-number="3">has_title &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names_df, <span class="st">&quot;^</span><span class="ch">\\</span><span class="st">s[A-Za-z]{2,3}</span><span class="ch">\\</span><span class="st">W+</span><span class="ch">\\</span><span class="st">B</span><span class="ch">\\</span><span class="st">s&quot;</span>)</a>
 <a class="sourceLine" id="cb15-4" data-line-number="4">has_title</a></code></pre></div>
@@ -3097,8 +3097,9 @@ Dr. Julius Hibbert
 <div id="c.-construct-a-logical-vector-indicating-whether-a-character-has-a-second-name." class="section level5">
 <h5>c. Construct a logical vector indicating whether a character has a second name.</h5>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="co"># I used the same built in function to see if there is a match for S. name pattern using regex</span></a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">has_second_name &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names_df, <span class="st">&quot;[A-Z]{1}</span><span class="ch">\\</span><span class="st">.</span><span class="ch">\\</span><span class="st">s&quot;</span>)</a>
-<a class="sourceLine" id="cb17-3" data-line-number="3">has_second_name</a></code></pre></div>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co"># if the name has second name it should follow the pattern of C. The name</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">has_second_name &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names_df, <span class="st">&quot;[A-Z]{1}</span><span class="ch">\\</span><span class="st">.</span><span class="ch">\\</span><span class="st">s&quot;</span>)</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">has_second_name</a></code></pre></div>
 <pre><code>## [1] FALSE  TRUE FALSE FALSE FALSE FALSE</code></pre>
 </div>
 </div>

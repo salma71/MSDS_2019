@@ -63,7 +63,7 @@ names_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover",
 ```
 
 ```{r}
-# loop over the vector elements and if the the name contains ',' then make the first last and vise versa else keep the the string the same
+# split the name into 2 columns on , character
 splits <- str_split_fixed(names_df$names, ",", 2)
 
 splits
@@ -71,7 +71,7 @@ splits
 ```
 
 ```{r}
-# rejoin the 2 columns to get proper names
+# rejoin the 2 columns to get proper names plus reverse the order of the columns to get proper first and last name
 names_df <- paste(splits[,2], splits[,1], sep = ' ')
 names_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
@@ -79,7 +79,7 @@ names_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover",
 ##### b. Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
 
 ```{r}
-# I used the built in function within stringr package str_detect witha a regex pattern to detect the title.
+# I used the built-in function within stringr package str_detect with a regex pattern to detect the title.
 
 has_title <- str_detect(names_df, "^\\s[A-Za-z]{2,3}\\W+\\B\\s")
 has_title
@@ -89,6 +89,7 @@ has_title
 
 ```{r}
 # I used the same built in function to see if there is a match for S. name pattern using regex
+# if the name has second name it should follow the pattern of C. The name
 has_second_name <- str_detect(names_df, "[A-Z]{1}\\.\\s")
 has_second_name
 ```
