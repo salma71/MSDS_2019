@@ -85,10 +85,12 @@ draw.pairwise.venn(area1 = 0.146, area2 = 0.207, cross.area = 0.042, category = 
 100 - 31.1
 ```
 
+
 ### (f) Is the event that someone lives below the poverty line independent of the event that the person speaks a foreign language at home?
 
 ```{r}
-# If A and B represent events from two different and independent processes, then the probability that both A and B occur can be calculated as the product of their separate probabilities:
+# If A and B represent events from two different and independent processes, then the 
+# probability that both A and B occur can be calculated as the product of their separate probabilities:
 
 # P (A and B) = P (A) × P (B)
 # P(below poverty line & speaks foriegn language)
@@ -97,13 +99,16 @@ draw.pairwise.venn(area1 = 0.146, area2 = 0.207, cross.area = 0.042, category = 
 ```
 since the two side have different values, so they are not independent. 
 
+
 _____________________________
 
 ## Assortative mating.
 
+
 Assortative mating is a nonrandom mating pattern where individuals with similar genotypes and/or phenotypes mate with one another more frequently than what would be expected under a random mating pattern. Researchers studying this topic collected data on eye colors of 204 Scandinavian men and their female partners. The table below summarizes the results. For simplicity, we only include heterosexual relationships in this exercise.
 
 ![table](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/statistics_606/week_3/Homework_3/table.png)
+
 
 ### (a) What is the probability that a randomly chosen male respondent or his partner has blue eyes?
 
