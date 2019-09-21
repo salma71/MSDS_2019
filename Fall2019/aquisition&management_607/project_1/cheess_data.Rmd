@@ -2,8 +2,17 @@
 title: "Project_1_607"
 author: "Salma Elshahawy"
 date: "9/16/2019"
-output: html_document
-
+output:
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -50,7 +59,6 @@ I decided to put a plan how do I will handle, analyze the data given. This plan 
 7. Get the opponents pre-rating year for each player 
 8. Calculate the average pre-rating for all opponents pre-rating for each player.
 9. Explore the final dataframe and write the table to a csv file.
-10. Refactor repeatitive code into functions, Make a **DRY code**
 10. Do analysis to the defined model and get conclusion.
 
 
@@ -81,10 +89,11 @@ head(tourn) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hove
 is.data.frame(tourn)
 ```
 
-As shown in the output, the table has many issues need to be handle first before analysing: 
-  * The table has (-) needs to be removed
-  * Has an empty rows
-  * The data of each player is devided into two rows. 
+
+1. As shown in the output, the table has many issues need to be handle first before analysing: 
+  + The table has (-) needs to be removed
+  + Has an empty rows
+  + The data of each player is devided into two rows. 
 
 ```{r}
 # remove the ---- using str_remove_all with a regex pattern
@@ -101,7 +110,7 @@ tourn_2 <- data.frame(tourn_2[!apply(tourn_2 == "", 1, all),])
 tourn_2 %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
-Now to the hard part, the target is to loop over the **tourn_2** and merge every two consecutive rows into one single row. To acheive that approach, I initialized an empty dataframe and store it into a variable called **new_table**. After that, let the for-loop iterate over the dataframe dimension of **6 X 1**, if the row number is odd, then seperate into two parts. Finally push them into the **New_table** dataframe. 
+##### Now to the hard part, the target is to loop over the **tourn_2** and merge every two consecutive rows into one single row. To acheive that approach, I initialized an empty dataframe and store it into a variable called **new_table**. After that, let the for-loop iterate over the dataframe dimension of **6 X 1**, if the row number is odd, then seperate into two parts. Finally push them into the **New_table** dataframe. 
 
 ```{r}
 # Need to define an empty new_dataframe
@@ -116,7 +125,7 @@ for (i in 1:dim(tourn_2)[1]){
     new_table <- rbind(new_table, binded)
   } 
 }
-head(new_table) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="120%",height="300px")
+head(new_table) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
 ```{r}
@@ -125,30 +134,33 @@ is.data.frame(new_table)
 ```
 
 
-Next step, we need to chop this long column into multiple columns, each column represents piece of data. For this purpose, I used built in method within tidyverse library called separate() which takes three arguments which are dataframe, the column that needs to be chopped, new columns names, and finally the separator where the split should be done. For this case, I wanted t split on the "|". 
+##### Next step, we need to chop this long column into multiple columns, each column represents piece of data. For this purpose, I used built in method within tidyverse library called separate() which takes three arguments which are dataframe, the column that needs to be chopped, new columns names, and finally the separator where the split should be done. For this case, I wanted t split on the "|". 
 
-For the columns names, I put it into a vector and stored it in a variable called "into"
+#### For the columns names, I put it into a vector and stored it in a variable called "into"
+
 ```{r}
 into <- c("Pair", "Player Name","Total","Round","Round.1","Round.2","Round.3","Round.4","Round.5","Round.6","State","USCF ID / Rtg (Pre>Post)","Pts","1","2", "3","4","5","6", "7")
 splitted_df <- separate(new_table, Binded, into, sep = "\\|")
-splitted_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+splitted_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
 ```{r}
 colnames(splitted_df)
 ```
-Now the data has been successfully splitted into **21** columns. However, the first row is a duplicated header. In this case, this row can be deleted. 
+
+##### Now the data has been successfully splitted into **21** columns. However, the first row is a duplicated header. In this case, this row can be deleted. 
+
 ```{r}
 clean_df <- splitted_df[-c(1),]
-clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
 ```{r}
 colnames(clean_df)
 ```
 
-Now, we need to split the **clean_df** again at column **"USCF ID / Rtg (Pre>Post)"** to get pre and post rating columns to get the average as required at the beginning of the aasignment. To do so, I used Regex patterns to remove punctuations and generate three different columns for USCF ID, Pre, and Post rating using tidyverse method **separate()**. 
+##### Now, we need to split the **clean_df** again at column **"USCF ID / Rtg (Pre>Post)"** to get pre and post rating columns to get the average as required at the beginning of the aasignment. To do so, I used Regex patterns to remove punctuations and generate three different columns for USCF ID, Pre, and Post rating using tidyverse method **separate()**. 
 
 
 ```{r}
@@ -167,10 +179,10 @@ rtg_df <- separate(rtg_df, years, header_name, sep = " ")
 rtg_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
-Now we need to merge those three columns into the main dataframe **clean_df**. Before doing the merge, we need to drop the "USCF ID / Rtg (Pre>Post)" column from **clean_df** then merge. 
+##### Now we need to merge those three columns into the main dataframe **clean_df**. Before doing the merge, we need to drop the "USCF ID / Rtg (Pre>Post)" column from **clean_df** then merge. 
 
 ```{r}
-clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
 ```{r}
@@ -181,15 +193,15 @@ colnames(clean_df)
 ```{r}
 # delete column 12
 drop_uncleandata <- clean_df[,-c(12)]
-drop_uncleandata %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+drop_uncleandata %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
-Merge the new three columns into **drop_uncleandata** 
+* Merge the new three columns into **drop_uncleandata** 
 
 ```{r}
 tournament_df <- cbind(drop_uncleandata, rtg_df)
-tournament_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+tournament_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
  
 ```{r}
@@ -200,16 +212,16 @@ colnames(tournament_df)
 ```{r}
 #re-order the columns name 
 ordered_tournament_df <- tournament_df[c(1,2,11,3,21,22,12,4,5,6,7,8,9,10,13,14,14,16,17,18,19,20)]
-ordered_tournament_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="150%",height="300px")
+ordered_tournament_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
-It is better to take a subset from the data to focus on it and make plausible analysis into it. So, I took a subset from column 1 to column 7. Then, I add a new column for average initialized with 0 value - this will be the calculated average pre-rating for each player. 
+##### It is better to take a subset from the data to focus on it and make plausible analysis into it. So, I took a subset from column 1 to column 7. Then, I add a new column for average initialized with 0 value - this will be the calculated average pre-rating for each player. 
 
 ```{r}
 final_table <- subset(ordered_tournament_df, select = c(1:7))
 head(final_table)  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
-Initialize **avg_rtg** varaible filled with 0 numeric value.
+* Initialize **avg_rtg** varaible filled with 0 numeric value.
 
 ```{r}
 final_table$avg_rtg <- 0
@@ -221,11 +233,11 @@ final_table %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hove
 ```{r}
 #score table - a subset only has pair and player's name
 score_df <- subset(ordered_tournament_df, select = c(1:2))
-score_df
+score_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
-Now, Creating the opponents dataframe, to get number of games, and pre- rating for each player and opponent.
+##### Now, Creating the opponents dataframe, to get number of games, and pre- rating for each player and opponent.
 
 ```{r}
 opponent1 <- data.frame(as.numeric(str_extract_all(ordered_tournament_df$`Round`,"[[:digit:]]{1,}")))
@@ -250,7 +262,7 @@ names(opponents) <- c("Pair","Player Name","Opp 1","Opp 2","Opp 3","Opp 4","Opp 
 opponents  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
-More cleaning up - NA -> 0 value.
+* More cleaning up - NA -> 0 value.
 
 ```{r}
 # Eliminating NA Cases in order to continue with our calculations, NA replaced by 0.
@@ -259,7 +271,8 @@ opponents[is.na(opponents)] <- as.numeric(0)
 opponents  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
-Merging **final_df** with the opponents 
+* Merging **final_df** with the opponents 
+
 ```{r}
 final_df <- merge(final_table, opponents)
 
@@ -267,7 +280,8 @@ final_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover",
 
 
 ```
-Calculating the average pre-rating for each player. Construct a for-loop to iterate over the dataframe and if the value of the opponent is equal to any pair number in the df then calculate the average value. 
+
+##### Calculating the average pre-rating for each player. Construct a for-loop to iterate over the dataframe and if the value of the opponent is equal to any pair number in the df then calculate the average value. 
 
 ```{r}
 # Procedure to calculate Average Pre-Rating for each player
@@ -290,20 +304,23 @@ final_table  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hov
 ```
 ## Making analysis
 
-Need to know the which player has the max average pre-rating compared to his peers aggregated by state. Bar chart are the best in describing that. 
 
-To analyse, I will merge **final_table** with **final_df** in one table to get insight details.
+###### Here Need to know the which player has the max average pre-rating compared to his peers aggregated by state. Bar chart are the best in describing that. 
+
+##### To analyse, I will merge **final_table** with **final_df** in one table to get insight details.
 
 ```{r}
 chess_df <- merge(final_table, final_df, by=c("Pair", "Player Name", "State", "Pre", "Post", "Total", "Pts"))
 colnames(chess_df)
 chess_df[,-c(9:16)]
-chess_df
+chess_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 ```{r}
 summary(chess_df$avg_rtg.x)
 ```
-How many players per state involved at this tournmant. Count observations by group is always a good idea. We can aggregate the the number of occurence with n(). The code below computes the number of Players played by State.
+
+##### How many players per state involved at this tournmant. Count observations by group is always a good idea. We can aggregate the the number of occurence with n(). The code below computes the number of Players played by State.
+
 
 ```{r}
 # count observations
@@ -321,9 +338,9 @@ ggplot(data = data_df,aes(x = State, y = `Pair`)) +
 
 ```
 
-As concluded from the graph that the majority of the players are from **MI** where 85% of players are from there. 
+##### As concluded from the graph that the majority of the players are from **MI** where 85% of players are from there. 
 
-Now, let's check out if **MI** residents plays all rounds. 
+##### Now, let's check out if **MI** residents plays all rounds. 
 
 ```{r}
 chess_df %>% 
@@ -331,9 +348,8 @@ filter(NGames >= 1) %>%
 ggplot(aes(x = State, y = avg_rtg.x, colour = NGames)) +
 geom_point(alpha = 0.6,  position = position_jitter()) + stat_smooth(method = "lm")
 ```
-It shows that the majority of players in the three states played their 7 games. 
 
-Group by **average pre-rating** for each player per **State** to find out each state statistics (mean, median, max, and min)
+#### It shows that the majority of players in the three states played their 7 games. Get the **average pre-rating** for each **State** to find out its statistics (mean, median, max, and min)
 
 ```{r}
 ggplot(chess_df, aes(x = State, y = avg_rtg.x)) +
@@ -346,7 +362,9 @@ ggplot(chess_df, aes(x = State, y = avg_rtg.x)) +
       size = 1
     )
 ```
-As Illustrated, the mean for **ON** state is higher than **MI** state, the max is higher fir **ON** as well; however, the min is nearly the same. From observation, we can exclude **OH** from comparasion because it has only one player and the pre-rating average value is above **1500**.
+
+
+##### As Illustrated, the mean for **ON** state is higher than **MI** state, the max is higher fir **ON** as well; however, the min is nearly the same. From observation, we can exclude **OH** from comparasion because it has only one player and the pre-rating average value is above **1500**.
 
 ```{r}
 chess_df %>%
@@ -360,6 +378,10 @@ As shown in the label graph that although **ON** has less players than **MI**, i
 
 
 Group by **Player Name** and **State** to find out each state statistics (mean, median, max, and min)
+
+## Conclusion and next steps
+
+After getting basic exploring analysis for the chess tournament, we need further information about each player to get more details about the winning factors. For example, have more details about game time for each player, age, education,..etc. 
 
 _________________________________________
 
@@ -375,7 +397,7 @@ colnames(chess_df)
 chess_tournament <- chess_df[, -c(1,5,7,9,10,11,12,13,14,15,16,17)]
 chess_tournament
 names(chess_tournament) <- c("Player’s Name", "Player’s State", "Total Number of Points", "Player’s Pre-Rating", " Average Pre Chess Rating")
-chess_tournament
+chess_tournament  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 ## Export to CSV file 
 
@@ -402,16 +424,15 @@ file_to_open   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "h
 ## Open the file from GitHub account 
 
 ```{r}
-url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/project_1/chess_tournamentinfo.csv'
+chess_tournament_df <-read.csv("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/project_1/chess_tournamentInfo.csv")
 
 # reading the url as a dataframe
-tourn <- read.delim(url, header = FALSE, stringsAsFactors = FALSE)
-head(tourn) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+head(chess_tournament_df)  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
+## Important links
 
-## Conclusion and next steps
+* Final csv file on GitHub: [final csv_file]("https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/project_1/chess_tournamentInfo.csv") 
 
-After getting basic exploring analysis for the chess tournament, we need further information about each player to get more details about the winning factors. For example, have more details about game time for each player, age, education,..etc. 
-
+* The R Markdown file including the R script on GitHub: [final_Rmd file]("https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/project_1/cheess_data.Rmd")
 
