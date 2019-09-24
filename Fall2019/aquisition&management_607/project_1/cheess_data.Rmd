@@ -319,6 +319,8 @@ chess_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover",
 summary(chess_df$avg_rtg.x)
 ```
 
+## Visualizations 
+
 ##### How many players per state involved at this tournmant. Count observations by group is always a good idea. We can aggregate the the number of occurence with n(). The code below computes the number of Players played by State.
 
 

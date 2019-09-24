@@ -1,0 +1,369 @@
+---
+title: "Untitled"
+author: "Salma Elshahawy"
+date: "9/23/2019"
+output:
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Problem statement
+
+The Objective of this task is know what are the most frequent words that Trump used in his speeches. This is the code associated with project_1 presentation for DATA_607 MSDS CUNY University. The full presentation is [here](https://docs.google.com/presentation/d/1sva8rneqBU76zE3Xr8BZI9T7RKZZJg_M0_5On9Tc744/edit?usp=sharing)
+
+## Loading Texts
+
+Start by saving your text files in a folder titled: “texts” This will be the “corpus” (body) of texts you are mining.
+
+Note: The texts used in this example are a few of Donald Trump’s speeches that were copied and pasted into a text document. 
+
+```{r}
+text_name <- file.path("~", "Desktop", "texts")   
+text_name 
+```
+```{r}
+dir(text_name)
+```
+
+Load the R package for text mining and then load your texts into R.
+
+VCorpus in tm refers to "Volatile" corpus which means that the corpus is stored in memory and would be destroyed when the R object containing it is destroyed.
+
+Contrast this with PCorpus or Permanent Corpus which are stored outside the memory say in a db.
+
+In order to create a VCorpus using tm, we need to pass a "Source" object as a paramter to the VCorpus method. You can find the sources available using this method -
+getSources()
+
+I refered to this post on [stackoverflow](https://stats.stackexchange.com/questions/164372/what-is-vectorsource-and-vcorpus-in-tm-text-mining-package-in-r) 
+
+```{r}
+library(tm)
+docs <- VCorpus(DirSource(text_name))   
+summary(docs)  
+```
+
+```{r}
+inspect(docs[1])
+```
+
+```{r}
+writeLines(as.character(docs[1]))
+```
+## Removing the punctuation 
+
+I used tm_map to remove all the puncituations from all the documents in the corpus.
+
+```{r}
+docs <- tm_map(docs,removePunctuation)   
+# writeLines(as.character(docs[1])) # Check to see if it worked.
+    # The 'writeLines()' function is commented out to save space.
+docs
+```
+
+also used regex to remove ASCII characters
+
+
+```{r}
+for (j in seq(docs)) {
+    docs[[j]] <- gsub("/", " ", docs[[j]])
+    docs[[j]] <- gsub("@", " ", docs[[j]])
+    docs[[j]] <- gsub("\\|", " ", docs[[j]])
+    docs[[j]] <- gsub("\u2028", " ", docs[[j]])  # This is an ascii character that did not translate, so it had to be removed.
+}
+#writeLines(as.character(docs[1])) # You can check a document (in this case
+# the first) to see if it worked.
+```
+
+## Removing numbers
+
+```{r}
+docs <- tm_map(docs, removeNumbers)   
+#writeLines(as.character(docs[1])) # Check to see if it worked.
+```
+
+## Converting to lowercase
+
+As before, we want a word to appear exactly the same every time it appears. We therefore change everything to lowercase.
+
+```{r}
+docs <- tm_map(docs, tolower)   
+docs <- tm_map(docs, PlainTextDocument)
+DocsCopy <- docs
+# writeLines(as.character(docs[1])) # Check to see if it worked.
+```
+
+
+## Removing “stopwords” 
+
+(common words) that usually have no analytic value.
+In every text, there are a lot of common, and uninteresting words (a, and, also, the, etc.). Such words are frequent by their nature, and will confound your analysis if they remain in the text.
+
+
+```{r}
+# For a list of the stopwords, see:   
+# length(stopwords("english"))   
+# stopwords("english")   
+docs <- tm_map(docs, removeWords, stopwords("english"))   
+docs <- tm_map(docs, PlainTextDocument)
+# writeLines(as.character(docs[1])) # Check to see if it worked.
+```
+
+```{r}
+docs <- tm_map(docs, removeWords, c("syllogism", "tautology"))   
+# Just remove the words "syllogism" and "tautology". 
+# These words don't actually exist in these texts. But this is how you would remove them if they had.
+```
+
+## Combining words that should stay together
+
+If you wish to preserve a concept is only apparent as a collection of two or more words, then you can combine them or reduce them to a meaningful acronym before you begin the analysis. Here, I am using examples that are particular to qualitative data analysis.
+
+```{r}
+for (j in seq(docs))
+{
+  docs[[j]] <- gsub("fake news", "fake_news", docs[[j]])
+  docs[[j]] <- gsub("inner city", "inner-city", docs[[j]])
+  docs[[j]] <- gsub("politically correct", "politically_correct", docs[[j]])
+}
+docs <- tm_map(docs, PlainTextDocument)
+
+```
+
+## Removing common word endings (e.g., “ing”, “es”, “s”)
+
+This is referred to as “stemming” documents. We stem the documents so that a word will be recognizable to the computer, despite whether or not it may have a variety of possible endings in the original text.
+
+Note: The “stem completion” function is currently problemmatic, and stemmed words are often annoying to read. For now, I have this section commented out. But you are welcome to try these functions (by removing the hashmark from the beginning of the line) if they interest you. Just don’t expect them to operate smoothly.
+
+This procedure has been a little hanky in the recent past, so I change the name of the data object when I do this to keep from overwriting what I have done to this point.
+
+```{r}
+docs_st <- tm_map(docs, stemDocument)   
+docs_st <- tm_map(docs_st, PlainTextDocument)
+writeLines(as.character(docs_st[1])) # Check to see if it worked.
+# docs <- docs_st
+```
+
+```{r}
+docs <- tm_map(docs, stripWhitespace)
+# writeLines(as.character(docs[1])) # Check to see if it worked.
+```
+
+```{r}
+docs <- tm_map(docs, PlainTextDocument)
+```
+
+
+## Stage the Data
+
+To proceed, create a document term matrix.
+This is what you will be using from this point on.
+
+```{r}
+dtm <- DocumentTermMatrix(docs)   
+dtm   
+```
+
+You’ll also need a transpose of this matrix. Create it using:
+
+```{r}
+tdm <- TermDocumentMatrix(docs)   
+tdm   
+```
+
+## Explore the data
+
+Organize terms by their frequency:
+
+```{r}
+freq <- colSums(as.matrix(dtm))   
+length(freq)  
+```
+
+```{r}
+ord <- order(freq)   
+```
+
+```{r}
+m <- as.matrix(dtm)   
+dim(m) 
+```
+
+## Write to a csv file
+
+```{r}
+write.csv(m, file="DocumentTermMatrix.csv")   
+
+```
+
+The ‘removeSparseTerms()’ function will remove the **infrequently** used words, leaving only the most well-used words in the corpus.
+
+```{r}
+#  Start by removing sparse terms:   
+dtms <- removeSparseTerms(dtm, 0.2) # This makes a matrix that is 20% empty space, maximum.   
+dtms
+```
+
+## Word Frequency
+
+There are a lot of terms, so for now, just check out some of the most and least frequently occurring words.
+
+```{r}
+freq <- colSums(as.matrix(dtm))
+```
+
+Check out the frequency of frequencies.
+The ‘colSums()’ function generates a table reporting how often each word frequency occurs. Using the ’head()" function, below, we can see the distribution of the least-frequently used words.
+
+```{r}
+head(table(freq), 20) # The ", 20" indicates that we only want the first 20 frequencies. Feel free to change that number.
+```
+
+The resulting output is two rows of numbers. The top number is the frequency with which words appear and the bottom number reflects how many words appear that frequently. Here, considering only the 20 lowest word frequencies, we can see that 1602 terms appear only once. There are also a lot of others that appear very infrequently.
+
+For a look at the most frequently used terms, we can use the ‘tail()’ function.
+
+```{r}
+tail(table(freq), 20) # The ", 20" indicates that we only want the last 20 frequencies.  Feel free to change that number, as needed.
+```
+
+Considering only the 50 greatest frequencies, we can see that there is a huge disparity in how frequently some terms appear.
+
+For a less, fine-grained look at term freqency we can view a table of the terms we selected when we removed sparse terms, above. 
+
+```{r}
+freq <- colSums(as.matrix(dtms))   
+freq  
+```
+
+```{r}
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)   
+head(freq, 14)
+```
+
+An alternate view of term frequency:
+This will identify all terms that appear frequently (in this case, 50 or more times).
+
+```{r}
+findFreqTerms(dtm, lowfreq=50)   
+```
+
+**View as a table**:
+
+```{r}
+wf <- data.frame(word=names(freq), freq=freq)   
+head(wf)
+```
+
+## Visualizing 
+
+Plot words that appear at least 50 times.
+```{r}
+library(ggplot2)
+p <- ggplot(subset(wf, freq>50), aes(x = reorder(word, -freq), y = freq)) +
+          geom_bar(stat = "identity", fill = "#FF6666") + 
+          theme(axis.text.x=element_text(angle=45, hjust=1))
+p   
+
+```
+
+
+## Relationships Between Terms
+
+**Term Correlations**
+
+If we have a term in mind that we have found to be particularly meaningful to our analysis, then we may find it helpful to identify the words that most highly correlate with that term.
+
+If words always appear together, then correlation=1.0.
+
+```{r}
+findAssocs(dtm, c("country" , "american"), corlimit=0.85) # specifying a correlation limit of 0.85
+```
+```{r}
+findAssocs(dtms, "think", corlimit=0.70) # specifying a correlation limit of 0.95   
+```
+
+## Word Clouds!
+
+Humans are generally strong at visual analytics. That is part of the reason that these have become so popular. What follows are a variety of alternatives for constructing word clouds with your text.
+
+But first you will need to load the package that makes word clouds in R.
+
+```{r}
+library(tm)
+library(tmap)
+library(wordcloud)
+set.seed(142) 
+
+wordcloud(names(freq), freq, min.freq=25, scale = c(4, 0.2))   
+```
+
+
+Plot the 100 most frequently used words.
+
+```{r}
+
+set.seed(142)   
+wordcloud(names(freq), freq, max.words=100, scale = c(4, 0.2))   
+```
+
+
+Add some color and plot words occurring at least 20 times.
+
+```{r}
+set.seed(142)   
+wordcloud(names(freq), freq, min.freq=20, scale = c(4, 0.2), colors=brewer.pal(6, "Dark2"))   
+```
+
+Plot the 100 most frequently occurring words.
+
+```{r}
+set.seed(142)   
+dark2 <- brewer.pal(6, "Dark2")   
+wordcloud(names(freq), freq, max.words=100, scale = c(4, 0.2), colors=dark2)  
+
+```
+
+## Clustering by Term Similarity
+
+To do this, we should always first remove a lot of the uninteresting or infrequent words. 
+
+```{r}
+dtmss <- removeSparseTerms(dtm, 0.15) # This makes a matrix that is only 15% empty space, maximum.   
+dtmss
+```
+
+## Hierarchal Clustering
+
+First calculate distance between words & then cluster them according to similarity.
+
+```{r}
+library(cluster)   
+d <- dist(t(dtmss), method="euclidian")   
+fit <- hclust(d=d, method="complete")   # for a different look try substituting: method="ward.D"
+fit  
+```
+```{r}
+plot(fit, hang=-1)   
+```
+
+
+```{r}
+plot.new()
+plot(fit, hang=-1)
+groups <- cutree(fit, k=6)   # "k=" defines the number of clusters you are using   
+rect.hclust(fit, k=6, border="red") # draw dendogram with red borders around the 6 clusters   
+```
+
+
