@@ -1,0 +1,163 @@
+---
+title: "Week_5_assignment"
+author: "Salma Elshahawy"
+date: "9/24/2019"
+output:
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Tidying and Transforming Data 
+________________________________
+
+## Introduction 
+
+This week an exercise in tidying data. We’re provided untidy data in a form of csv format. The requirement is to tidy and transform it into an analyzable table where each row is a single observation and each column a single variable.
+
+## Methodology
+
++ We need to read the data first into R and browse the table
++ Use the tidyr library to tidy the data and dplyr to transform it
++ Perform analysis to compare arrival and delayed time for each air line
+
+## Requirements 
+
+1. Create a csv file. 
+2. Read information from the csv file
+3. Compare the arrival delays for the two airlines
+4. Publish the R-Markdown file to the Rpubs
+
+## Questions
+
+Before starting the analysis process, we have to know what are the information we need to extract from the avaliable data. In other meaning what is the addedd business value from doing this particular analysis. For me, my questions are: 
+
++ Which airline have more flights that have on time arrival? 
+  **gives us an indicator which airline can be reliable**
+  
++ Which city/cities have on time arrival? 
+  **Indicates best airline for certain cities**
+  
++ Is the arrival time is afftected by the location? 
+  **does it different if the city is in the east or west side - which air line is the best according to location** 
+
+## Steps
+
+1. Read the csv into R
+
+
+```{r}
+library(kableExtra)
+air_linetb <- read.csv("arrival_details.csv", header = TRUE, sep = ",")
+air_linetb %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+As illustrated in the table, the data is messy contianing **NA** rows, and double title rows. We have to clean up the data first before tidy/transform the data. 
+
+2. Remove the **NA** row and empty rows
+
+
+```{r}
+air_line_df <- as.data.frame(air_linetb)
+clean_df <- air_line_df[-c(3), ]
+clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+3. Rename columns for (first, second) and add airline name to the empty cells in the first column
+
+```{r}
+# Rename columns
+colnames(clean_df)[c(1,2)] <- c("air_line","status")
+clean_df   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+
+```{r}
+# fill empty cells with the appropriate airline name
+clean_df[c(2,2),1] <- "ALASKA"
+clean_df[c(4,4),1] <- "AM WEST"
+clean_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+clean_df
+```
+
+3. The table at this shape cannot be analyzed, we have to tidy the data first. To do so, we can use the **tidyr** package in R. We need to transpose the table. 
+
++ We can start by generating two columns for the **City** and **Flight**
+
+```{r}
+str(clean_df)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+gathered_df <- clean_df %>%
+  gather(City, Flight, 3:7)
+gathered_df$City <- str_replace(gathered_df$City, "\\.", " ")
+
+gathered_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+
+Then, **spread** the status column into two columns of delayed and on-time
+
+```{r}
+spread_df <- spread(gathered_df, key = "status", value = "Flight")
+spread_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+
+## Analyze the data
+
+We will get an overview of the data to explore it then will get indeep to have more insight analysis
+
+  #### What is the number of flight per airline company
+  
+```{r}
+library(ggplot2)
+
+by_city <- gathered_df %>%
+             group_by(City, status) %>%
+             summarise(Flight=sum(Flight))
+
+ggplot(by_city, aes(x=City, y=Flight, fill=status)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        xlab("City name") + scale_y_continuous(labels=scales::comma) +
+        scale_x_discrete()
+```
+
+now let's get the delay rate per each air-line 
+
+```{r}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(scales)
+delay_rate <- spread_df %>% 
+                 group_by(air_line, City) %>% 
+                 summarise(delay.rate = sum(delayed)/sum(`on time`))
+
+ggplot(delay_rate, aes(x = City, y = delay.rate,fill = City)) + 
+     geom_bar(stat="identity") +
+     geom_text(aes( label = scales::percent(delay.rate),
+                   y= delay.rate ), stat= "identity", vjust = -.3) +
+     labs(y = "Percent", fill="City") +
+     facet_grid( ~ air_line) +
+     scale_y_continuous(labels = scales::percent) 
+```
+
+
+
+
