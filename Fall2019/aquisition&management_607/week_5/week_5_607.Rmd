@@ -145,6 +145,8 @@ library(magrittr)
 library(dplyr)
 library(ggplot2)
 library(scales)
+library(gganimate)
+
 delay_rate <- spread_df %>% 
                  group_by(air_line, City) %>% 
                  summarise(delay.rate = sum(delayed)/sum(`on time`))
@@ -158,6 +160,44 @@ ggplot(delay_rate, aes(x = City, y = delay.rate,fill = City)) +
      scale_y_continuous(labels = scales::percent) 
 ```
 
+It seems that **AM WEST** has more delay rate especially for **Seattle** and **San Franscisco** with 30.8% and 40.3% respectively compared to **ALASKA** which has almost **half** the rates.
+
+We have to get the total flights per state 
+
+```{r}
+total_flights <- mutate(spread_df, total_num = delayed + `on time`)
+total_flights
+```
+get the highest number per airline company 
+
+```{r}
+library(dplyr)
+# get mean first then get the total number of flights that is bigger than this number 
+highest_num <- total_flights %>% 
+  select(air_line, City, total_num) %>%
+  filter(total_num > mean(total_flights$total_num)) %>%
+  arrange(desc(total_num))
+highest_num
+```
+It seams that **AM WEST** is domenating in **Phoenix** while **ALASKA** is in **Seattle**.
+
+
+```{r}
+ranking <- total_flights %>% 
+  mutate(air_rank = dense_rank(total_num)) %>%
+  select(air_line, City, total_num, air_rank) %>% 
+  arrange((air_rank))
+# Draw plot
+
+ggplot(ranking, aes(x=City, y=air_rank, fill = air_line)) + 
+  geom_bar(stat="identity", width=3, position = position_dodge()) + 
+  labs(fill="air lines") +
+  labs(title="Ordered Bar Chart", 
+       subtitle="Ranking", 
+       caption="source: ranking") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  facet_grid( ~ City)
+```
 
 
 
