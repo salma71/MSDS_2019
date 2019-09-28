@@ -15,7 +15,7 @@ output:
     toc_float: yes
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE,message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 # Tidying and Transforming Data 
@@ -42,21 +42,35 @@ This week an exercise in tidying data. We’re provided untidy data in a form of
 
 Before starting the analysis process, we have to know what are the information we need to extract from the avaliable data. In other meaning what is the addedd business value from doing this particular analysis. For me, my questions are: 
 
-+ Which airline have more flights that have on time arrival? 
-  **gives us an indicator which airline can be reliable**
++ What is the status of both delay and on-time arrivals for each air line company per state?
+  **gives us an indicator which airline can be reliable or not**
   
-+ Which city/cities have on time arrival? 
-  **Indicates best airline for certain cities**
-  
-+ Is the arrival time is afftected by the location? 
-  **does it different if the city is in the east or west side - which air line is the best according to location** 
++ What is the delay rate per state? 
+
++ Can we rank the airlines per state according to total number of flights? 
 
 ## Steps
 
+Loading the necessary libraries
+
+```{r warning=FALSE,message=FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(kableExtra)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(scales)
+library(gganimate)
+```
+
 1. Read the csv into R
 
+The first step is to read the data into **R**, I wrote the data on Excel file and save it as **.csv** file. After that I used the function **read.csv()** to read the data into R.
 
-```{r}
+
+```{r warning=FALSE,message=FALSE}
 library(kableExtra)
 air_linetb <- read.csv("arrival_details.csv", header = TRUE, sep = ",")
 air_linetb %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
@@ -67,7 +81,7 @@ As illustrated in the table, the data is messy contianing **NA** rows, and doubl
 2. Remove the **NA** row and empty rows
 
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 air_line_df <- as.data.frame(air_linetb)
 clean_df <- air_line_df[-c(3), ]
 clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
@@ -75,7 +89,7 @@ clean_df %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover",
 
 3. Rename columns for (first, second) and add airline name to the empty cells in the first column
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 # Rename columns
 colnames(clean_df)[c(1,2)] <- c("air_line","status")
 clean_df   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
@@ -83,7 +97,7 @@ clean_df   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover
 ```
 
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 # fill empty cells with the appropriate airline name
 clean_df[c(2,2),1] <- "ALASKA"
 clean_df[c(4,4),1] <- "AM WEST"
@@ -91,17 +105,17 @@ clean_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover"
 clean_df
 ```
 
-3. The table at this shape cannot be analyzed, we have to tidy the data first. To do so, we can use the **tidyr** package in R. We need to transpose the table. 
+3. The table at this shape cannot be analyzed, we have to tidy the data first. To do so, we can use the **tidyr** package in R. We need also to transpose the table. 
 
 + We can start by generating two columns for the **City** and **Flight**
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 str(clean_df)
 ```
 
-```{r}
-library(tidyr)
-library(dplyr)
+Using **tidyr** package we can tidy the data using the **gather()** which will create two columns for city names and flights. Here after gathering, I removed the "." between cities' long name
+
+```{r warning=FALSE,message=FALSE}
 gathered_df <- clean_df %>%
   gather(City, Flight, 3:7)
 gathered_df$City <- str_replace(gathered_df$City, "\\.", " ")
@@ -112,7 +126,7 @@ gathered_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hov
 
 Then, **spread** the status column into two columns of delayed and on-time
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 spread_df <- spread(gathered_df, key = "status", value = "Flight")
 spread_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
@@ -123,10 +137,7 @@ spread_df  %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover
 
 We will get an overview of the data to explore it then will get indeep to have more insight analysis
 
-  #### What is the number of flight per airline company
-  
-```{r}
-library(ggplot2)
+```{r warning=FALSE,message=FALSE}
 
 by_city <- gathered_df %>%
              group_by(City, status) %>%
@@ -138,15 +149,11 @@ ggplot(by_city, aes(x=City, y=Flight, fill=status)) +
         scale_x_discrete()
 ```
 
-now let's get the delay rate per each air-line 
+We can see here that the majority of the flights status arriving **Phoenix** are on time **>5,000** flights and almost **500** delayed flights. That's makes us more curious to know which airline has the most flights in **Phoenix**. However, let's calculate the delay rate per state first. 
 
-```{r}
-library(magrittr)
-library(dplyr)
-library(ggplot2)
-library(scales)
-library(gganimate)
+To calculate the delay rate, I summarize the sum of the delayed time devided on sum of the number of on-time flights inside the aggrigation function **group_by** 
 
+```{r warning=FALSE,message=FALSE}
 delay_rate <- spread_df %>% 
                  group_by(air_line, City) %>% 
                  summarise(delay.rate = sum(delayed)/sum(`on time`))
@@ -157,32 +164,34 @@ ggplot(delay_rate, aes(x = City, y = delay.rate,fill = City)) +
                    y= delay.rate ), stat= "identity", vjust = -.3) +
      labs(y = "Percent", fill="City") +
      facet_grid( ~ air_line) +
-     scale_y_continuous(labels = scales::percent) 
+     scale_y_continuous(labels = scales::percent) +
+     theme(axis.text.x = element_text(angle=65, vjust=0.65))
 ```
 
-It seems that **AM WEST** has more delay rate especially for **Seattle** and **San Franscisco** with 30.8% and 40.3% respectively compared to **ALASKA** which has almost **half** the rates.
+It seems that **AM WEST** has more delays rate especially for **San Franscisco** and **Seattle** with **40.3% and 30.8%** respectively compared to **ALASKA** which has almost **half** these rates.
 
-We have to get the total flights per state 
+Then we have to get the total flights per state 
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 total_flights <- mutate(spread_df, total_num = delayed + `on time`)
-total_flights
+total_flights %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
-get the highest number per airline company 
 
-```{r}
-library(dplyr)
+After that, get the highest number per airline company 
+
+```{r warning=FALSE,message=FALSE}
 # get mean first then get the total number of flights that is bigger than this number 
 highest_num <- total_flights %>% 
   select(air_line, City, total_num) %>%
   filter(total_num > mean(total_flights$total_num)) %>%
   arrange(desc(total_num))
-highest_num
+highest_num %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
-It seams that **AM WEST** is domenating in **Phoenix** while **ALASKA** is in **Seattle**.
+
+It seams that **AM WEST** is domenating in **Phoenix** while **ALASKA** is in **Seattle**. This comparasion should be clear if we create a ranking system to rank air-lines in each state 
 
 
-```{r}
+```{r warning=FALSE,message=FALSE}
 ranking <- total_flights %>% 
   mutate(air_rank = dense_rank(total_num)) %>%
   select(air_line, City, total_num, air_rank) %>% 
@@ -199,5 +208,14 @@ ggplot(ranking, aes(x=City, y=air_rank, fill = air_line)) +
   facet_grid( ~ City)
 ```
 
+From all the previous analysis, we may conclude that **AM WEST** is the best company in **Phoenix**; however, **ALASKA** is the best on **Seattle** based on the total number of flights.  
 
+## Conclusion 
 
+To have a final conclusion for this analysis, we need more information like tickets prices for instance. However, the preliminary analysis showed that **AM WEST** is more reputable than **ALASKA** it has larger number of flights and higher ranking. 
+
+## Important links
+
+GitHub : [GitHub link](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_5/week_5_607.Rmd) 
+
+csv file: [CSV](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_5/arrival_details.csv)
