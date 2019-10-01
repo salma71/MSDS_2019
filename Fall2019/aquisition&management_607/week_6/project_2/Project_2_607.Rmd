@@ -1,0 +1,50 @@
+---
+title: "project_2_607"
+author: "Salma Elshahawy"
+date: "9/30/2019"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(xlsx)
+library(dplyr)
+library(janitor)
+```
+
+
+* [Total international migrant stock](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockTotal_2015.xlsx)  
+* [By age and Sex](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByAge_2015.xlsx)  
+* [By destination and origin](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2015.xlsx)  
+
+## Dataset_1: Total Immigration for 2019
+
+[The United Nations](https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp), Department of Economic and Social Affairs published dataset presents estimates of international migrant by age, sex and origin. Estimates are presented for 1990, 1995, 2000, 2005, 2010, 2015 and 2019 and are available for all countries and areas of the world. The estimates are based on official statistics on the foreign-born or the foreign population.
+
+### Read the data into R
+
+```{r}
+library(readxl)
+UN_MigrantStockTotal_2019 <- read_excel("UN_MigrantStockTotal_2019.xlsx", 
+    sheet = "Table 1", na = "0", skip = 15)
+UN_MigrantStockTotal_2019
+```
+
+Now we got a dataframe of 284 rows with 26 columns as return. Now we need to clean up the data 
+
+### Data cleanup
+
+remove rows that has **NA** values 
+
+```{r}
+
+```
