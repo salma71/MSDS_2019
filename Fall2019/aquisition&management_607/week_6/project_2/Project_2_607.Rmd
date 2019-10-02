@@ -32,19 +32,140 @@ library(janitor)
 
 ### Read the data into R
 
-```{r}
+```{r}#
 library(readxl)
 UN_MigrantStockTotal_2019 <- read_excel("UN_MigrantStockTotal_2019.xlsx", 
     sheet = "Table 1", na = "0", skip = 15)
 UN_MigrantStockTotal_2019
 ```
 
-Now we got a dataframe of 284 rows with 26 columns as return. Now we need to clean up the data 
+```{r}
+library(readr)
+UN_MigrantStock <- read_csv("UN_MigrantStockByOriginAndDestination_2019/Table 1-Table 1.csv", 
+    skip = 16)
+View(UN_MigrantStock)
+```
 
-### Data cleanup
 
-remove rows that has **NA** values 
+
+
+### Remove Regions and keep only Countries
+
+First thing you would notice is that the first 8 rows are not countries, they are regions. This time we want to see how people are migrating from countries to countries so we can remove these rows for the regions. When you look at *‘X6’* column, it looks that those ‘region’ rows don’t have any value there.
+
+By running the command like below to keep only the rows whose **X6** column have **NA**
 
 ```{r}
-
+temp <- filter(UN_MigrantStock ,is.na(X6))
+temp
 ```
+
+These are all regions, not countries, which means that we can safely remove these rows by adding an exclamation mark **‘!’** right before **‘is.na()’** function like below.
+
+```{r}
+UN_Countries <- filter(UN_MigrantStock ,!is.na(X6))
+View(UN_Countries)
+```
+
+
+Now we got a dataframe of 1,624 rows with 246 columns as return with all countries only data for each year.
+
+### Remove unnecessary columns
+
+When you look at the columns we would notice that there are unnecessary columns like ‘Total’, ‘Other South’, etc, because we are interested in estimates of the migrants only for countries to countries. We can remove those unnecessary columns with ‘select’ command along with other unnecessary columns like below.
+
+```{r}
+UN_Countries_df <- UN_Countries %>% 
+  select(-X2, -X4, -X6, -Total, -starts_with("Other"))
+View(UN_Countries_df)
+```
+
+I’m using minus **‘-’** to delete columns and using **‘start_with’** function inside **‘select’** command to delete multiple columns whose names matche the text pattern of “Other”.
+
+### Rename Columns 
+
+```{r}
+UN_Countries_rename <- UN_Countries_df %>% 
+  rename(
+    year = X1, 
+    destination_country = X3, 
+    country_code = X5
+    )
+View(UN_Countries_rename)
+```
+
+### Gather 235 columns to make it tidy
+
+Now, it’s ready to tidy this ‘matrix’-ish data form by using ‘gather’ command from tidyr package.
+
+
+```{r}
+library(tidyr)
+Countries_by_no <- gather(UN_Countries_rename, "origin_country", "migrants", 4:235, na.rm = TRUE)
+View(Countries_by_no)
+```
+
+```{r}
+# remove extra columns
+clean_country_df <- Countries_by_no[, -c(4:8)]
+View(clean_country_df)
+```
+
+### Perform Statistics  
+
+Here we want to know which countries has the highest number of migrant by year . To do so, I would use 
+
+```{r}
+# group by year 
+# change the migrants variable into num type
+clean_country_df$migrants <- as.integer(clean_country_df$migrants)
+clean_country_df$migrants[is.na(clean_country_df$migrants)] <- 0
+str(clean_country_df)
+
+#View(clean_country_df)
+
+by_dest_Country_df <- clean_country_df %>%
+  group_by(year, destination_country, origin_country) %>%
+  summarise(total_migrants = sum(migrants)) %>%
+  arrange(desc(total_migrants))
+
+by_dest_Country_df
+```
+
+As we can see here, we got more than 78,700 colums. I would prefer to take a subset of the data based on some statistical analysis. To do so, we can get mean, median to set a filtering cretria. Additionally, I will add a ranking column to the dataframe to rank the countries
+
+```{r}
+# first get mean, median, max, min 
+summary(by_dest_Country_df$total_migrants)
+
+# take a subset by filtering the results to only pick total migrants > mean
+
+sub_set_migrant <- select(filter(by_dest_Country_df, total_migrants > 13361), c(1:4))
+
+# add ranking system desc. ordered
+sub_set_migrant$Rank <-  order(sub_set_migrant$total_migrants, decreasing = TRUE)
+
+sub_set_migrant
+```
+
+
+Now we get a much tider data about 7,000 columns, only 4 columns. However, we can use **spread()** function to group by year. to see  
+
+
+```{r}
+gather_by_year <- sub_set_migrant %>%
+  spread(key = "year", value = "total_migrants")%>%
+  arrange(Rank)
+# replace NA with 0 value
+
+gather_by_year[, 4:10][is.na(gather_by_year[, 4:10])] <- 0
+gather_by_year
+  
+```
+
+### Visualization
+
+I would prefer to explore the data quickly using the Heatmap chart. This can be done by assigning ‘destination_country’ to X-axis, ‘origin_country’ to Y-axis, and ‘migrants’ to Color.
+
+
+
