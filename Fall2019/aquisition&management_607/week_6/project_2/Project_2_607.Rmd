@@ -9,6 +9,7 @@ output:
     toc: true
     toc_float: true
     code_folding: show
+    self_contained: no
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
@@ -43,7 +44,7 @@ UN_MigrantStockTotal_2019
 library(readr)
 UN_MigrantStock <- read_csv("UN_MigrantStockByOriginAndDestination_2019/Table 1-Table 1.csv", 
     skip = 16)
-View(UN_MigrantStock)
+UN_MigrantStock
 ```
 
 
@@ -64,7 +65,7 @@ These are all regions, not countries, which means that we can safely remove thes
 
 ```{r}
 UN_Countries <- filter(UN_MigrantStock ,!is.na(X6))
-View(UN_Countries)
+UN_Countries
 ```
 
 
@@ -77,7 +78,7 @@ When you look at the columns we would notice that there are unnecessary columns 
 ```{r}
 UN_Countries_df <- UN_Countries %>% 
   select(-X2, -X4, -X6, -Total, -starts_with("Other"))
-View(UN_Countries_df)
+UN_Countries_df
 ```
 
 I’m using minus **‘-’** to delete columns and using **‘start_with’** function inside **‘select’** command to delete multiple columns whose names matche the text pattern of “Other”.
@@ -91,7 +92,7 @@ UN_Countries_rename <- UN_Countries_df %>%
     destination_country = X3, 
     country_code = X5
     )
-View(UN_Countries_rename)
+UN_Countries_rename
 ```
 
 ### Gather 235 columns to make it tidy
@@ -102,13 +103,13 @@ Now, it’s ready to tidy this ‘matrix’-ish data form by using ‘gather’ 
 ```{r}
 library(tidyr)
 Countries_by_no <- gather(UN_Countries_rename, "origin_country", "migrants", 4:235, na.rm = TRUE)
-View(Countries_by_no)
+Countries_by_no
 ```
 
 ```{r}
 # remove extra columns
 clean_country_df <- Countries_by_no[, -c(4:8)]
-View(clean_country_df)
+clean_country_df
 ```
 
 ### Perform Statistics  
@@ -140,7 +141,8 @@ summary(by_dest_Country_df$total_migrants)
 
 # take a subset by filtering the results to only pick total migrants > mean
 
-sub_set_migrant <- select(filter(by_dest_Country_df, total_migrants > 13361), c(1:4))
+sub_set_migrant <- select(filter(by_dest_Country_df, total_migrants > 15000), c(1:4))
+sub_set_migrant[, 4][is.na(sub_set_migrant[, 4])] <- 0
 
 # add ranking system desc. ordered
 sub_set_migrant$Rank <-  order(sub_set_migrant$total_migrants, decreasing = TRUE)
@@ -163,9 +165,111 @@ gather_by_year
   
 ```
 
+### Export to csv file
+
+```{r}
+file_to_export <- write.table(gather_by_year, file = "internationalTotalMigrant.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
+
+```
+
+### Test that the file is already created. 
+
+*Please be sure that you set working directory in Rstudio to the current working directory.*
+
+```{r}
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/internationalTotalMigrant.csv")
+```
+
+### open the file from local machine
+
+```{r}
+file_to_open <- read.csv(file = "internationalTotalMigrant.csv", header = TRUE, sep = ",")
+
+file_to_open
+```
+
 ### Visualization
 
-I would prefer to explore the data quickly using the Heatmap chart. This can be done by assigning ‘destination_country’ to X-axis, ‘origin_country’ to Y-axis, and ‘migrants’ to Color.
+I would prefer to explore the data quickly using the Heatmap chart. This can be done by assigning ‘destination_country’ to X-axis, ‘origin_country’ to Y-axis, and ‘migrants’ to Color. 
+
+**Note**
+This group is for countries that have total number of migrants above average ~ 1300 migrant per year. First step, we can plot a boxplot to explore the data 
 
 
 
+```{r}
+library(ggmap)
+map_world <- map_data("world")
+#map_world$region
+
+subset_migrant <- sub_set_migrant
+#recode the country name to be able to left join the two data frames
+as.factor(subset_migrant$destination_country) %>% levels()
+
+# RECODE NAMES
+subset_migrant$destination_country <- recode(subset_migrant$destination_country
+                                  ,'United States of America' = 'USA'
+                                  ,'United Kingdom' = 'UK'
+                                  )
+#rename the column to be the same as world_map
+colnames(subset_migrant)[2] <- "country"
+#View(new_dat)
+# LEFT JOIN
+map_world_joined <- left_join(map_world, subset_migrant, by = c('region' = 'country'))
+
+ggplot() +
+  geom_polygon(data = map_world_joined, aes(x = long, y = lat, group = group, fill = total_migrants, cstat = "identity")) +
+  labs(title = 'Countries with highest "Migrant Population"'
+       ,subtitle = "source: INSEAD, https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp") +
+  geom_point() +
+  theme(text = element_text(family = "Gill Sans")
+        ,plot.title = element_text(size = 15)
+        ,plot.subtitle = element_text(size = 10)
+        ,legend.text = element_text(size = 10)
+)
+
+```
+
+
+As we can see from the plot, for the top 100 destination countries that have most of the migrants populations over seven period of time. We will get more insights on 2015 and 2019 and inspect what is the increasing rate for the top 10 migration countries.  
+
+Lets get the 
+
+```{r}
+migration_15_19 = sub_set_migrant %>%
+  filter(total_migrants >= 3000000 & year %in% c(2010 ,2015, 2019)) %>%
+  select(destination_country, origin_country, year, total_migrants)%>%
+  arrange(desc(total_migrants))
+
+migration_15_19
+
+ggplot(migration_15_19, aes(x=destination_country, y=total_migrants, fill = destination_country)) + 
+  geom_bar(stat="identity", width=1, position = position_dodge()) + 
+  labs(fill="destination country") +
+  labs(title="Ordered Bar Chart", 
+       subtitle="Top migrats population") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  facet_grid( ~ year)
+```
+United states of America is ranked no 1 regards to total migrants population. However, Turkey become no.3 in 2015 with almost 3M migrant population. In 2010, only United states and Ukraine accepts migrants, and there total migrants populations remains the same for 2015 and 2019. Although United stated have the highest population, it seems that the total number is slightly decreasing from 2010 to 2019. 
+
+
+```{r}
+by_origin_country <- migration_15_19 %>%
+  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Ukraine", "Turkey", "Russian Federation") & total_migrants >= 3000000) %>%
+  select(destination_country, origin_country, total_migrants, year) 
+by_origin_country
+
+ggplot(by_origin_country, aes(x = destination_country , y = total_migrants, colour = origin_country)) +
+  geom_point(size = 3) + 
+  facet_grid(~ by_origin_country$year) + 
+  labs(y = "total_migrants") +
+  scale_y_continuous() +
+  theme(axis.text.x = element_text(angle=65, vjust=0.65))
+```
+The majority of migrant population to the United States of America is from Mexico for more than one million migrants per year. Also, it seams that the Turkey accepted more than 3M migrant from Syrian Arab Republic in 2019. The other main origin countries that have most of the population are India, Ukrain, and Russian Federation respectively with no major difference in the total population. 
+
+
+
+
+## Dataset_2 : 

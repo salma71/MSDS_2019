@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Salma Elshahawy" />
+
+
+<title>project_2_607</title>
+
+<script src="Project_2_607_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Project_2_607_files/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="Project_2_607_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Project_2_607_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Project_2_607_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="Project_2_607_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="Project_2_607_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="Project_2_607_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="Project_2_607_files/navigation-1.1/tabsets.js"></script>
+<script src="Project_2_607_files/navigation-1.1/codefolding.js"></script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">project_2_607</h1>
+<h4 class="author">Salma Elshahawy</h4>
+<h4 class="date">9/30/2019</h4>
+
+</div>
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(xlsx)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(janitor)</a></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
+<ul>
+<li><a href="https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockTotal_2015.xlsx">Total international migrant stock</a><br />
+</li>
+<li><a href="https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByAge_2015.xlsx">By age and Sex</a><br />
+</li>
+<li><a href="https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2015.xlsx">By destination and origin</a></li>
+</ul>
+<div id="dataset_1-total-immigration-for-2019" class="section level2">
+<h2>Dataset_1: Total Immigration for 2019</h2>
+<p><a href="https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp">The United Nations</a>, Department of Economic and Social Affairs published dataset presents estimates of international migrant by age, sex and origin. Estimates are presented for 1990, 1995, 2000, 2005, 2010, 2015 and 2019 and are available for all countries and areas of the world. The estimates are based on official statistics on the foreign-born or the foreign population.</p>
+<div id="read-the-data-into-r" class="section level3">
+<h3>Read the data into R</h3>
+<pre class="{r}#"><code>library(readxl)
+UN_MigrantStockTotal_2019 &lt;- read_excel(&quot;UN_MigrantStockTotal_2019.xlsx&quot;, 
+    sheet = &quot;Table 1&quot;, na = &quot;0&quot;, skip = 15)
+UN_MigrantStockTotal_2019</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">library</span>(readr)</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">UN_MigrantStock &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;UN_MigrantStockByOriginAndDestination_2019/Table 1-Table 1.csv&quot;</span>, </a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">    <span class="dt">skip =</span> <span class="dv">16</span>)</a></code></pre></div>
+<pre><code>## Warning: Missing column names filled in: &#39;X1&#39; [1], &#39;X2&#39; [2], &#39;X3&#39; [3],
+## &#39;X4&#39; [4], &#39;X5&#39; [5], &#39;X6&#39; [6], &#39;X242&#39; [242], &#39;X243&#39; [243], &#39;X244&#39; [244],
+## &#39;X245&#39; [245], &#39;X246&#39; [246]</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_character(),
+##   X1 = col_double(),
+##   X2 = col_double(),
+##   X5 = col_double(),
+##   X242 = col_logical(),
+##   X243 = col_logical(),
+##   X244 = col_logical(),
+##   X245 = col_logical(),
+##   X246 = col_logical()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">UN_MigrantStock</a></code></pre></div>
+<pre><code>## # A tibble: 1,991 x 246
+##       X1     X2 X3    X4       X5 X6    Total `Other South` `Other North`
+##    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;        
+##  1  1990 1.99e6 WORLD &lt;NA&gt;    900 &lt;NA&gt;  153,… 6,548,526     2,366,800    
+##  2  1990 1.99e6 UN d… &lt;NA&gt;     NA &lt;NA&gt;  ..    ..            ..           
+##  3  1990 1.99e6 More… b       901 &lt;NA&gt;  82,7… 3,385,103     1,077,179    
+##  4  1990 1.99e6 Less… c       902 &lt;NA&gt;  70,2… 3,163,423     1,289,621    
+##  5  1990 1.99e6 Leas… d       941 &lt;NA&gt;  11,0… 482,753       239,756      
+##  6  1990 1.99e6 Less… &lt;NA&gt;    934 &lt;NA&gt;  59,1… 2,680,670     1,049,865    
+##  7  1990 1.99e6 Worl… &lt;NA&gt;     NA &lt;NA&gt;  ..    ..            ..           
+##  8  1990 1.99e6 High… e      1503 &lt;NA&gt;  77,8… 3,803,597     1,223,239    
+##  9  1990 1.99e6 Midd… e      1517 &lt;NA&gt;  65,1… 1,877,678     987,475      
+## 10  1990 1.99e6 Uppe… e      1502 &lt;NA&gt;  33,2… 957,059       376,006      
+## # … with 1,981 more rows, and 237 more variables: Afghanistan &lt;chr&gt;,
+## #   Albania &lt;chr&gt;, Algeria &lt;chr&gt;, `American Samoa` &lt;chr&gt;, Andorra &lt;chr&gt;,
+## #   Angola &lt;chr&gt;, Anguilla &lt;chr&gt;, `Antigua and Barbuda` &lt;chr&gt;,
+## #   Argentina &lt;chr&gt;, Armenia &lt;chr&gt;, Aruba &lt;chr&gt;, Australia &lt;chr&gt;,
+## #   Austria &lt;chr&gt;, Azerbaijan &lt;chr&gt;, Bahamas &lt;chr&gt;, Bahrain &lt;chr&gt;,
+## #   Bangladesh &lt;chr&gt;, Barbados &lt;chr&gt;, Belarus &lt;chr&gt;, Belgium &lt;chr&gt;,
+## #   Belize &lt;chr&gt;, Benin &lt;chr&gt;, Bermuda &lt;chr&gt;, Bhutan &lt;chr&gt;, `Bolivia
+## #   (Plurinational State of)` &lt;chr&gt;, `Bonaire, Sint Eustatius and
+## #   Saba` &lt;chr&gt;, `Bosnia and Herzegovina` &lt;chr&gt;, Botswana &lt;chr&gt;,
+## #   Brazil &lt;chr&gt;, `British Virgin Islands` &lt;chr&gt;, `Brunei
+## #   Darussalam` &lt;chr&gt;, Bulgaria &lt;chr&gt;, `Burkina Faso` &lt;chr&gt;,
+## #   Burundi &lt;chr&gt;, `Cabo Verde` &lt;chr&gt;, Cambodia &lt;chr&gt;, Cameroon &lt;chr&gt;,
+## #   Canada &lt;chr&gt;, `Cayman Islands` &lt;chr&gt;, `Central African
+## #   Republic` &lt;chr&gt;, Chad &lt;chr&gt;, `Channel Islands` &lt;chr&gt;, Chile &lt;chr&gt;,
+## #   China &lt;chr&gt;, `China, Hong Kong SAR` &lt;chr&gt;, `China, Macao SAR` &lt;chr&gt;,
+## #   Colombia &lt;chr&gt;, Comoros &lt;chr&gt;, Congo &lt;chr&gt;, `Cook Islands` &lt;chr&gt;,
+## #   `Costa Rica` &lt;chr&gt;, `Côte d&#39;Ivoire` &lt;chr&gt;, Croatia &lt;chr&gt;, Cuba &lt;chr&gt;,
+## #   Curaçao &lt;chr&gt;, Cyprus &lt;chr&gt;, Czechia &lt;chr&gt;, `Dem. People&#39;s Republic of
+## #   Korea` &lt;chr&gt;, `Democratic Republic of the Congo` &lt;chr&gt;, Denmark &lt;chr&gt;,
+## #   Djibouti &lt;chr&gt;, Dominica &lt;chr&gt;, `Dominican Republic` &lt;chr&gt;,
+## #   Ecuador &lt;chr&gt;, Egypt &lt;chr&gt;, `El Salvador` &lt;chr&gt;, `Equatorial
+## #   Guinea` &lt;chr&gt;, Eritrea &lt;chr&gt;, Estonia &lt;chr&gt;, Eswatini &lt;chr&gt;,
+## #   Ethiopia &lt;chr&gt;, `Falkland Islands (Malvinas)` &lt;chr&gt;, `Faroe
+## #   Islands` &lt;chr&gt;, Fiji &lt;chr&gt;, Finland &lt;chr&gt;, France &lt;chr&gt;, `French
+## #   Guiana` &lt;chr&gt;, `French Polynesia` &lt;chr&gt;, Gabon &lt;chr&gt;, Gambia &lt;chr&gt;,
+## #   Georgia &lt;chr&gt;, Germany &lt;chr&gt;, Ghana &lt;chr&gt;, Gibraltar &lt;chr&gt;,
+## #   Greece &lt;chr&gt;, Greenland &lt;chr&gt;, Grenada &lt;chr&gt;, Guadeloupe &lt;chr&gt;,
+## #   Guam &lt;chr&gt;, Guatemala &lt;chr&gt;, Guinea &lt;chr&gt;, `Guinea-Bissau` &lt;chr&gt;,
+## #   Guyana &lt;chr&gt;, Haiti &lt;chr&gt;, `Holy See` &lt;chr&gt;, Honduras &lt;chr&gt;,
+## #   Hungary &lt;chr&gt;, Iceland &lt;chr&gt;, India &lt;chr&gt;, Indonesia &lt;chr&gt;, …</code></pre>
+</div>
+<div id="remove-regions-and-keep-only-countries" class="section level3">
+<h3>Remove Regions and keep only Countries</h3>
+<p>First thing you would notice is that the first 8 rows are not countries, they are regions. This time we want to see how people are migrating from countries to countries so we can remove these rows for the regions. When you look at <em>‘X6’</em> column, it looks that those ‘region’ rows don’t have any value there.</p>
+<p>By running the command like below to keep only the rows whose <strong>X6</strong> column have <strong>NA</strong></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">temp &lt;-<span class="st"> </span><span class="kw">filter</span>(UN_MigrantStock ,<span class="kw">is.na</span>(X6))</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">temp</a></code></pre></div>
+<pre><code>## # A tibble: 367 x 246
+##       X1     X2 X3    X4       X5 X6    Total `Other South` `Other North`
+##    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;        
+##  1  1990 1.99e6 WORLD &lt;NA&gt;    900 &lt;NA&gt;  153,… 6,548,526     2,366,800    
+##  2  1990 1.99e6 UN d… &lt;NA&gt;     NA &lt;NA&gt;  ..    ..            ..           
+##  3  1990 1.99e6 More… b       901 &lt;NA&gt;  82,7… 3,385,103     1,077,179    
+##  4  1990 1.99e6 Less… c       902 &lt;NA&gt;  70,2… 3,163,423     1,289,621    
+##  5  1990 1.99e6 Leas… d       941 &lt;NA&gt;  11,0… 482,753       239,756      
+##  6  1990 1.99e6 Less… &lt;NA&gt;    934 &lt;NA&gt;  59,1… 2,680,670     1,049,865    
+##  7  1990 1.99e6 Worl… &lt;NA&gt;     NA &lt;NA&gt;  ..    ..            ..           
+##  8  1990 1.99e6 High… e      1503 &lt;NA&gt;  77,8… 3,803,597     1,223,239    
+##  9  1990 1.99e6 Midd… e      1517 &lt;NA&gt;  65,1… 1,877,678     987,475      
+## 10  1990 1.99e6 Uppe… e      1502 &lt;NA&gt;  33,2… 957,059       376,006      
+## # … with 357 more rows, and 237 more variables: Afghanistan &lt;chr&gt;,
+## #   Albania &lt;chr&gt;, Algeria &lt;chr&gt;, `American Samoa` &lt;chr&gt;, Andorra &lt;chr&gt;,
+## #   Angola &lt;chr&gt;, Anguilla &lt;chr&gt;, `Antigua and Barbuda` &lt;chr&gt;,
+## #   Argentina &lt;chr&gt;, Armenia &lt;chr&gt;, Aruba &lt;chr&gt;, Australia &lt;chr&gt;,
+## #   Austria &lt;chr&gt;, Azerbaijan &lt;chr&gt;, Bahamas &lt;chr&gt;, Bahrain &lt;chr&gt;,
+## #   Bangladesh &lt;chr&gt;, Barbados &lt;chr&gt;, Belarus &lt;chr&gt;, Belgium &lt;chr&gt;,
+## #   Belize &lt;chr&gt;, Benin &lt;chr&gt;, Bermuda &lt;chr&gt;, Bhutan &lt;chr&gt;, `Bolivia
+## #   (Plurinational State of)` &lt;chr&gt;, `Bonaire, Sint Eustatius and
+## #   Saba` &lt;chr&gt;, `Bosnia and Herzegovina` &lt;chr&gt;, Botswana &lt;chr&gt;,
+## #   Brazil &lt;chr&gt;, `British Virgin Islands` &lt;chr&gt;, `Brunei
+## #   Darussalam` &lt;chr&gt;, Bulgaria &lt;chr&gt;, `Burkina Faso` &lt;chr&gt;,
+## #   Burundi &lt;chr&gt;, `Cabo Verde` &lt;chr&gt;, Cambodia &lt;chr&gt;, Cameroon &lt;chr&gt;,
+## #   Canada &lt;chr&gt;, `Cayman Islands` &lt;chr&gt;, `Central African
+## #   Republic` &lt;chr&gt;, Chad &lt;chr&gt;, `Channel Islands` &lt;chr&gt;, Chile &lt;chr&gt;,
+## #   China &lt;chr&gt;, `China, Hong Kong SAR` &lt;chr&gt;, `China, Macao SAR` &lt;chr&gt;,
+## #   Colombia &lt;chr&gt;, Comoros &lt;chr&gt;, Congo &lt;chr&gt;, `Cook Islands` &lt;chr&gt;,
+## #   `Costa Rica` &lt;chr&gt;, `Côte d&#39;Ivoire` &lt;chr&gt;, Croatia &lt;chr&gt;, Cuba &lt;chr&gt;,
+## #   Curaçao &lt;chr&gt;, Cyprus &lt;chr&gt;, Czechia &lt;chr&gt;, `Dem. People&#39;s Republic of
+## #   Korea` &lt;chr&gt;, `Democratic Republic of the Congo` &lt;chr&gt;, Denmark &lt;chr&gt;,
+## #   Djibouti &lt;chr&gt;, Dominica &lt;chr&gt;, `Dominican Republic` &lt;chr&gt;,
+## #   Ecuador &lt;chr&gt;, Egypt &lt;chr&gt;, `El Salvador` &lt;chr&gt;, `Equatorial
+## #   Guinea` &lt;chr&gt;, Eritrea &lt;chr&gt;, Estonia &lt;chr&gt;, Eswatini &lt;chr&gt;,
+## #   Ethiopia &lt;chr&gt;, `Falkland Islands (Malvinas)` &lt;chr&gt;, `Faroe
+## #   Islands` &lt;chr&gt;, Fiji &lt;chr&gt;, Finland &lt;chr&gt;, France &lt;chr&gt;, `French
+## #   Guiana` &lt;chr&gt;, `French Polynesia` &lt;chr&gt;, Gabon &lt;chr&gt;, Gambia &lt;chr&gt;,
+## #   Georgia &lt;chr&gt;, Germany &lt;chr&gt;, Ghana &lt;chr&gt;, Gibraltar &lt;chr&gt;,
+## #   Greece &lt;chr&gt;, Greenland &lt;chr&gt;, Grenada &lt;chr&gt;, Guadeloupe &lt;chr&gt;,
+## #   Guam &lt;chr&gt;, Guatemala &lt;chr&gt;, Guinea &lt;chr&gt;, `Guinea-Bissau` &lt;chr&gt;,
+## #   Guyana &lt;chr&gt;, Haiti &lt;chr&gt;, `Holy See` &lt;chr&gt;, Honduras &lt;chr&gt;,
+## #   Hungary &lt;chr&gt;, Iceland &lt;chr&gt;, India &lt;chr&gt;, Indonesia &lt;chr&gt;, …</code></pre>
+<p>These are all regions, not countries, which means that we can safely remove these rows by adding an exclamation mark <strong>‘!’</strong> right before <strong>‘is.na()’</strong> function like below.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">UN_Countries &lt;-<span class="st"> </span><span class="kw">filter</span>(UN_MigrantStock ,<span class="op">!</span><span class="kw">is.na</span>(X6))</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">UN_Countries</a></code></pre></div>
+<pre><code>## # A tibble: 1,624 x 246
+##       X1     X2 X3    X4       X5 X6    Total `Other South` `Other North`
+##    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;        
+##  1  1990 1.99e6 Buru… &lt;NA&gt;    108 B R   333,… 50,676        8,943        
+##  2  1990 1.99e6 Como… &lt;NA&gt;    174 B     14,0… 847           672          
+##  3  1990 1.99e6 Djib… &lt;NA&gt;    262 B R   122,… 5,484         1,827        
+##  4  1990 1.99e6 Erit… &lt;NA&gt;    232 I     11,8… 737           345          
+##  5  1990 1.99e6 Ethi… &lt;NA&gt;    231 B R   1,15… 22,075        7,358        
+##  6  1990 1.99e6 Kenya &lt;NA&gt;    404 B R   298,… 65,948        35,411       
+##  7  1990 1.99e6 Mada… &lt;NA&gt;    450 C     23,9… 2,851         3,563        
+##  8  1990 1.99e6 Mala… &lt;NA&gt;    454 B R   1,12… 19,158        11,744       
+##  9  1990 1.99e6 Maur… 1       480 C     3,613 292           75           
+## 10  1990 1.99e6 Mayo… &lt;NA&gt;    175 B     15,2… 1,354         1,142        
+## # … with 1,614 more rows, and 237 more variables: Afghanistan &lt;chr&gt;,
+## #   Albania &lt;chr&gt;, Algeria &lt;chr&gt;, `American Samoa` &lt;chr&gt;, Andorra &lt;chr&gt;,
+## #   Angola &lt;chr&gt;, Anguilla &lt;chr&gt;, `Antigua and Barbuda` &lt;chr&gt;,
+## #   Argentina &lt;chr&gt;, Armenia &lt;chr&gt;, Aruba &lt;chr&gt;, Australia &lt;chr&gt;,
+## #   Austria &lt;chr&gt;, Azerbaijan &lt;chr&gt;, Bahamas &lt;chr&gt;, Bahrain &lt;chr&gt;,
+## #   Bangladesh &lt;chr&gt;, Barbados &lt;chr&gt;, Belarus &lt;chr&gt;, Belgium &lt;chr&gt;,
+## #   Belize &lt;chr&gt;, Benin &lt;chr&gt;, Bermuda &lt;chr&gt;, Bhutan &lt;chr&gt;, `Bolivia
+## #   (Plurinational State of)` &lt;chr&gt;, `Bonaire, Sint Eustatius and
+## #   Saba` &lt;chr&gt;, `Bosnia and Herzegovina` &lt;chr&gt;, Botswana &lt;chr&gt;,
+## #   Brazil &lt;chr&gt;, `British Virgin Islands` &lt;chr&gt;, `Brunei
+## #   Darussalam` &lt;chr&gt;, Bulgaria &lt;chr&gt;, `Burkina Faso` &lt;chr&gt;,
+## #   Burundi &lt;chr&gt;, `Cabo Verde` &lt;chr&gt;, Cambodia &lt;chr&gt;, Cameroon &lt;chr&gt;,
+## #   Canada &lt;chr&gt;, `Cayman Islands` &lt;chr&gt;, `Central African
+## #   Republic` &lt;chr&gt;, Chad &lt;chr&gt;, `Channel Islands` &lt;chr&gt;, Chile &lt;chr&gt;,
+## #   China &lt;chr&gt;, `China, Hong Kong SAR` &lt;chr&gt;, `China, Macao SAR` &lt;chr&gt;,
+## #   Colombia &lt;chr&gt;, Comoros &lt;chr&gt;, Congo &lt;chr&gt;, `Cook Islands` &lt;chr&gt;,
+## #   `Costa Rica` &lt;chr&gt;, `Côte d&#39;Ivoire` &lt;chr&gt;, Croatia &lt;chr&gt;, Cuba &lt;chr&gt;,
+## #   Curaçao &lt;chr&gt;, Cyprus &lt;chr&gt;, Czechia &lt;chr&gt;, `Dem. People&#39;s Republic of
+## #   Korea` &lt;chr&gt;, `Democratic Republic of the Congo` &lt;chr&gt;, Denmark &lt;chr&gt;,
+## #   Djibouti &lt;chr&gt;, Dominica &lt;chr&gt;, `Dominican Republic` &lt;chr&gt;,
+## #   Ecuador &lt;chr&gt;, Egypt &lt;chr&gt;, `El Salvador` &lt;chr&gt;, `Equatorial
+## #   Guinea` &lt;chr&gt;, Eritrea &lt;chr&gt;, Estonia &lt;chr&gt;, Eswatini &lt;chr&gt;,
+## #   Ethiopia &lt;chr&gt;, `Falkland Islands (Malvinas)` &lt;chr&gt;, `Faroe
+## #   Islands` &lt;chr&gt;, Fiji &lt;chr&gt;, Finland &lt;chr&gt;, France &lt;chr&gt;, `French
+## #   Guiana` &lt;chr&gt;, `French Polynesia` &lt;chr&gt;, Gabon &lt;chr&gt;, Gambia &lt;chr&gt;,
+## #   Georgia &lt;chr&gt;, Germany &lt;chr&gt;, Ghana &lt;chr&gt;, Gibraltar &lt;chr&gt;,
+## #   Greece &lt;chr&gt;, Greenland &lt;chr&gt;, Grenada &lt;chr&gt;, Guadeloupe &lt;chr&gt;,
+## #   Guam &lt;chr&gt;, Guatemala &lt;chr&gt;, Guinea &lt;chr&gt;, `Guinea-Bissau` &lt;chr&gt;,
+## #   Guyana &lt;chr&gt;, Haiti &lt;chr&gt;, `Holy See` &lt;chr&gt;, Honduras &lt;chr&gt;,
+## #   Hungary &lt;chr&gt;, Iceland &lt;chr&gt;, India &lt;chr&gt;, Indonesia &lt;chr&gt;, …</code></pre>
+<p>Now we got a dataframe of 1,624 rows with 246 columns as return with all countries only data for each year.</p>
+</div>
+<div id="remove-unnecessary-columns" class="section level3">
+<h3>Remove unnecessary columns</h3>
+<p>When you look at the columns we would notice that there are unnecessary columns like ‘Total’, ‘Other South’, etc, because we are interested in estimates of the migrants only for countries to countries. We can remove those unnecessary columns with ‘select’ command along with other unnecessary columns like below.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">UN_Countries_df &lt;-<span class="st"> </span>UN_Countries <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>X2, <span class="op">-</span>X4, <span class="op">-</span>X6, <span class="op">-</span>Total, <span class="op">-</span><span class="kw">starts_with</span>(<span class="st">&quot;Other&quot;</span>))</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">UN_Countries_df</a></code></pre></div>
+<pre><code>## # A tibble: 1,624 x 240
+##       X1 X3       X5 Afghanistan Albania Algeria `American Samoa` Andorra
+##    &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;  
+##  1  1990 Buru…   108 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  2  1990 Como…   174 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  3  1990 Djib…   262 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  4  1990 Erit…   232 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  5  1990 Ethi…   231 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  6  1990 Kenya   404 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  7  1990 Mada…   450 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  8  1990 Mala…   454 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+##  9  1990 Maur…   480 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+## 10  1990 Mayo…   175 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;   
+## # … with 1,614 more rows, and 232 more variables: Angola &lt;chr&gt;,
+## #   Anguilla &lt;chr&gt;, `Antigua and Barbuda` &lt;chr&gt;, Argentina &lt;chr&gt;,
+## #   Armenia &lt;chr&gt;, Aruba &lt;chr&gt;, Australia &lt;chr&gt;, Austria &lt;chr&gt;,
+## #   Azerbaijan &lt;chr&gt;, Bahamas &lt;chr&gt;, Bahrain &lt;chr&gt;, Bangladesh &lt;chr&gt;,
+## #   Barbados &lt;chr&gt;, Belarus &lt;chr&gt;, Belgium &lt;chr&gt;, Belize &lt;chr&gt;,
+## #   Benin &lt;chr&gt;, Bermuda &lt;chr&gt;, Bhutan &lt;chr&gt;, `Bolivia (Plurinational
+## #   State of)` &lt;chr&gt;, `Bonaire, Sint Eustatius and Saba` &lt;chr&gt;, `Bosnia
+## #   and Herzegovina` &lt;chr&gt;, Botswana &lt;chr&gt;, Brazil &lt;chr&gt;, `British Virgin
+## #   Islands` &lt;chr&gt;, `Brunei Darussalam` &lt;chr&gt;, Bulgaria &lt;chr&gt;, `Burkina
+## #   Faso` &lt;chr&gt;, Burundi &lt;chr&gt;, `Cabo Verde` &lt;chr&gt;, Cambodia &lt;chr&gt;,
+## #   Cameroon &lt;chr&gt;, Canada &lt;chr&gt;, `Cayman Islands` &lt;chr&gt;, `Central African
+## #   Republic` &lt;chr&gt;, Chad &lt;chr&gt;, `Channel Islands` &lt;chr&gt;, Chile &lt;chr&gt;,
+## #   China &lt;chr&gt;, `China, Hong Kong SAR` &lt;chr&gt;, `China, Macao SAR` &lt;chr&gt;,
+## #   Colombia &lt;chr&gt;, Comoros &lt;chr&gt;, Congo &lt;chr&gt;, `Cook Islands` &lt;chr&gt;,
+## #   `Costa Rica` &lt;chr&gt;, `Côte d&#39;Ivoire` &lt;chr&gt;, Croatia &lt;chr&gt;, Cuba &lt;chr&gt;,
+## #   Curaçao &lt;chr&gt;, Cyprus &lt;chr&gt;, Czechia &lt;chr&gt;, `Dem. People&#39;s Republic of
+## #   Korea` &lt;chr&gt;, `Democratic Republic of the Congo` &lt;chr&gt;, Denmark &lt;chr&gt;,
+## #   Djibouti &lt;chr&gt;, Dominica &lt;chr&gt;, `Dominican Republic` &lt;chr&gt;,
+## #   Ecuador &lt;chr&gt;, Egypt &lt;chr&gt;, `El Salvador` &lt;chr&gt;, `Equatorial
+## #   Guinea` &lt;chr&gt;, Eritrea &lt;chr&gt;, Estonia &lt;chr&gt;, Eswatini &lt;chr&gt;,
+## #   Ethiopia &lt;chr&gt;, `Falkland Islands (Malvinas)` &lt;chr&gt;, `Faroe
+## #   Islands` &lt;chr&gt;, Fiji &lt;chr&gt;, Finland &lt;chr&gt;, France &lt;chr&gt;, `French
+## #   Guiana` &lt;chr&gt;, `French Polynesia` &lt;chr&gt;, Gabon &lt;chr&gt;, Gambia &lt;chr&gt;,
+## #   Georgia &lt;chr&gt;, Germany &lt;chr&gt;, Ghana &lt;chr&gt;, Gibraltar &lt;chr&gt;,
+## #   Greece &lt;chr&gt;, Greenland &lt;chr&gt;, Grenada &lt;chr&gt;, Guadeloupe &lt;chr&gt;,
+## #   Guam &lt;chr&gt;, Guatemala &lt;chr&gt;, Guinea &lt;chr&gt;, `Guinea-Bissau` &lt;chr&gt;,
+## #   Guyana &lt;chr&gt;, Haiti &lt;chr&gt;, `Holy See` &lt;chr&gt;, Honduras &lt;chr&gt;,
+## #   Hungary &lt;chr&gt;, Iceland &lt;chr&gt;, India &lt;chr&gt;, Indonesia &lt;chr&gt;, `Iran
+## #   (Islamic Republic of)` &lt;chr&gt;, Iraq &lt;chr&gt;, Ireland &lt;chr&gt;, `Isle of
+## #   Man` &lt;chr&gt;, Israel &lt;chr&gt;, …</code></pre>
+<p>I’m using minus <strong>‘-’</strong> to delete columns and using <strong>‘start_with’</strong> function inside <strong>‘select’</strong> command to delete multiple columns whose names matche the text pattern of “Other”.</p>
+</div>
+<div id="rename-columns" class="section level3">
+<h3>Rename Columns</h3>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">UN_Countries_rename &lt;-<span class="st"> </span>UN_Countries_df <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="st">  </span><span class="kw">rename</span>(</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">    <span class="dt">year =</span> X1, </a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">    <span class="dt">destination_country =</span> X3, </a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">    <span class="dt">country_code =</span> X5</a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">    )</a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">UN_Countries_rename</a></code></pre></div>
+<pre><code>## # A tibble: 1,624 x 240
+##     year destination_cou… country_code Afghanistan Albania Algeria
+##    &lt;dbl&gt; &lt;chr&gt;                   &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;  
+##  1  1990 Burundi                   108 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  2  1990 Comoros                   174 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  3  1990 Djibouti                  262 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  4  1990 Eritrea                   232 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  5  1990 Ethiopia                  231 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  6  1990 Kenya                     404 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  7  1990 Madagascar                450 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  8  1990 Malawi                    454 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+##  9  1990 Mauritius                 480 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+## 10  1990 Mayotte                   175 &lt;NA&gt;        &lt;NA&gt;    &lt;NA&gt;   
+## # … with 1,614 more rows, and 234 more variables: `American Samoa` &lt;chr&gt;,
+## #   Andorra &lt;chr&gt;, Angola &lt;chr&gt;, Anguilla &lt;chr&gt;, `Antigua and
+## #   Barbuda` &lt;chr&gt;, Argentina &lt;chr&gt;, Armenia &lt;chr&gt;, Aruba &lt;chr&gt;,
+## #   Australia &lt;chr&gt;, Austria &lt;chr&gt;, Azerbaijan &lt;chr&gt;, Bahamas &lt;chr&gt;,
+## #   Bahrain &lt;chr&gt;, Bangladesh &lt;chr&gt;, Barbados &lt;chr&gt;, Belarus &lt;chr&gt;,
+## #   Belgium &lt;chr&gt;, Belize &lt;chr&gt;, Benin &lt;chr&gt;, Bermuda &lt;chr&gt;, Bhutan &lt;chr&gt;,
+## #   `Bolivia (Plurinational State of)` &lt;chr&gt;, `Bonaire, Sint Eustatius and
+## #   Saba` &lt;chr&gt;, `Bosnia and Herzegovina` &lt;chr&gt;, Botswana &lt;chr&gt;,
+## #   Brazil &lt;chr&gt;, `British Virgin Islands` &lt;chr&gt;, `Brunei
+## #   Darussalam` &lt;chr&gt;, Bulgaria &lt;chr&gt;, `Burkina Faso` &lt;chr&gt;,
+## #   Burundi &lt;chr&gt;, `Cabo Verde` &lt;chr&gt;, Cambodia &lt;chr&gt;, Cameroon &lt;chr&gt;,
+## #   Canada &lt;chr&gt;, `Cayman Islands` &lt;chr&gt;, `Central African
+## #   Republic` &lt;chr&gt;, Chad &lt;chr&gt;, `Channel Islands` &lt;chr&gt;, Chile &lt;chr&gt;,
+## #   China &lt;chr&gt;, `China, Hong Kong SAR` &lt;chr&gt;, `China, Macao SAR` &lt;chr&gt;,
+## #   Colombia &lt;chr&gt;, Comoros &lt;chr&gt;, Congo &lt;chr&gt;, `Cook Islands` &lt;chr&gt;,
+## #   `Costa Rica` &lt;chr&gt;, `Côte d&#39;Ivoire` &lt;chr&gt;, Croatia &lt;chr&gt;, Cuba &lt;chr&gt;,
+## #   Curaçao &lt;chr&gt;, Cyprus &lt;chr&gt;, Czechia &lt;chr&gt;, `Dem. People&#39;s Republic of
+## #   Korea` &lt;chr&gt;, `Democratic Republic of the Congo` &lt;chr&gt;, Denmark &lt;chr&gt;,
+## #   Djibouti &lt;chr&gt;, Dominica &lt;chr&gt;, `Dominican Republic` &lt;chr&gt;,
+## #   Ecuador &lt;chr&gt;, Egypt &lt;chr&gt;, `El Salvador` &lt;chr&gt;, `Equatorial
+## #   Guinea` &lt;chr&gt;, Eritrea &lt;chr&gt;, Estonia &lt;chr&gt;, Eswatini &lt;chr&gt;,
+## #   Ethiopia &lt;chr&gt;, `Falkland Islands (Malvinas)` &lt;chr&gt;, `Faroe
+## #   Islands` &lt;chr&gt;, Fiji &lt;chr&gt;, Finland &lt;chr&gt;, France &lt;chr&gt;, `French
+## #   Guiana` &lt;chr&gt;, `French Polynesia` &lt;chr&gt;, Gabon &lt;chr&gt;, Gambia &lt;chr&gt;,
+## #   Georgia &lt;chr&gt;, Germany &lt;chr&gt;, Ghana &lt;chr&gt;, Gibraltar &lt;chr&gt;,
+## #   Greece &lt;chr&gt;, Greenland &lt;chr&gt;, Grenada &lt;chr&gt;, Guadeloupe &lt;chr&gt;,
+## #   Guam &lt;chr&gt;, Guatemala &lt;chr&gt;, Guinea &lt;chr&gt;, `Guinea-Bissau` &lt;chr&gt;,
+## #   Guyana &lt;chr&gt;, Haiti &lt;chr&gt;, `Holy See` &lt;chr&gt;, Honduras &lt;chr&gt;,
+## #   Hungary &lt;chr&gt;, Iceland &lt;chr&gt;, India &lt;chr&gt;, Indonesia &lt;chr&gt;, `Iran
+## #   (Islamic Republic of)` &lt;chr&gt;, Iraq &lt;chr&gt;, Ireland &lt;chr&gt;, …</code></pre>
+</div>
+<div id="gather-235-columns-to-make-it-tidy" class="section level3">
+<h3>Gather 235 columns to make it tidy</h3>
+<p>Now, it’s ready to tidy this ‘matrix’-ish data form by using ‘gather’ command from tidyr package.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">Countries_by_no &lt;-<span class="st"> </span><span class="kw">gather</span>(UN_Countries_rename, <span class="st">&quot;origin_country&quot;</span>, <span class="st">&quot;migrants&quot;</span>, <span class="dv">4</span><span class="op">:</span><span class="dv">235</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">Countries_by_no</a></code></pre></div>
+<pre><code>## # A tibble: 78,754 x 10
+##     year destination_cou… country_code X242  X243  X244  X245  X246 
+##    &lt;dbl&gt; &lt;chr&gt;                   &lt;dbl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt;
+##  1  1990 Namibia                   516 NA    NA    NA    NA    NA   
+##  2  1990 South Africa              710 NA    NA    NA    NA    NA   
+##  3  1990 Egypt                     818 NA    NA    NA    NA    NA   
+##  4  1990 Libya                     434 NA    NA    NA    NA    NA   
+##  5  1990 Azerbaijan                 31 NA    NA    NA    NA    NA   
+##  6  1990 Bahrain                    48 NA    NA    NA    NA    NA   
+##  7  1990 Cyprus                    196 NA    NA    NA    NA    NA   
+##  8  1990 Iraq                      368 NA    NA    NA    NA    NA   
+##  9  1990 Israel                    376 NA    NA    NA    NA    NA   
+## 10  1990 Jordan                    400 NA    NA    NA    NA    NA   
+## # … with 78,744 more rows, and 2 more variables: origin_country &lt;chr&gt;,
+## #   migrants &lt;chr&gt;</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># remove extra columns</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">clean_country_df &lt;-<span class="st"> </span>Countries_by_no[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">4</span><span class="op">:</span><span class="dv">8</span>)]</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">clean_country_df</a></code></pre></div>
+<pre><code>## # A tibble: 78,754 x 5
+##     year destination_country country_code origin_country migrants
+##    &lt;dbl&gt; &lt;chr&gt;                      &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;   
+##  1  1990 Namibia                      516 Afghanistan    64      
+##  2  1990 South Africa                 710 Afghanistan    59      
+##  3  1990 Egypt                        818 Afghanistan    237     
+##  4  1990 Libya                        434 Afghanistan    677     
+##  5  1990 Azerbaijan                    31 Afghanistan    254     
+##  6  1990 Bahrain                       48 Afghanistan    215     
+##  7  1990 Cyprus                       196 Afghanistan    2       
+##  8  1990 Iraq                         368 Afghanistan    241     
+##  9  1990 Israel                       376 Afghanistan    2,724   
+## 10  1990 Jordan                       400 Afghanistan    74      
+## # … with 78,744 more rows</code></pre>
+</div>
+<div id="perform-statistics" class="section level3">
+<h3>Perform Statistics</h3>
+<p>Here we want to know which countries has the highest number of migrant by year . To do so, I would use</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co"># group by year </span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="co"># change the migrants variable into num type</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">clean_country_df<span class="op">$</span>migrants &lt;-<span class="st"> </span><span class="kw">as.integer</span>(clean_country_df<span class="op">$</span>migrants)</a></code></pre></div>
+<pre><code>## Warning: NAs introduced by coercion</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">clean_country_df<span class="op">$</span>migrants[<span class="kw">is.na</span>(clean_country_df<span class="op">$</span>migrants)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="kw">str</span>(clean_country_df)</a></code></pre></div>
+<pre><code>## Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:    78754 obs. of  5 variables:
+##  $ year               : num  1990 1990 1990 1990 1990 1990 1990 1990 1990 1990 ...
+##  $ destination_country: chr  &quot;Namibia&quot; &quot;South Africa&quot; &quot;Egypt&quot; &quot;Libya&quot; ...
+##  $ country_code       : num  516 710 818 434 31 48 196 368 376 400 ...
+##  $ origin_country     : chr  &quot;Afghanistan&quot; &quot;Afghanistan&quot; &quot;Afghanistan&quot; &quot;Afghanistan&quot; ...
+##  $ migrants           : num  64 59 237 677 254 215 2 241 0 74 ...</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co">#View(clean_country_df)</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb31-3" data-line-number="3">by_dest_Country_df &lt;-<span class="st"> </span>clean_country_df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(year, destination_country, origin_country) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">total_migrants =</span> <span class="kw">sum</span>(migrants)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="st">  </span><span class="kw">arrange</span>(<span class="kw">desc</span>(total_migrants))</a>
+<a class="sourceLine" id="cb31-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8">by_dest_Country_df</a></code></pre></div>
+<pre><code>## # A tibble: 78,754 x 4
+## # Groups:   year, destination_country [1,613]
+##     year destination_country      origin_country     total_migrants
+##    &lt;dbl&gt; &lt;chr&gt;                    &lt;chr&gt;                       &lt;dbl&gt;
+##  1  2010 United States of America Mexico                   12168662
+##  2  2015 United States of America Mexico                   11643298
+##  3  2019 United States of America Mexico                   11489684
+##  4  2005 United States of America Mexico                   10611064
+##  5  2000 United States of America Mexico                    9410529
+##  6  1995 United States of America Mexico                    6827945
+##  7  1990 Ukraine                  Russian Federation        5018098
+##  8  1995 Ukraine                  Russian Federation        4355392
+##  9  1990 United States of America Mexico                    4298014
+## 10  2000 Ukraine                  Russian Federation        3745842
+## # … with 78,744 more rows</code></pre>
+<p>As we can see here, we got more than 78,700 colums. I would prefer to take a subset of the data based on some statistical analysis. To do so, we can get mean, median to set a filtering cretria. Additionally, I will add a ranking column to the dataframe to rank the countries</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co"># first get mean, median, max, min </span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw">summary</span>(by_dest_Country_df<span class="op">$</span>total_migrants)</a></code></pre></div>
+<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##        0       19      153    13361     1162 12168662</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="co"># take a subset by filtering the results to only pick total migrants &gt; mean</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3">sub_set_migrant &lt;-<span class="st"> </span><span class="kw">select</span>(<span class="kw">filter</span>(by_dest_Country_df, total_migrants <span class="op">&gt;</span><span class="st"> </span><span class="dv">13361</span>), <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>))</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">sub_set_migrant[, <span class="dv">4</span>][<span class="kw">is.na</span>(sub_set_migrant[, <span class="dv">4</span>])] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb35-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb35-6" data-line-number="6"><span class="co"># add ranking system desc. ordered</span></a>
+<a class="sourceLine" id="cb35-7" data-line-number="7">sub_set_migrant<span class="op">$</span>Rank &lt;-<span class="st">  </span><span class="kw">order</span>(sub_set_migrant<span class="op">$</span>total_migrants, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb35-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb35-9" data-line-number="9">sub_set_migrant</a></code></pre></div>
+<pre><code>## # A tibble: 7,020 x 5
+## # Groups:   year, destination_country [1,062]
+##     year destination_country      origin_country     total_migrants  Rank
+##    &lt;dbl&gt; &lt;chr&gt;                    &lt;chr&gt;                       &lt;dbl&gt; &lt;int&gt;
+##  1  2010 United States of America Mexico                   12168662     1
+##  2  2015 United States of America Mexico                   11643298     2
+##  3  2019 United States of America Mexico                   11489684     3
+##  4  2005 United States of America Mexico                   10611064     4
+##  5  2000 United States of America Mexico                    9410529     5
+##  6  1995 United States of America Mexico                    6827945     6
+##  7  1990 Ukraine                  Russian Federation        5018098     7
+##  8  1995 Ukraine                  Russian Federation        4355392     8
+##  9  1990 United States of America Mexico                    4298014     9
+## 10  2000 Ukraine                  Russian Federation        3745842    10
+## # … with 7,010 more rows</code></pre>
+<p>Now we get a much tider data about 7,000 columns, only 4 columns. However, we can use <strong>spread()</strong> function to group by year. to see</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">gather_by_year &lt;-<span class="st"> </span>sub_set_migrant <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="st">  </span><span class="kw">spread</span>(<span class="dt">key =</span> <span class="st">&quot;year&quot;</span>, <span class="dt">value =</span> <span class="st">&quot;total_migrants&quot;</span>)<span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="st">  </span><span class="kw">arrange</span>(Rank)</a>
+<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="co"># replace NA with 0 value</span></a>
+<a class="sourceLine" id="cb37-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb37-6" data-line-number="6">gather_by_year[, <span class="dv">4</span><span class="op">:</span><span class="dv">10</span>][<span class="kw">is.na</span>(gather_by_year[, <span class="dv">4</span><span class="op">:</span><span class="dv">10</span>])] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb37-7" data-line-number="7">gather_by_year</a></code></pre></div>
+<pre><code>## # A tibble: 7,020 x 10
+## # Groups:   destination_country [168]
+##    destination_cou… origin_country  Rank `1990` `1995` `2000` `2005` `2010`
+##    &lt;chr&gt;            &lt;chr&gt;          &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+##  1 United States o… Mexico             1 0.     0.     0.     0.     1.22e7
+##  2 United States o… Mexico             2 0.     0.     0.     0.     0.    
+##  3 United States o… Mexico             3 0.     0.     0.     0.     0.    
+##  4 United States o… Mexico             4 0.     0.     0.     1.06e7 0.    
+##  5 United States o… Mexico             5 0.     0.     9.41e6 0.     0.    
+##  6 United States o… Mexico             6 0.     6.83e6 0.     0.     0.    
+##  7 Ukraine          Russian Feder…     7 5.02e6 0.     0.     0.     0.    
+##  8 Ukraine          Russian Feder…     8 0.     4.36e6 0.     0.     0.    
+##  9 United States o… Mexico             9 4.30e6 0.     0.     0.     0.    
+## 10 Ukraine          Russian Feder…    10 0.     0.     3.75e6 0.     0.    
+## # … with 7,010 more rows, and 2 more variables: `2015` &lt;dbl&gt;, `2019` &lt;dbl&gt;</code></pre>
+</div>
+<div id="visualization" class="section level3">
+<h3>Visualization</h3>
+<p>I would prefer to explore the data quickly using the Heatmap chart. This can be done by assigning ‘destination_country’ to X-axis, ‘origin_country’ to Y-axis, and ‘migrants’ to Color.</p>
+<p><strong>Note</strong> This group is for countries that have total number of migrants above average ~ 1300 migrant per year. First step, we can plot a boxplot to explore the data</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2">data_<span class="dv">1</span> &lt;-<span class="st"> </span>sub_set_migrant <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(Rank <span class="op">&lt;=</span><span class="st"> </span><span class="dv">10</span> <span class="op">&amp;</span><span class="st"> </span>total_migrants <span class="op">&gt;=</span><span class="st"> </span><span class="kw">mean</span>(sub_set_migrant<span class="op">$</span>total_migrants)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="st">  </span><span class="kw">select</span>(destination_country, origin_country, total_migrants, year)</a>
+<a class="sourceLine" id="cb39-5" data-line-number="5">data_<span class="dv">1</span></a></code></pre></div>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   year, destination_country [10]
+##    destination_country      origin_country     total_migrants  year
+##    &lt;chr&gt;                    &lt;chr&gt;                       &lt;dbl&gt; &lt;dbl&gt;
+##  1 United States of America Mexico                   12168662  2010
+##  2 United States of America Mexico                   11643298  2015
+##  3 United States of America Mexico                   11489684  2019
+##  4 United States of America Mexico                   10611064  2005
+##  5 United States of America Mexico                    9410529  2000
+##  6 United States of America Mexico                    6827945  1995
+##  7 Ukraine                  Russian Federation        5018098  1990
+##  8 Ukraine                  Russian Federation        4355392  1995
+##  9 United States of America Mexico                    4298014  1990
+## 10 Ukraine                  Russian Federation        3745842  2000</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw">ggplot</span>(data_<span class="dv">1</span>, <span class="kw">aes</span>(<span class="dt">x =</span> destination_country , <span class="dt">y =</span> total_migrants, <span class="dt">fill =</span> origin_country , <span class="dt">colour =</span> origin_country)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb41-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span><span class="st"> </span>data_<span class="dv">1</span><span class="op">$</span>year) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb41-4" data-line-number="4"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;total_migrants&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="st">  </span><span class="kw">scale_y_continuous</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle=</span><span class="dv">65</span>, <span class="dt">vjust=</span><span class="fl">0.65</span>))</a></code></pre></div>
+<p><img src="Project_2_607_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre><code>## Creating a generic function for &#39;toJSON&#39; from package &#39;jsonlite&#39; in package &#39;googleVis&#39;</code></pre>
+<pre><code>## 
+## Welcome to googleVis version 0.6.4
+## 
+## Please read Google&#39;s Terms of Use
+## before you start using the package:
+## https://developers.google.com/terms/
+## 
+## Note, the plot method of googleVis will by default use
+## the standard browser to display its output.
+## 
+## See the googleVis package vignettes for more details,
+## or visit https://github.com/mages/googleVis.
+## 
+## To suppress this message use:
+## suppressPackageStartupMessages(library(googleVis))</code></pre>
+<pre><code>## starting httpd help server ... done</code></pre>
+<p>ggplot(data = gather_by_year) + geom_sf(aes(fill = gather_by_year$total_migrants)) + scale_fill_viridis_c(option = “plasma”, trans = “sqrt”) ```</p>
+<p>As we can see from the plot, for the top 50 destination countries that have most of the migrants populations</p>
+</div>
+</div>
+<div id="dataset_2" class="section level2">
+<h2>Dataset_2 :</h2>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
