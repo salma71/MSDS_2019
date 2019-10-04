@@ -33,13 +33,6 @@ library(janitor)
 
 ### Read the data into R
 
-```{r}#
-library(readxl)
-UN_MigrantStockTotal_2019 <- read_excel("UN_MigrantStockTotal_2019.xlsx", 
-    sheet = "Table 1", na = "0", skip = 15)
-UN_MigrantStockTotal_2019
-```
-
 ```{r}
 library(readr)
 UN_MigrantStock <- read_csv("UN_MigrantStockByOriginAndDestination_2019/Table 1-Table 1.csv", 
@@ -108,7 +101,7 @@ Countries_by_no
 
 ```{r}
 # remove extra columns
-clean_country_df <- Countries_by_no[, -c(4:8)]
+clean_country_df <- Countries_by_no[, -c(3:8)]
 clean_country_df
 ```
 
@@ -119,13 +112,13 @@ Here we want to know which countries has the highest number of migrant by year .
 ```{r}
 # group by year 
 # change the migrants variable into num type
-clean_country_df$migrants <- as.integer(clean_country_df$migrants)
-clean_country_df$migrants[is.na(clean_country_df$migrants)] <- 0
-str(clean_country_df)
+num_country_df <- clean_country_df
+num_country_df$migrants <- parse_number(num_country_df$migrants)
+str(num_country_df)
 
-#View(clean_country_df)
+num_country_df
 
-by_dest_Country_df <- clean_country_df %>%
+by_dest_Country_df <- num_country_df %>%
   group_by(year, destination_country, origin_country) %>%
   summarise(total_migrants = sum(migrants)) %>%
   arrange(desc(total_migrants))
@@ -141,8 +134,7 @@ summary(by_dest_Country_df$total_migrants)
 
 # take a subset by filtering the results to only pick total migrants > mean
 
-sub_set_migrant <- select(filter(by_dest_Country_df, total_migrants > 15000), c(1:4))
-sub_set_migrant[, 4][is.na(sub_set_migrant[, 4])] <- 0
+sub_set_migrant <- select(filter(by_dest_Country_df, total_migrants > 20000), c(1:4))
 
 # add ranking system desc. ordered
 sub_set_migrant$Rank <-  order(sub_set_migrant$total_migrants, decreasing = TRUE)
@@ -168,7 +160,7 @@ gather_by_year
 ### Export to csv file
 
 ```{r}
-file_to_export <- write.table(gather_by_year, file = "internationalTotalMigrant.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
+file_to_export <- write.table(clean_country_df, file = "internationalTotalMigrant.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
 
 ```
 
@@ -193,8 +185,7 @@ file_to_open
 I would prefer to explore the data quickly using the Heatmap chart. This can be done by assigning ‘destination_country’ to X-axis, ‘origin_country’ to Y-axis, and ‘migrants’ to Color. 
 
 **Note**
-This group is for countries that have total number of migrants above average ~ 1300 migrant per year. First step, we can plot a boxplot to explore the data 
-
+This group is for countries that have total number of migrants above average ~ 13000 migrant per year. First step, we can plot a boxplot to explore the data 
 
 
 ```{r}
@@ -233,7 +224,6 @@ ggplot() +
 
 As we can see from the plot, for the top 100 destination countries that have most of the migrants populations over seven period of time. We will get more insights on 2015 and 2019 and inspect what is the increasing rate for the top 10 migration countries.  
 
-Lets get the 
 
 ```{r}
 migration_15_19 = sub_set_migrant %>%
@@ -247,29 +237,266 @@ ggplot(migration_15_19, aes(x=destination_country, y=total_migrants, fill = dest
   geom_bar(stat="identity", width=1, position = position_dodge()) + 
   labs(fill="destination country") +
   labs(title="Ordered Bar Chart", 
-       subtitle="Top migrats population") + 
+       subtitle="Top destinations for migrats population - more than 3M migrants per year") + 
   theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
-  facet_grid( ~ year)
+  facet_grid( ~ year) +
+  theme_light()
 ```
-United states of America is ranked no 1 regards to total migrants population. However, Turkey become no.3 in 2015 with almost 3M migrant population. In 2010, only United states and Ukraine accepts migrants, and there total migrants populations remains the same for 2015 and 2019. Although United stated have the highest population, it seems that the total number is slightly decreasing from 2010 to 2019. 
+
+We got some interesting results here, for instance, United states of America has the highest migrants population over the three time intervals. However, the total migrants that USA accepts decreased by 1 million migrants in 2019. Turkey started accepting migrants in 2019 time interval with a significant number more than 3.5M migrants per interval. As an overall observation, more countries accepting migrants throught time where 2019 interval has the the top 6 countries accepting population. 
+
+For the next steps, I am interested in investigating what is the migrants' origin countries that migrate to the United States and Turkey.  
 
 
 ```{r}
 by_origin_country <- migration_15_19 %>%
-  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Ukraine", "Turkey", "Russian Federation") & total_migrants >= 3000000) %>%
+  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Ukraine", "Turkey", "Russian Federation", "India") & total_migrants >= 3000000) %>%
   select(destination_country, origin_country, total_migrants, year) 
 by_origin_country
 
+theme()
 ggplot(by_origin_country, aes(x = destination_country , y = total_migrants, colour = origin_country)) +
   geom_point(size = 3) + 
   facet_grid(~ by_origin_country$year) + 
   labs(y = "total_migrants") +
   scale_y_continuous() +
-  theme(axis.text.x = element_text(angle=65, vjust=0.65))
+  theme(axis.text.x = element_text(angle=65, vjust=0.65)) +
+  theme_linedraw()
 ```
-The majority of migrant population to the United States of America is from Mexico for more than one million migrants per year. Also, it seams that the Turkey accepted more than 3M migrant from Syrian Arab Republic in 2019. The other main origin countries that have most of the population are India, Ukrain, and Russian Federation respectively with no major difference in the total population. 
+
+The majority of migrant population to the United States of America is from Mexico. Also, it seams that the Turkey accepted more than 3.7M migrant from Syrian Arab Republic in 2019 interval. The other main origin countries that have most of the population are India, Ukrain, and Russian Federation respectively with no major difference in the total population. 
+
+```{r}
+only_3 <- migration_15_19%>%
+  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year == "2019") %>%
+  select(destination_country, origin_country, total_migrants) 
+
+only_3
+  
+```
+As illustrated, we can concluded that United States is the top destination for Mexicans. However, Indians like to live in the United Arab Emirates at the same time Syrians would rather to flee to Turkey
+
+## Dataset_2 : UN_Migrant stock by age
+
+### Import the dataset 
+
+```{r}
+library(readr)
+UN_Migrant_age <- read_csv("UN_MigrantStockByAgeAndSex_2019/Table 1-Table 1.csv", skip = 15)
+UN_Migrant_age
+
+```
+
+As the previous dataset, we need to extract only the countries not regions. To do so, we can 
+
+```{r}
+UN_Countries_age <- filter(UN_Migrant_age ,!is.na(X6))
+UN_Countries_age
+```
+
+We now have 1,624 row with 62 columns. Now it is time to do some cleaning up.
+
+### Remove unnecessary columns
+
+When you look at the columns we would notice that there are unnecessary columns like **‘Total’**, etc, because we are interested in estimates of the migrants age category for males and female only for countries. We can remove those unnecessary columns with ‘select’ command along with other unnecessary columns like below.
+
+```{r}
+migrant_age_df <- UN_Countries_age %>% 
+  select(-X2, -X4, -X5, -X6, -starts_with("Total"), -c(58:62))
+migrant_age_df
+```
+
+Now we have 1624 rows with a 34 columns 
+### Subset the data - Age categories for both sexes
+
+Since we are focusing here on what is the most age categories that had migrated from their origin countries to another countries. So I decided to subset the data into three subsets, both categories, males only, and females only. We are interested here in both categories. 
+
+```{r}
+#Use select function to fetch only the data that we interested by picking the colnames
+both_sex_df <- migrant_age_df %>%
+  select(c("X1":"75+"))
+
+both_sex_df
+```
+
+### Rename the columns 
+
+```{r}
+both_sex_rename <- both_sex_df %>% 
+  rename(
+    year = X1, 
+    destination_country = X3, 
+    )
+both_sex_rename
+```
+Now we have 198 columns, we can make it more tider by devide the age categories into 4 familiar categories. 
+
+  child     | 0 - 19
+  ----------|---------
+  youth     | 20 - 39
+  ----------|---------
+  adult     | 40 - 59
+  ----------|---------
+  senior    | 60 - 75+
+  ----------|---------
+
+we will iterate over the subset and sum each 4 column into one, but first, we need to convert the column type from char to num to be able to complete the summation. 
+
+
+```{r warning=FALSE, message=FALSE}
+num_age_df <- both_sex_rename
+num_age_df$`0-4` <- parse_number(num_age_df$`0-4`)
+num_age_df$`5-9` <- parse_number(num_age_df$`5-9`)
+num_age_df$`10-14` <- parse_number(num_age_df$`10-14`)
+num_age_df$`15-19` <- parse_number(num_age_df$`15-19`)
+num_age_df$`20-24` <- parse_number(num_age_df$`20-24`)
+num_age_df$`25-29` <- parse_number(num_age_df$`25-29`)
+num_age_df$`30-34` <- parse_number(num_age_df$`30-34`)
+num_age_df$`35-39` <- parse_number(num_age_df$`35-39`)
+num_age_df$`40-44` <- parse_number(num_age_df$`40-44`)
+num_age_df$`45-49` <- parse_number(num_age_df$`45-49`)
+num_age_df$`50-54` <- parse_number(num_age_df$`50-54`)
+num_age_df$`55-59` <- parse_number(num_age_df$`55-59`)
+num_age_df$`60-64` <- parse_number(num_age_df$`60-64`)
+num_age_df$`65-69` <- parse_number(num_age_df$`65-69`)
+num_age_df$`70-74` <- parse_number(num_age_df$`70-74`)
+num_age_df$`75+` <- parse_number(num_age_df$`75+`)
+
+num_age_df
+
+#age_category <- both_sex_rename %>%
+#  summarise(child = sum(c(3:6)))
+```
 
 
 
 
-## Dataset_2 : 
+
+
+```{r}
+by_age <- num_age_df %>%
+  gather(age, total_population, c(3:18))
+by_age
+```
+
+
+
+
+```{r}
+#check how many youth 
+summary(by_age$total_population)
+
+by_youth <- by_age%>%
+  filter(age %in% c("20-24", "25-29", "30-34", "35-39") & total_population >= 55709)%>%
+  select(year, destination_country, total_population)%>%
+  arrange(desc(total_population))
+
+by_youth
+
+theme_set(theme_classic())
+ggplot(by_youth, aes(x=year, y=total_population)) + 
+  geom_point(col="tomato2", size=3) +   # Draw points
+  geom_segment(aes(x=year, 
+                   xend=year, 
+                   y=min(total_population), 
+                   yend=max(total_population)), 
+               linetype="dashed", 
+               size=0.1) +   # Draw dashed lines
+  labs(title="Dot Plot", 
+       subtitle="Youth population over the years", 
+       caption="source: by_youth") +  
+  coord_flip()
+
+```
+
+
+
+
+```{r}
+#check how many children 
+
+by_child <- by_age%>%
+  filter(age %in% c("0-4", "5-9", "10-14", "15-19") & total_population >= 55709)%>%
+  select(year, destination_country, total_population, age)%>%
+  arrange(desc(total_population))
+
+by_child
+
+
+#check how many adults 
+
+by_adult <- by_age%>%
+  filter(age %in% c("40-44", "45-49", "50-54", "55-59") & total_population >= 55709)%>%
+  select(year, destination_country, total_population, age)%>%
+  arrange(desc(total_population))
+
+by_adult
+
+#check how many senior 
+
+by_senior <- by_age%>%
+  filter(age %in% c("60-64", "65-69", "70-74", "75+") & total_population >= 55709)%>%
+  select(year, destination_country, total_population, age)%>%
+  arrange(desc(total_population))
+
+by_senior
+
+
+```
+I used dplyr::leftjoin -> Reduce function along with merge to combine all 4 dataframes into one.
+```{r}
+merged_age <- Reduce(function(...) merge(..., all=TRUE, sort = FALSE), list(by_child, by_youth, by_adult, by_senior))
+merged_age
+
+
+```
+
+
+
+Now based on the previous analysis in Dataset_1, we will pick only the top countries that have majority of population to get more insights how many migrants for each age category. I will look into the top 6 destinations USA, Turkey, United Arab Emirates, India, Ukraine, and Russian Federation. 
+
+First, we need to condense the age groups into categorial factor to be easy to visualize. To do that, we can construct a for-loop to iterate over the merged_age dataframe and change the value into the category we want child, youth, adult, and senior migrants. 
+
+```{r}
+
+for (i in 1:nrow(merged_age)) {
+    if(merged_age[[i,4]] %in% c("0-4" ,  "5-9" ,  "10-14" ,"15-19")) {
+      merged_age[[i,4]] <- "child"
+    } else if(merged_age[[i,4]] %in% c("20-24", "25-29" ,"30-34" ,"35-39")) {
+      merged_age[[i,4]] <- "youth"
+    } else if(merged_age[[i,4]] %in% c("40-44" ,"45-49" ,"50-54" ,"55-59")) {
+      merged_age[[i,4]] <- "adult"
+    } else if(merged_age[[i,4]] %in% c("60-64", "65-69", "70-74", "75+")) {
+      merged_age[[i,4]] <- "senior"
+    }
+  merged_age
+}
+View(merged_age)
+```
+
+
+
+```{r}
+#replace NA <- 0
+merged_age[is.na(merged_age)] <- 0
+
+
+top_migrant_countries <- merged_age %>%
+  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year %in% c(2010, 2015,2019) & age != 0) %>%
+  select(destination_country, age, total_population, year)%>%
+  arrange(desc(total_population))
+  
+top_migrant_countries
+
+ggplot(top_migrant_countries, aes(x=age, y=total_population, fill = age)) + 
+  geom_bar(stat="identity",position=position_nudge()) + 
+  labs(title="Migrant age-categories during 3 intervals", 
+       subtitle="Top migrats age-categories for the top 6 destination countries") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  facet_wrap(~year) +
+  theme_light()
+```
+
+```
+
+
