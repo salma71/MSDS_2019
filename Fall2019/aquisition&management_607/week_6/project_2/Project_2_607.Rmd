@@ -5,43 +5,42 @@ date: "9/30/2019"
 output:
   html_document:
     highlight: pygments
+    df_print: paged
     theme: united
     toc: true
     toc_float: true
     code_folding: show
-    self_contained: no
 ---
 
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+```{r  setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(xlsx)
 library(dplyr)
 library(janitor)
 ```
 
+## Introduction 
 
 * [Total international migrant stock](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockTotal_2015.xlsx)  
 * [By age and Sex](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByAge_2015.xlsx)  
 * [By destination and origin](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2015.xlsx)  
 
-## Dataset_1: Total Immigration for 2019
+ 
+### Dataset_1: Total Immigration for 2019 {.tabset .tabset-fade .tabset-pills}
 
 [The United Nations](https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp), Department of Economic and Social Affairs published dataset presents estimates of international migrant by age, sex and origin. Estimates are presented for 1990, 1995, 2000, 2005, 2010, 2015 and 2019 and are available for all countries and areas of the world. The estimates are based on official statistics on the foreign-born or the foreign population.
 
 ### Read the data into R
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(readr)
 UN_MigrantStock <- read_csv("UN_MigrantStockByOriginAndDestination_2019/Table 1-Table 1.csv", 
     skip = 16)
-UN_MigrantStock
+head(UN_MigrantStock)
 ```
-
-
-
 
 ### Remove Regions and keep only Countries
 
@@ -49,16 +48,16 @@ First thing you would notice is that the first 8 rows are not countries, they ar
 
 By running the command like below to keep only the rows whose **X6** column have **NA**
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 temp <- filter(UN_MigrantStock ,is.na(X6))
-temp
+head(temp)
 ```
 
 These are all regions, not countries, which means that we can safely remove these rows by adding an exclamation mark **‘!’** right before **‘is.na()’** function like below.
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 UN_Countries <- filter(UN_MigrantStock ,!is.na(X6))
-UN_Countries
+head(UN_Countries)
 ```
 
 
@@ -68,55 +67,56 @@ Now we got a dataframe of 1,624 rows with 246 columns as return with all countri
 
 When you look at the columns we would notice that there are unnecessary columns like ‘Total’, ‘Other South’, etc, because we are interested in estimates of the migrants only for countries to countries. We can remove those unnecessary columns with ‘select’ command along with other unnecessary columns like below.
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 UN_Countries_df <- UN_Countries %>% 
   select(-X2, -X4, -X6, -Total, -starts_with("Other"))
-UN_Countries_df
+head(UN_Countries_df)
 ```
 
 I’m using minus **‘-’** to delete columns and using **‘start_with’** function inside **‘select’** command to delete multiple columns whose names matche the text pattern of “Other”.
 
 ### Rename Columns 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 UN_Countries_rename <- UN_Countries_df %>% 
   rename(
     year = X1, 
     destination_country = X3, 
     country_code = X5
     )
-UN_Countries_rename
+head(UN_Countries_rename)
 ```
+
 
 ### Gather 235 columns to make it tidy
 
 Now, it’s ready to tidy this ‘matrix’-ish data form by using ‘gather’ command from tidyr package.
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(tidyr)
 Countries_by_no <- gather(UN_Countries_rename, "origin_country", "migrants", 4:235, na.rm = TRUE)
-Countries_by_no
+head(Countries_by_no)
 ```
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 # remove extra columns
 clean_country_df <- Countries_by_no[, -c(3:8)]
-clean_country_df
+head(clean_country_df)
 ```
 
 ### Perform Statistics  
 
 Here we want to know which countries has the highest number of migrant by year . To do so, I would use 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 # group by year 
 # change the migrants variable into num type
 num_country_df <- clean_country_df
 num_country_df$migrants <- parse_number(num_country_df$migrants)
 str(num_country_df)
 
-num_country_df
+head(num_country_df)
 
 by_dest_Country_df <- num_country_df %>%
   group_by(year, destination_country, origin_country) %>%
@@ -128,7 +128,7 @@ by_dest_Country_df
 
 As we can see here, we got more than 78,700 colums. I would prefer to take a subset of the data based on some statistical analysis. To do so, we can get mean, median to set a filtering cretria. Additionally, I will add a ranking column to the dataframe to rank the countries
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 # first get mean, median, max, min 
 summary(by_dest_Country_df$total_migrants)
 
@@ -146,7 +146,7 @@ sub_set_migrant
 Now we get a much tider data about 7,000 columns, only 4 columns. However, we can use **spread()** function to group by year. to see  
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 gather_by_year <- sub_set_migrant %>%
   spread(key = "year", value = "total_migrants")%>%
   arrange(Rank)
@@ -157,9 +157,9 @@ gather_by_year
   
 ```
 
-### Export to csv file
+## Export to csv file
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_to_export <- write.table(clean_country_df, file = "migrantByOriginDestination.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
 
 ```
@@ -168,13 +168,13 @@ file_to_export <- write.table(clean_country_df, file = "migrantByOriginDestinati
 
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/migrantByOriginDestination.csv")
 ```
 
 ### open the file from local machine
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_to_open <- read.csv(file = "migrantByOriginDestination.csv", header = TRUE, sep = ",")
 
 file_to_open
@@ -188,15 +188,18 @@ I would prefer to explore the data quickly using the Heatmap chart. This can be 
 This group is for countries that have total number of migrants above average ~ 13000 migrant per year. First step, we can plot a boxplot to explore the data 
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(ggmap)
 map_world <- map_data("world")
 #map_world$region
 
 subset_migrant <- sub_set_migrant
 #recode the country name to be able to left join the two data frames
-as.factor(subset_migrant$destination_country) %>% levels()
+head(as.factor(subset_migrant$destination_country) %>% 
+  levels())
+```
 
+```{r message=FALSE, warning=FALSE}
 # RECODE NAMES
 subset_migrant$destination_country <- recode(subset_migrant$destination_country
                                   ,'United States of America' = 'USA'
@@ -225,7 +228,7 @@ ggplot() +
 As we can see from the plot, for the top 100 destination countries that have most of the migrants populations over seven period of time. We will get more insights on 2015 and 2019 and inspect what is the increasing rate for the top 10 migration countries.  
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 migration_15_19 = sub_set_migrant %>%
   filter(total_migrants >= 3000000 & year %in% c(2010 ,2015, 2019)) %>%
   select(destination_country, origin_country, year, total_migrants)%>%
@@ -248,7 +251,7 @@ We got some interesting results here, for instance, United states of America has
 For the next steps, I am interested in investigating what is the migrants' origin countries that migrate to the United States and Turkey.  
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 by_origin_country <- migration_15_19 %>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Ukraine", "Turkey", "Russian Federation", "India") & total_migrants >= 3000000) %>%
   select(destination_country, origin_country, total_migrants, year) 
@@ -266,7 +269,7 @@ ggplot(by_origin_country, aes(x = destination_country , y = total_migrants, colo
 
 The majority of migrant population to the United States of America is from Mexico. Also, it seams that the Turkey accepted more than 3.7M migrant from Syrian Arab Republic in 2019 interval. The other main origin countries that have most of the population are India, Ukrain, and Russian Federation respectively with no major difference in the total population. 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 only_3 <- migration_15_19%>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year == "2019") %>%
   select(destination_country, origin_country, total_migrants) 
@@ -276,11 +279,11 @@ only_3
 ```
 As illustrated, we can concluded that United States is the top destination for Mexicans. However, Indians like to live in the United Arab Emirates at the same time Syrians would rather to flee to Turkey
 
-## Dataset_2 : UN_Migrant stock by age
+#### Dataset_2: UN_Migrant stock by age
 
 ### Import the dataset 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(readr)
 UN_Migrant_age <- read_csv("UN_MigrantStockByAgeAndSex_2019/Table 1-Table 1.csv", skip = 15)
 UN_Migrant_age
@@ -289,7 +292,7 @@ UN_Migrant_age
 
 As the previous dataset, we need to extract only the countries not regions. To do so, we can 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 UN_Countries_age <- filter(UN_Migrant_age ,!is.na(X6))
 UN_Countries_age
 ```
@@ -300,7 +303,7 @@ We now have 1,624 row with 62 columns. Now it is time to do some cleaning up.
 
 When you look at the columns we would notice that there are unnecessary columns like **‘Total’**, etc, because we are interested in estimates of the migrants age category for males and female only for countries. We can remove those unnecessary columns with ‘select’ command along with other unnecessary columns like below.
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 migrant_age_df <- UN_Countries_age %>% 
   select(-X2, -X4, -X5, -X6, -starts_with("Total"), -c(58:62))
 migrant_age_df
@@ -311,7 +314,7 @@ Now we have 1624 rows with a 34 columns
 
 Since we are focusing here on what is the most age categories that had migrated from their origin countries to another countries. So I decided to subset the data into three subsets, both categories, males only, and females only. We are interested here in both categories. 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #Use select function to fetch only the data that we interested by picking the colnames
 both_sex_df <- migrant_age_df %>%
   select(c("X1":"75+"))
@@ -321,7 +324,7 @@ both_sex_df
 
 ### Rename the columns 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 both_sex_rename <- both_sex_df %>% 
   rename(
     year = X1, 
@@ -369,11 +372,7 @@ num_age_df
 ```
 
 
-
-
-
-
-```{r}
+```{r  message=FALSE, warning=FALSE}
 by_age <- num_age_df %>%
   gather(age, total_population, c(3:18))
 by_age
@@ -381,7 +380,7 @@ by_age
 
 ### Export to csv file
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_to_export <- write.table(by_age, file = "migrantByAge.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
 
 ```
@@ -390,20 +389,20 @@ file_to_export <- write.table(by_age, file = "migrantByAge.csv", row.names = FAL
 
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/migrantByAge.csv")
 ```
 
 ### open the file from local machine
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_to_open <- read.csv(file = "migrantByAge.csv", header = TRUE, sep = ",")
 
 file_to_open
 ```
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #check how many youth 
 summary(by_age$total_population)
 
@@ -432,8 +431,7 @@ ggplot(by_youth, aes(x=year, y=total_population)) +
 
 
 
-
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #check how many children 
 
 by_child <- by_age%>%
@@ -464,8 +462,10 @@ by_senior
 
 
 ```
+
 I used dplyr::leftjoin -> Reduce function along with merge to combine all 4 dataframes into one.
-```{r}
+
+```{r  message=FALSE, warning=FALSE}
 merged_age <- Reduce(function(...) merge(..., all=TRUE, sort = FALSE), list(by_child, by_youth, by_adult, by_senior))
 merged_age
 
@@ -473,12 +473,11 @@ merged_age
 ```
 
 
-
 Now based on the previous analysis in Dataset_1, we will pick only the top countries that have majority of population to get more insights how many migrants for each age category. I will look into the top 6 destinations USA, Turkey, United Arab Emirates, India, Ukraine, and Russian Federation. 
 
 First, we need to condense the age groups into categorial factor to be easy to visualize. To do that, we can construct a for-loop to iterate over the merged_age dataframe and change the value into the category we want child, youth, adult, and senior migrants. 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 
 for (i in 1:nrow(merged_age)) {
     if(merged_age[[i,4]] %in% c("0-4" ,  "5-9" ,  "10-14" ,"15-19")) {
@@ -497,7 +496,7 @@ merged_age
 
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #replace NA <- 0
 merged_age[is.na(merged_age)] <- 0
 
@@ -518,7 +517,8 @@ ggplot(top_migrant_countries, aes(x=age, y=total_population, fill = destination_
   theme_light()
 ```
 
-```{r}
+
+```{r  message=FALSE, warning=FALSE}
 best_3 <- merged_age%>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year %in% c("2019") & age != 0) %>%
   select(destination_country, age, total_population, year)%>%
@@ -538,26 +538,26 @@ ggplot(best_3, aes(x=age, y=total_population, fill = age)) +
 
 ```
 
-## Dataset_3: UN_Migrant_refugee stock total 2019
+#### Dataset_3: UN_Migrant_refugee stock total 2019
 
 
 ### Import the dataset 
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 library(readr)
 UN_Refugee_df <- read_csv("UN_MigrantStockTotal_2019/Table 6-Table 1.csv", 
     skip = 15)
 UN_Refugee_df
 ```
-```{r}
+```{r  message=FALSE, warning=FALSE}
 refugee_country_df <- filter(UN_Refugee_df ,!is.na(X5))
 refugee_country_df
 ```
 
 ### Remove unnecessary columns
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 refugee_df <- refugee_country_df %>% 
   select(-X1,-c(3:5))
 refugee_df
@@ -568,7 +568,7 @@ Now we have 232 rows with a 22 columns
 ### Subset the data - Estimate refugee stock including asylum seekers
 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #Use select function to fetch only the data that we interested by picking the colnames
 estimate_refugee_df <- refugee_df %>%
   select(c("X2":"2019"))
@@ -578,7 +578,7 @@ estimate_refugee_df
 
 ### Rename the columns 
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 estimate_refugee_rename <- estimate_refugee_df %>% 
   rename(
     destination_country = X2, 
@@ -602,7 +602,7 @@ num_est_refugee
 #  summarise(child = sum(c(3:6)))
 ```
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 by_refugee_pop <- num_est_refugee%>%
   gather(year, total_estimates, c(2:8)) %>%
   arrange(desc(total_estimates))
@@ -612,7 +612,7 @@ by_refugee_pop
 
 ### Export to csv file
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 Refugee_estimates <- write.table(by_refugee_pop, file = "refugeeEstimates.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
 
 ```
@@ -621,18 +621,36 @@ Refugee_estimates <- write.table(by_refugee_pop, file = "refugeeEstimates.csv", 
 
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/refugeeEstimates.csv")
 ```
 
 ### open the file from local machine
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 refugeeEstimates <- read.csv(file = "refugeeEstimates.csv", header = TRUE, sep = ",")
 
 refugeeEstimates
 ```
 
-### Analysis and Visualization 
+
+```{r}
+by_summary <- by_refugee_pop%>%
+  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey", "India") & year %in% c(2010, 2015,2019) & total_estimates != 0)
+
+ggplot(by_summary, aes(x = destination_country, y = total_estimates, fill = destination_country)) +
+    geom_bar(stat = "identity",
+        width = 1) +
+    geom_text(aes(label = total_estimates),
+        hjust = .5,
+        color = "black",
+        size = 3.5) +
+  labs(title="Migrant estimates for top 3 destinations", 
+       subtitle="How much migrants the top three destination countries can accept per year interval") + 
+    theme_light() + 
+  facet_wrap(~ year)
+```
+
+
 
 
