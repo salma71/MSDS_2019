@@ -19,22 +19,24 @@ library(dplyr)
 library(janitor)
 library(tidyr)
 library(ggmap)
-
+library(ggplot2)
+library(RCurl)
 ```
 
 ## Abstract 
 
 The goal of this assignment is to give you practice in preparing different datasets for downstream analysis work.
 Your task is to:
-* Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may use your own dataset; please don’t use my Sample Post dataset, since that was used in your Week 6 assignment!) For each of the three chosen datasets:
-* Create a .CSV file (or optionally, a MySQL database!) that includes all of the information included in the dataset. You’re encouraged to use a “wide” structure similar to how the information appears in the discussion item, so that you can practice tidying and transformations as described below.
-* Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data. [Most of your grade will be based on this step!]
-* Perform the analysis requested in the discussion item.
-* Your code should be in an R Markdown file, posted to rpubs.com, and should include
+
++ Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may use your own dataset; please don’t use my Sample Post dataset, since that was used in your Week 6 assignment!) For each of the three chosen datasets:
++Create a .CSV file (or optionally, a MySQL database!) that includes all of the information included in the dataset. You’re encouraged to use a “wide” structure similar to how the information appears in the discussion item, so that you can practice tidying and transformations as described below.
++ Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data. [Most of your grade will be based on this step!]
++ Perform the analysis requested in the discussion item.
++ Your code should be in an R Markdown file, posted to rpubs.com, and should include
   + narrative descriptions of your data cleanup work, analysis, and conclusions. 
   + Please include in your homework submission, for each of the three chosen datasets:
-* The URL to the .Rmd file in your GitHub repository, and  
-* The URL for your rpubs.com web page.
++ The URL to the .Rmd file in your GitHub repository, and  
++ The URL for your rpubs.com web page.
 
 ## Introduction 
 
@@ -45,7 +47,7 @@ Your task is to:
 * [Total international migrants by age ](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByAgeAndSex_2019.xlsx)  - Table - 1
 * [Total international migrant estimates](https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockTotal_2019.xlsx)  - Table - 6
 
-### Questions
+## Questions
 
 I decided to get more insight about the data provided by the United Nation for the international migrant stock on the last decade. Some of the questions I want to invistigate is: 
 
@@ -56,7 +58,17 @@ I decided to get more insight about the data provided by the United Nation for t
 
 _______________
 
-### Dataset_1: International migrant stock By destination and origin {.tabset .tabset-fade .tabset-pills}
+## Libraries used
+
++ library(readr)
++ library(dplyr)
++ library(janitor)
++ library(tidyr)
++ library(ggmap)
++ library(ggplot2)
++ library(RCurl)
+
+## Dataset_1: International migrant stock By destination and origin
 
 I will start by investigating on the total number of migrants by destination and origin country. First, we read the dataset into R.
 
@@ -195,7 +207,7 @@ gather_by_year
   
 ```
 
-## Export to csv file
+### Export to csv file
 
 ```{r  message=FALSE, warning=FALSE}
 by_destination_df <- write.table(by_dest_Country_df, file = "migrantByOriginDestination.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
@@ -216,6 +228,18 @@ file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/p
 dest_origin_df <- read.csv(file = "migrantByOriginDestination.csv", header = TRUE, sep = ",")
 
 dest_origin_df
+```
+
+
+### Read from GitHub 
+
+We can open the file from the GitHub
+```{r}
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByOriginDestination.csv'
+
+# reading the url as a dataframe
+by_origin_destination <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
+head(by_origin_destination)
 ```
 
 ### Visualization
@@ -316,7 +340,8 @@ only_3
 
 As illustrated, we can concluded that **United States** is the top destination for *Mexicans*. However, *Indians* like to live in the **United Arab Emirates** at the same time *Syrians* would rather to flee to **Turkey**
 
-#### Dataset_2: UN_Migrant stock by age
+
+## Dataset_2: UN_Migrant stock by age
 
 ### Import the dataset 
 
@@ -368,6 +393,7 @@ both_sex_rename <- both_sex_df %>%
 both_sex_rename
 ```
 
+### Gathering columns
 Now we have 18 columns, we need to convert the column type from *char* to *num* to be able to complete the summation. Second, use **gather()** make the data set into long format.
 
 
@@ -427,6 +453,19 @@ migrant_byage_df <- read.csv(file = "migrantByAge.csv", header = TRUE, sep = ","
 migrant_byage_df
 ```
 
+### Read from GitHub 
+
+We can open the file from the GitHub
+
+```{r}
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByAge.csv'
+
+# reading the url as a dataframe
+by_age_bothsex <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
+head(by_age_bothsex)
+```
+
+### Visualization
 
 ```{r  message=FALSE, warning=FALSE}
 #check how many youth 
@@ -575,8 +614,8 @@ ggplot(best_3, aes(x=age, y=total_population, group = age)) +
 
 ```
 
-#### Dataset_3: UN_Migrant_refugee stock total 2019
 
+## Dataset_3: UN_Migrant_refugee stock total 2019
 
 ### Import the dataset 
 
@@ -651,6 +690,8 @@ num_est_refugee
 
 ```
 
+### Gathering columns
+
 Make the data more tidy by gather total_estimates by year in 2 columns instead of 7 columns - long format. 
 
 ```{r  message=FALSE, warning=FALSE}
@@ -683,6 +724,18 @@ file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/p
 refugeeEstimates <- read.csv(file = "refugeeEstimates.csv", header = TRUE, sep = ",")
 
 refugeeEstimates
+```
+
+### Read from GitHub 
+
+We can open the file from the GitHub
+
+```{r}
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/refugeeEstimates.csv'
+
+# reading the url as a dataframe
+ref_estimates <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
+head(ref_estimates)
 ```
 
 ### Visualization 
@@ -718,6 +771,14 @@ The analysis gave a basic idea on average migration populations on different are
 
 ## Important links 
 
-+ [GitHub repo]()
-+ [Rpubs link]()
-+ [UN Dataset for international migration]()
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_6/project_2)
++ [Rpubs link](http://rpubs.com/salmaeng/UN_internation_migration_analysis)
++ [UN Dataset for international migration - before tidy ](https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp)
+  + [DataSet by origin and destination - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByOriginAndDestination_2019/Table%201-Table%201.csv)
+  + [DataSet by age - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByAgeAndSex_2019/Table%201-Table%201.csv)
+  + [DataSet estimation - table-6"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockTotal_2019/Table%206-Table%201.csv) 
+
+  + [DataSet by origin and destination - table-1"after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByOriginDestination.csv)
+  + [DataSet by age - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByAge.csv)
+  + [DataSet estimation - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/refugeeEstimates.csv) 
+  
