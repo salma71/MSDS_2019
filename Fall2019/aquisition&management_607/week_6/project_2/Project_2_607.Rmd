@@ -499,9 +499,9 @@ merged_age
 
 ```
 
-Now based on the previous analysis in Dataset_1, we will pick only the top countries that have majority of population to get more insights how many migrants for each age category. I will look into the top 6 destinations USA, Turkey, United Arab Emirates, India, Ukraine, and Russian Federation. 
+Now based on the previous analysis in Dataset_1, we will pick only the top countries that have majority of population to get more insights how many migrants for each age category. I will look into those the top 6 destinations which are USA, Turkey, United Arab Emirates, India, Ukraine, and Russian Federation. 
 
-First, we need to condense the age groups into categorial factor to be easy to visualize. To do that, we can construct a for-loop to iterate over the merged_age dataframe and change the value into the category we want child, youth, adult, and senior migrants as the table below:
+First, we need to condense the age groups into categories to be easy to visualize. To do that, we can construct a for-loop to iterate over the merged_age dataframe and change the value into the category we want child, youth, adult, and senior migrants as the table below:
 
   child     | 0 - 19
  
@@ -530,13 +530,13 @@ for (i in 1:nrow(merged_age)) {
 merged_age
 ```
 
-
+The dataframe now is categorized into 4 age categories; however, the dataframe has *NA* values need to be replaced by zero.
 
 ```{r  message=FALSE, warning=FALSE}
 #replace NA <- 0
 merged_age[is.na(merged_age)] <- 0
 
-
+# filter the results to get only the non-zero values, 3 years intervals, and 5 top countries desc. arranged.
 top_migrant_countries <- merged_age %>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Ukraine", "Turkey", "Russian Federation", "India") & year %in% c(2010, 2015,2019) & age != 0) %>%
   select(destination_country, age, total_population, year)%>%
@@ -553,8 +553,10 @@ ggplot(top_migrant_countries, aes(x=age, y=total_population, fill = destination_
   theme_light()
 ```
 
+Here, I wanted to get the age distribution for the best 3 countries to follow the pattern in the first dataset. So I filtered the destination_country and year to get the desired data. 
 
 ```{r  message=FALSE, warning=FALSE}
+library(ggplot2)
 best_3 <- merged_age%>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year %in% c("2019") & age != 0) %>%
   select(destination_country, age, total_population, year)%>%
@@ -562,15 +564,14 @@ best_3 <- merged_age%>%
 
 best_3
 
-ggplot(best_3, aes(x=age, y=total_population, fill = age)) + 
-  geom_bar(stat="identity",position=position_dodge()) + 
-  labs(title="Migrant age-categories distribution over the countries", 
-       subtitle="Top migrats age-categories for the top 6 destination countries") + 
+ggplot(best_3, aes(x=age, y=total_population, group = age)) + 
+  geom_col(aes(fill = age), position = "dodge", stat = "identity") + 
+  labs(title="Migrant age-categories distribution in 2019", 
+       subtitle="Top migrats age-categories for the top 3 destination countries") + 
+  
   theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
   facet_wrap(~ destination_country) +
   theme_light()
-
-
 
 ```
 
@@ -586,28 +587,40 @@ UN_Refugee_df <- read_csv("UN_MigrantStockTotal_2019/Table 6-Table 1.csv",
     skip = 15)
 UN_Refugee_df
 ```
+
+We got 284 rows with 25 columns. 
++ get only countries not regions
+
 ```{r  message=FALSE, warning=FALSE}
 refugee_country_df <- filter(UN_Refugee_df ,!is.na(X5))
+dim(refugee_country_df)
+
 refugee_country_df
+
 ```
+
 
 ### Remove unnecessary columns
 
 ```{r  message=FALSE, warning=FALSE}
+# clean up extra columns
 refugee_df <- refugee_country_df %>% 
   select(-X1,-c(3:5))
+dim(refugee_df)
 refugee_df
 ```
 
-Now we have 232 rows with a 22 columns 
+Now we have 232 rows with a 21 columns 
 
-### Subset the data - Estimate refugee stock including asylum seekers
+### Subset the data - Estimate refugee stock including asylum seekers (both sexes)
 
 
 ```{r  message=FALSE, warning=FALSE}
-#Use select function to fetch only the data that we interested by picking the colnames
+#Use select function to fetch only the data that we interested by picking the colnames - both males, and females
 estimate_refugee_df <- refugee_df %>%
   select(c("X2":"2019"))
+
+dim(estimate_refugee_df)
 
 estimate_refugee_df
 ```
@@ -622,6 +635,8 @@ estimate_refugee_rename <- estimate_refugee_df %>%
 estimate_refugee_rename
 ```
 
+Pasring years columns into doubles using **parse_number()** from *readr package*
+
 ```{r warning=FALSE, message=FALSE}
 num_est_refugee <- estimate_refugee_rename
 num_est_refugee$`1990` <- parse_number(num_est_refugee$`1990`)
@@ -634,15 +649,16 @@ num_est_refugee$`2019` <- parse_number(num_est_refugee$`2019`)
 
 num_est_refugee
 
-#age_category <- both_sex_rename %>%
-#  summarise(child = sum(c(3:6)))
 ```
 
+Make the data more tidy by gather total_estimates by year in 2 columns instead of 7 columns - long format. 
+
 ```{r  message=FALSE, warning=FALSE}
+# gather() by year into total_estimates - gather columns 2 (1990) : 8(2019) then arrange desc
 by_refugee_pop <- num_est_refugee%>%
   gather(year, total_estimates, c(2:8)) %>%
   arrange(desc(total_estimates))
-
+dim(by_refugee_pop)
 by_refugee_pop
 ```
 
@@ -669,10 +685,14 @@ refugeeEstimates <- read.csv(file = "refugeeEstimates.csv", header = TRUE, sep =
 refugeeEstimates
 ```
 
+### Visualization 
+
+To follow the same pattern of analysis, I will filter the destination countries to get the top 4 countries in the last 3 year intervals. 
 
 ```{r}
+# filter by year, destination, total estimates is not equal to 0 
 by_summary <- by_refugee_pop%>%
-  filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey", "India") & year %in% c(2010, 2015,2019) & total_estimates != 0)
+  filter(destination_country %in% c("United States of America", "Turkey", "United Arab Emirates" ) & year %in% c(2010, 2015,2019) & total_estimates != 0)
 
 by_summary
 ggplot(by_summary, aes(x = destination_country, y = total_estimates, fill = destination_country)) +
@@ -682,12 +702,22 @@ ggplot(by_summary, aes(x = destination_country, y = total_estimates, fill = dest
         hjust = .5,
         color = "black",
         size = 3.5) +
-  labs(title="Migrant estimates for top 3 destinations", 
-       subtitle="How much migrants the top three destination countries can accept per year interval") + 
+  labs(title="Refugee estimates for top 3 destinations", 
+       subtitle="How much refugees the top three destinations can accept per year interval") + 
     theme_light() + 
   facet_wrap(~ year) 
 ```
 
 
+From 2010 to 2019, a *significant* increase of refugess was estimated in *Turkey.* Specifically, the refugess estimates increased from **10,000 to 3.7 million**, which was the largest number of refugees ever predicted in all countries. Similarly, but with a much lower rate, the number of refugees in the *United States* increased from **270,000** to 929,762. In contrast, the estimated refugees in the *United Arab Emirates* was the smallest **(<3000)**.
+
+## Conclusions
+
+The analysis gave a basic idea on average migration populations on different areas in the world and how many more migrants these destinations would accept. I would like to extend the study to investigate what factors influence migrants to leave their country and target those destinations, it it life quality, employment opportunities,..etc. Also, I am curious to know what level of education migrant have are they high educational migrant, high skilled technicians,..etc. 
 
 
+## Important links 
+
++ [GitHub repo]()
++ [Rpubs link]()
++ [UN Dataset for international migration]()
