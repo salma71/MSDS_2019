@@ -74,7 +74,7 @@ I will start by investigating on the total number of migrants by destination and
 
 ### Read the data into R
 
-The files provided by the UN is Excel files, each file contains several tables nested as worksheets. To be able to read a specific table, I downloaded the file, then save as the file as a csv, each table into individual file (the folders are included in GihHub repo). After that I was able to read the file using **readr** library using **read_csv()**. I used **skip = 16** argument inside **read_csv** to remove the worksheet header (United nation information, title,...etc).
+The files provided by the UN are Excel files, each file contains several tables nested as worksheets. To be able to read a specific table, I downloaded the file, then save as the file as a csv, each table into individual file (the folders are included in GihHub repo). After that I was able to read the file using **readr** library using **read_csv()**. I used **skip = 16** argument inside **read_csv** to remove the worksheet header (United nation information, title,...etc).
 
 ```{r  message=FALSE, warning=FALSE}
 # read the file into R - use skip to remove 
@@ -300,10 +300,10 @@ ggplot(migration_15_19, aes(x=destination_country, y=total_migrants, fill = dest
   geom_bar(stat="identity", width=1, position = position_dodge()) + 
   labs(fill="destination country") +
   labs(title="Migrant population bar chart", 
-       subtitle="Top destinations for migrats population - more than 3M migrants per year") + 
-  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
-  facet_grid( ~ year) +
-  theme_light()
+       subtitle="Top destinations for migrats population - more than 3M migrants per year") +
+  theme_bw() + 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  facet_grid( ~ year) 
 ```
 
 We got some interesting results here, for instance, United states of America has the highest migrants population over the three time intervals. However, the total migrants that USA accepts decreased by 1 million migrants in 2019. Turkey started accepting migrants in 2019 time interval with a significant number more than 3.5M migrants per interval. As an overall observation, more countries accepting migrants throught time where 2019 interval has the the top 6 countries accepting population. 
@@ -595,7 +595,6 @@ ggplot(top_migrant_countries, aes(x=age, y=total_population, fill = destination_
 Here, I wanted to get the age distribution for the best 3 countries to follow the pattern in the first dataset. So I filtered the destination_country and year to get the desired data. 
 
 ```{r  message=FALSE, warning=FALSE}
-library(ggplot2)
 best_3 <- merged_age%>%
   filter(destination_country %in% c("United States of America", "United Arab Emirates", "Turkey") & year %in% c("2019") & age != 0) %>%
   select(destination_country, age, total_population, year)%>%
@@ -757,8 +756,11 @@ ggplot(by_summary, aes(x = destination_country, y = total_estimates, fill = dest
         size = 3.5) +
   labs(title="Refugee estimates for top 3 destinations", 
        subtitle="How much refugees the top three destinations can accept per year interval") + 
-    theme_light() + 
-  facet_wrap(~ year) 
+  theme_bw() +
+    theme(
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + 
+  facet_wrap(~ year)  
 ```
 
 
@@ -773,6 +775,7 @@ The analysis gave a basic idea on average migration populations on different are
 
 + [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_6/project_2)
 + [Rpubs link](http://rpubs.com/salmaeng/UN_internation_migration_analysis)
++ [RMD file - includes all the code](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/Project_2_607.Rmd)
 + [UN Dataset for international migration - before tidy ](https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp)
   + [DataSet by origin and destination - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByOriginAndDestination_2019/Table%201-Table%201.csv)
   + [DataSet by age - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByAgeAndSex_2019/Table%201-Table%201.csv)
