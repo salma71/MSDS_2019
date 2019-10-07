@@ -1,0 +1,12 @@
+---
+title: "Assignment_7 DATA607"
+author: "Salma Elshahawy"
+date: "10/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+

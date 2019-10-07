@@ -1,0 +1,31 @@
+{
+    "datasciencebooks": [
+        {
+            "Title": "Hands-On Machine Learning with Scikit-Learn and TensorFlow",
+            "Author": "Aurélien Géron",
+            "Year Published": 2017,
+            "Publisher": "O'REILLY",
+            "Pages": 564,
+            "Brief": "Tools, and Techniques to Build Intelligent Systems"
+        },
+        {
+            "Title": "Foundations of Statistical Natural Language Processing",
+            "Author": [
+                "Christopher D. Manning",
+                "Hinrich Schiitze"
+            ],
+            "Year Published": 2000,
+            "Publisher": "The MIT Press Cambridge, Massachusetts London, England",
+            "Pages": 704,
+            "Brief": "Includes mathematical foundation, linguistic essentials, and corpus-based work"
+        },
+        {
+            "Title": "R Graphics Cookbook",
+            "Author": "Winston Cheng",
+            "Year Published": 2012,
+            "Publisher": "O'REILLY",
+            "Pages": 413,
+            "Brief": "Practical recipes for visualizing data"
+        }
+    ]
+}
