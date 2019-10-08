@@ -28,7 +28,7 @@ Your deliverable is the three source files and the R code. If you can, package y
 an .Rmd file and publish to rpubs.com. [This will also require finding a way to make your three text files
 accessible from the web].
 
-## Load required package
+## Load required package {.tabset .tabset-fade}
 
 I used the **XML** package to parse the XML and HTML files, and the **jsonlite** package to parse the JSON file.
 
@@ -42,10 +42,66 @@ library(tidyr)
 library(dplyr)
 ```
 
-```{r}
 
+### Extracting from XML
+
+I used different IDE to write the XML file - because R studio doesn't support the xml markup language. For this assignment, I used [Visual studio code IDE](https://visualstudio.microsoft.com/) from Microsoft. Then, I pushed the .xml, .json, and .html file to my [GitHub account](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_7) and used the **getURL()** to pull down the data into R
+
+```{r xml}
+
+url <- 
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.xml")
+
+books_xml <- xmlParse(url)
+root <- xmlRoot(books_xml)
+xmlName(root)
+xmlSize(root)
+```
+
+Now, I got the **DataScience_Books** tag as a root element and have _three_ nested elements as **children** nodes inside of it. To get each child node name, I have to loop over the nodes and get the content as a string, I used **xmlSApply** to the root and also as a nested call to pull out the children values using **xmlValue()** function.
+
+```{r}
+books <- xmlSApply(root, function(x) xmlSApply(x, xmlValue))
+class(books)
+```
+
+The output is a matrix, we need to convert it to a dataframe using **as.data.frame()**
+
+```{r}
+# change to a dataframe 
+data_sci_books <- as.data.frame(books, row.names = NULL)
+data_sci_books
+class(data_sci_books)
 ```
 
 
 
 
+### Extracting from json
+
+
+```{r json}
+
+url_json <- 
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.json")
+
+books_json <- fromJSON(url_json)
+books_json
+class(books_json)
+```
+
+Now, I got the **DataScience_Books** tag as a root element and have _three_ nested elements as **children** nodes inside of it. To get each child node name, I have to loop over the nodes and get the content as a string, I used **xmlSApply** to the root and also as a nested call to pull out the children values using **xmlValue()** function.
+
+```{r}
+books <- xmlSApply(root, function(x) xmlSApply(x, xmlValue))
+class(books)
+```
+
+The output is a matrix, we need to convert it to a dataframe using **as.data.frame()**
+
+```{r}
+# change to a dataframe 
+data_sci_books <- as.data.frame(books, row.names = NULL)
+data_sci_books
+class(data_sci_books)
+```
