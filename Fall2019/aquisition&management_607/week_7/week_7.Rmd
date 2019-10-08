@@ -86,8 +86,20 @@ url_json <-
   getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.json")
 
 books_json <- fromJSON(url_json)
-books_json
 class(books_json)
+json_df <- as.data.frame(books_json$`Datascience Books`)
+json_df
+```
+
+As results show, the **Author** columns has a nested array children _books with multiple authors_. To solve this issue, we can use **tidyverse** to mutate that column to separate in the **,**
+
+```{r}
+json_df <- data.frame(books_json$`Datascience Books`)
+
+json_df <- json_df %>% 
+  mutate(Author = sapply(json_df$Author, function(x) paste(x, collapse = ","))) %>%
+  separate(Author, c("Author", "Co_Author"), sep = ",")
+json_df
 ```
 
 Now, I got the **DataScience_Books** tag as a root element and have _three_ nested elements as **children** nodes inside of it. To get each child node name, I have to loop over the nodes and get the content as a string, I used **xmlSApply** to the root and also as a nested call to pull out the children values using **xmlValue()** function.
