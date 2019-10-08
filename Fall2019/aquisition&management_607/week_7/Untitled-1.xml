@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Sociology_Books>
+    <Book>
+        <Title>The Presentation of Self in Everyday Life</Title>
+        <Author>Erving Goffman</Author>
+        <Author />
+        <Year_Published>1959</Year_Published>
+        <Publisher>Doubleday</Publisher>
+        <Pages>259</Pages>
+        <Citations>43536</Citations>
+    </Book>
+    <Book>
+        <Title>Studies in Ethnomethodology</Title>
+        <Author>Harold Garfinkel</Author>
+        <Author />
+        <Year_Published>1967</Year_Published>
+        <Publisher>Prentice-Hall</Publisher>
+        <Pages>288</Pages>
+        <Citations>3508</Citations>
+    </Book>
+    <Book>
+        <Title>The Spectacle of History: Speech, Text, and Memory at the Iran-Contra Hearings</Title>
+        <Author>Michael E. Lynch</Author>
+        <Author>David Bogen</Author>
+        <Year_Published>1996</Year_Published>
+        <Publisher>Duke University Press</Publisher>
+        <Pages>368</Pages>
+        <Citations>378</Citations>
+    </Book>
+</Sociology_Books>
