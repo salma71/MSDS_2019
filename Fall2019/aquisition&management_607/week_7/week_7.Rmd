@@ -2,7 +2,17 @@
 title: "Assignment_7 DATA607"
 author: "Salma Elshahawy"
 date: "10/7/2019"
-output: html_document
+output: 
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE, warning=FALSE, message=FALSE}
@@ -32,14 +42,14 @@ accessible from the web].
 
 I used the **XML** package to parse the XML and HTML files, and the **jsonlite** package to parse the JSON file.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(RCurl)
 library(XML)
 library(jsonlite)
-library(DT)
 library(stringr)
 library(tidyr)
 library(dplyr)
+
 ```
 
 
@@ -91,7 +101,7 @@ json_df <- as.data.frame(books_json$`Datascience Books`)
 json_df
 ```
 
-As results show, the **Author** columns has a nested array children _books with multiple authors_. To solve this issue, we can use **tidyverse** to mutate that column to separate in the **,**
+As results show, the **Author** columns has a nested array children _books with multiple authors_. To solve this issue, we can use **tidyr** to mutate that column to separate in the **,**
 
 ```{r}
 json_df <- data.frame(books_json$`Datascience Books`)
@@ -117,3 +127,19 @@ data_sci_books <- as.data.frame(books, row.names = NULL)
 data_sci_books
 class(data_sci_books)
 ```
+### Extraction from html
+```{r}
+url_html <- 
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.html")
+
+books_html <- readHTMLTable(url_html, header = TRUE)
+books_html
+class(books_html)
+html_df <- as.data.frame(books_html$`Datascience Books`)
+html_df
+```
+
+## Important links
+
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_7)
++ [Rpubs link](http://rpubs.com/salmaeng/week_7_607)
