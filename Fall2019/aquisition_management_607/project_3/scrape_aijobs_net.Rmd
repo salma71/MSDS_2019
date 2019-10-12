@@ -1,0 +1,198 @@
+---
+title: "Untitled"
+author: "Salma Elshahawy"
+date: "10/11/2019"
+output: 
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading package, message=FALSE, warning=FALSE}
+library(stringr)
+library(dplyr)
+library(wordcloud)
+library(tm)
+library(RCurl)
+library(XML)
+library(kableExtra)
+```
+
+
+
+```{r message=FALSE, warning=FALSE}
+library(rvest)
+library(stringr)
+library(tidyverse)
+library(purrr)
+library(here)
+library(beepr)
+library(DT)
+
+writeLines("var url = 'https://ai-jobs.net/';
+var page = new WebPage();
+var fs = require('fs');
+
+page.open(url, function (status) {
+        just_wait();
+});
+
+function just_wait() {
+    setTimeout(function() {
+               fs.write('scrape_ai.html', page.content, 'w');
+            phantom.exit();
+    }, 2500);
+}
+", con = "scrape_ai.js")
+
+js_scrape <- function(url = "https://ai-jobs.net/", 
+                      js_path = "scrape_ai.js", 
+                      phantompath = "/usr/local/bin/phantomjs"){
+  
+  # this section will replace the url in scrape.js to whatever you want 
+  lines <- readLines(js_path)
+  lines[1] <- paste0("var url ='", url ,"';")
+  writeLines(lines, js_path)
+  
+  command = paste(phantompath, js_path, sep = " ")
+  system(command)
+
+}
+
+js_scrape()
+
+## now we can read the newly html with the job summary from the new html after converting from js 
+summary_html <- read_html("scrape_ai.html")
+summary_html
+```
+
+
+cleaning up the string from special characters
+
+
+```{r}
+jobs_data <- data.frame(matrix(ncol = 5, nrow = 0))
+n <- c("position","company","location","details_link","details")
+colnames(jobs_data)
+```
+
+
+```{r}
+  
+  #position name
+  get_position <- summary_html %>% 
+    html_nodes("div") %>% 
+    html_nodes("ul") %>% 
+    html_nodes(".position") %>% 
+    html_text() %>%
+  # get only position names
+    gsub("[\n\t]", "", .) %>%
+    stringr::str_trim() %>%
+    strsplit("  ") %>% 
+    unlist() 
+  
+  # get the company name
+  get_company <- summary_html %>% 
+    html_nodes("div") %>% 
+    html_nodes("ul") %>% 
+    html_nodes(".company") %>% 
+    html_text() %>% 
+    gsub("[\n\t]", " ", .) %>% 
+    stringr::str_trim() %>% 
+    unlist()
+
+  # get the position - location
+  get_location <- summary_html %>% 
+    html_nodes("div") %>% 
+    html_nodes("ul") %>% 
+    html_nodes(".location") %>% 
+    html_text() %>% 
+    gsub("[\n\t]", " ", .) %>% 
+    stringr::str_trim() %>% 
+    unlist()  
+  
+  # get detailed url 
+  job_details <- summary_html %>% 
+    html_nodes("div") %>% 
+    html_nodes(".job_listings") %>% 
+    html_nodes("li") %>% 
+    html_nodes("a") %>% 
+    html_attr("href") 
+  
+  # get detailed description 
+  get_description <- as.character()
+    for ( n in 1:length(job_details) ){
+      #build the link
+      link <- job_details[n]
+      #pull the link
+      page <- read_html(link)
+      #get the full summary
+      get_description[n] <- read_html(job_details[n]) %>%
+       html_nodes("div") %>% 
+       html_nodes(xpath = '//*[@id="primary"]/article/div/div/div[2]') %>% 
+       html_text(trim = TRUE)
+      
+      }
+  
+```
+
+
+
+```{r}
+#fill in the job data
+  position <- rep(get_position,length(job_details))
+
+#fill in the job data
+  company <- rep(get_company,length(job_details))
+  
+  location <- rep(get_location,length(job_details))
+
+  details_link <- rep(job_details,length(job_details))
+
+#create a structure to hold our full summaries
+  details <- rep(get_description, length(job_details))
+  
+  jobs_data <- rbind(jobs_data,data.frame(position,
+                                            company,
+                                            location,
+                                            details_link,
+                                            details))
+  jobs_data %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+we need to change the details column into a corpus for analysis
+
+```{r}
+jobs_desc <- VCorpus(VectorSource(jobs_data$details))
+jobs_desc
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
