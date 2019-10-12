@@ -27,11 +27,6 @@ library(tm)
 library(RCurl)
 library(XML)
 library(kableExtra)
-```
-
-
-
-```{r message=FALSE, warning=FALSE}
 library(rvest)
 library(stringr)
 library(tidyverse)
@@ -39,6 +34,11 @@ library(purrr)
 library(here)
 library(beepr)
 library(DT)
+```
+
+
+
+```{r message=FALSE, warning=FALSE}
 
 writeLines("var url = 'https://ai-jobs.net/';
 var page = new WebPage();
@@ -101,7 +101,10 @@ colnames(jobs_data)
     stringr::str_trim() %>%
     strsplit("  ") %>% 
     unlist() 
-  
+get_position
+```
+
+```{r}
   # get the company name
   get_company <- summary_html %>% 
     html_nodes("div") %>% 
@@ -111,7 +114,10 @@ colnames(jobs_data)
     gsub("[\n\t]", " ", .) %>% 
     stringr::str_trim() %>% 
     unlist()
+get_company
+```
 
+```{r}
   # get the position - location
   get_location <- summary_html %>% 
     html_nodes("div") %>% 
@@ -121,7 +127,10 @@ colnames(jobs_data)
     gsub("[\n\t]", " ", .) %>% 
     stringr::str_trim() %>% 
     unlist()  
-  
+get_location
+```
+
+```{r}
   # get detailed url 
   job_details <- summary_html %>% 
     html_nodes("div") %>% 
@@ -129,7 +138,9 @@ colnames(jobs_data)
     html_nodes("li") %>% 
     html_nodes("a") %>% 
     html_attr("href") 
-  
+```
+
+```{r}
   # get detailed description 
   get_description <- as.character()
     for ( n in 1:length(job_details) ){
@@ -144,41 +155,104 @@ colnames(jobs_data)
        html_text(trim = TRUE)
       
       }
-  
+  get_description
 ```
 
 
 
 ```{r}
-#fill in the job data
+#fill in the job data #create a structure to hold our full summaries
   position <- rep(get_position,length(job_details))
-
-#fill in the job data
   company <- rep(get_company,length(job_details))
-  
   location <- rep(get_location,length(job_details))
-
   details_link <- rep(job_details,length(job_details))
-
-#create a structure to hold our full summaries
   details <- rep(get_description, length(job_details))
-  
-  jobs_data <- rbind(jobs_data,data.frame(position,
-                                            company,
-                                            location,
-                                            details_link,
-                                            details))
-  jobs_data %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+```{r}
+  jobs_data <- rbind(jobs_data,data.frame(get_position,
+                                            get_company,
+                                            get_location,
+                                            job_details,
+                                            get_description))
+jobs_data %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+```{r}
+dim(jobs_data)
+```
+
+
+```{r}
+# write the resulted data into a csv table ---> transformation 
+job_scrape_df <- write.table(jobs_data, file = "jobs_detailsInfo.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
+```
+
+## Test that the file is already created. 
+
+*Please be sure that you set working directory in Rstudio to the current working directory.*
+
+```{r}
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/project_3/jobs_detailsInfo.csv")
+```
+
+## open the file from local machine
+
+```{r}
+library(readr)
+job_details_df <- read.csv(file = "jobs_detailsInfo.csv", header = TRUE, sep = ",")
+
+job_details_df   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
 ```
 
 we need to change the details column into a corpus for analysis
 
 ```{r}
-jobs_desc <- VCorpus(VectorSource(jobs_data$details))
-jobs_desc
+
+job_desc_corpus <- VCorpus(VectorSource(jobs_data$details))
+
+#summary(job_desc_corpus)
+
+```
+
+```{r}
+for (j in seq(job_desc)) {
+    job_desc[[j]] <- gsub("/", " ", job_desc[[j]])
+    job_desc[[j]] <- gsub("@", " ", job_desc[[j]])
+    job_desc[[j]] <- gsub("\\|", " ", job_desc[[j]])
+    job_desc[[j]] <- gsub("\u2028", " ", job_desc[[j]])  # This is an ascii character that did not translate, so it had to be removed.
+}
+#writeLines(as.character(job_desc[[1]]))
 ```
 
 
+```{r}
+# remove puncituation 
+job_desc <- tm_map(job_desc_corpus,removePunctuation) 
+writeLines(as.character(job_desc[[1]]))
+
+# remove numbers
+job_desc <- tm_map(job_desc_corpus,removeNumbers) 
+# remove ascii characters
+#writeLines(as.character(job_desc[[1]]))
+
+```
+
+```{r}
+# For a list of the stopwords, see:   
+# length(stopwords("english"))   
+# stopwords("english")   
+job_desc <- tm_map(job_desc, removeWords, stopwords("english"))   
+job_desc <- tm_map(job_desc, PlainTextDocument)
+#writeLines(as.character(job_desc[[1]]))
+
+```
+```{r}
+job_desc <- tm_map(job_desc, removeWords, c("syllogism", "tautology"))   
+# Just remove the words "syllogism" and "tautology". 
+# These words don't actually exist in these texts. But this is how you would remove them if they had.
+```
 
 
 
