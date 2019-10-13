@@ -41,9 +41,9 @@ HA(alternative hypotithes) -> There are associations between departure delay and
 
 + Variables:
 
-  + variable_1 -> dep_delay - independent variable, numerical - categorical
+  + variable_1 -> dep_delay - independent variable, numerical - discrete
 
-  + outcome -> arr_delay, numerical - numerical - categorical
+  + outcome -> arr_delay, numerical - numerical - discrete
 
 + There are about 336,776 observation in the given dataset. Each observation represent flight full details.
 
