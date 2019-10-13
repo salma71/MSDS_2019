@@ -55,12 +55,12 @@ library(dplyr)
 
 ### Extracting from XML
 
-I used different IDE to write the XML file - because R studio doesn't support the xml markup language. For this assignment, I used [Visual studio code IDE](https://visualstudio.microsoft.com/) from Microsoft. Then, I pushed the .xml, .json, and .html file to my [GitHub account](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_7) and used the **getURL()** to pull down the data into R
+I used different IDE to write the XML file - because R studio doesn't support the xml markup language. For this assignment, I used [Visual studio code IDE](https://visualstudio.microsoft.com/) from Microsoft. Then, I pushed the .xml, .json, and .html file to my [GitHub account](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_7) and used the **getURL()** to pull down the data into R
 
-```{r xml}
+```{r}
 
 url <- 
-  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.xml")
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_7/book_info.xml")
 
 books_xml <- xmlParse(url)
 root <- xmlRoot(books_xml)
@@ -93,7 +93,7 @@ class(data_sci_books)
 ```{r json}
 
 url_json <- 
-  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.json")
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_7/book_info.json")
 
 books_json <- fromJSON(url_json)
 class(books_json)
@@ -108,7 +108,7 @@ json_df <- data.frame(books_json$`Datascience Books`)
 
 json_df <- json_df %>% 
   mutate(Author = sapply(json_df$Author, function(x) paste(x, collapse = ","))) %>%
-  separate(Author, c("Author", "Co_Author"), sep = ",")
+  separate(Author, c("Author", "Author.1"), sep = ",")
 json_df
 ```
 
@@ -130,7 +130,7 @@ class(data_sci_books)
 ### Extraction from html
 ```{r}
 url_html <- 
-  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_7/book_info.html")
+  getURL("https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_7/book_info.html")
 
 books_html <- readHTMLTable(url_html, header = TRUE)
 books_html
@@ -141,5 +141,5 @@ html_df
 
 ## Important links
 
-+ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_7)
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_7)
 + [Rpubs link](http://rpubs.com/salmaeng/week_7_607)

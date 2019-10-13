@@ -1,0 +1,154 @@
+---
+title: "Elshahawy-project"
+author: "Salma Elshahawy"
+date: "10/12/2019"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
+  html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    mathjax: local
+    number_sections: no
+    pdf_document: default
+    rmarkdown::html_document: null
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Part 1 - Introduction
+
+I decided to use the dataset of nycflights13::flights: package included with R. This package contains information about all flights that departed from NYC (i.e., EWR, JFK and LGA) in 2013: 336,776 flights with 16 variables. To help understand what causes delays, it also includes a number of other useful datasets: weather, planes, airports, airlines. [Source: Bureau of transportation statistics](http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236)
+
+H0(null hypotithes) -> No associations between departure delay and arrival delay
+
+HA(alternative hypotithes) -> There are associations between departure delay and arrival delay.
+
++ Research Questions:
+
+  + Are the actual departure delay associated with the arrival delay? 
+
+
+
+### Part 2 - Data
+
++ Variables:
+
+  + variable_1 -> dep_delay - independent variable, numerical - categorical
+
+  + outcome -> arr_delay, numerical - numerical - categorical
+
++ There are about 336,776 observation in the given dataset. Each observation represent flight full details.
+
++ This is an observational study. I will draw my conclusions based on analyzing the existing data.
+
+
+### Part 3 - Exploratory data analysis
+
+```{r}
+library(RCurl)
+library(dplyr)
+library(ggplot2)
+library(ggExtra)
+
+library(nycflights13)
+head(flights) 
+```
+
+
+```{r}
+summary(flights)
+```
+
+
+
+```{r}
+
+# taking a subset
+sub_set <- flights[c(6,9,10,16)]
+sub_set
+
+summary(sub_set)
+```
+
+```{r}
+## get statistical analysis for the whole population 
+theme_set(theme_bw())  # pre-set the bw theme.
+g <- ggplot(sub_set, aes(arr_delay, dep_delay)) + 
+  geom_count() + 
+  geom_smooth(method="lm", se=F)
+
+ggMarginal(g, type = "histogram", fill="transparent")
+```
+
+
+```{r}
+
+## sampling, get summary plots --> statistics for only sample of 100
+
+sample_100 <- sample_n(sub_set, 100)
+
+summary(sample_100)
+
+theme_set(theme_bw())  # pre-set the bw theme.
+g <- ggplot(sample_100, aes(arr_delay, dep_delay)) + 
+  geom_count() + 
+  geom_smooth(method="lm", se=F)
+
+ggMarginal(g, type = "histogram", fill="transparent")
+```
+
+Both dep_delay and arr_delap are right skewed distribution. 
+
+
+```{r}
+
+theme_set(theme_bw())  # pre-set the bw theme.
+ggplot(sample_100, aes(dep_delay, arr_delay)) + 
+  geom_jitter(aes(colour = dep_delay, size = arr_delay), na.rm = TRUE) +
+  coord_flip()
+  
+```
+
+
+
+### Part 4 - Inference
+
+
+This dataset doesn't follow the normal distribution. Since n = 100 => which is more than 25 we can do a linear regression model. Let's begin with the correlation which is a statistical tool to measure the level of linear dependence between two variables, that occur in pair  
+
+```{r}
+cor(sub_set$arr_delay, sub_set$dep_delay, use = "complete.obs")
+```
+
+The correlation is very strong as it close to 1 - strong correlation. Now, let's build the linear regression model.
+
+```{r}
+linearMod <- lm(arr_delay ~ dep_delay, data=sub_set)  # build linear regression model on full data
+print(linearMod)
+```
+
+Now that we have built the linear model, we also have established the relationship between the predictor and response in the form of a mathematical formula for arrival delay (arr_delay) as a function for distance. For the above output, you can notice the ‘Coefficients’ part having two components: Intercept: -5.899, distance: 1.019 These are also called the beta coefficients. In other words,
+
+arr_delay = Intercept + (beta ∗ dep_delay)
+
+```{r}
+summary(linearMod)  # model summary
+```
+
+  arr_delay = -5.899 + 1*dep_delay
+
+### Part 5 - Conclusion
+
+as a conclusion, I would go with refusing the Null hypotethis that there is no associations between arrival delay and departure delay. 
+
+### References
+
+[Flights database](http://blog.rstudio.org/2014/07/23/new-data-packages/)

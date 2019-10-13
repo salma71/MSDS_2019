@@ -219,7 +219,7 @@ by_destination_df <- write.table(by_dest_Country_df, file = "migrantByOriginDest
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
 ```{r  message=FALSE, warning=FALSE}
-file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/migrantByOriginDestination.csv")
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_6/project_2/migrantByOriginDestination.csv")
 ```
 
 ### open the file from local machine
@@ -235,7 +235,7 @@ dest_origin_df
 
 We can open the file from the GitHub
 ```{r}
-url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByOriginDestination.csv'
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByOriginDestination.csv'
 
 # reading the url as a dataframe
 by_origin_destination <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
@@ -442,7 +442,7 @@ migrant_by_age <- write.table(by_age, file = "migrantByAge.csv", row.names = FAL
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
 ```{r  message=FALSE, warning=FALSE}
-file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/migrantByAge.csv")
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_6/project_2/migrantByAge.csv")
 ```
 
 ### open the file from local machine
@@ -458,7 +458,7 @@ migrant_byage_df
 We can open the file from the GitHub
 
 ```{r}
-url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByAge.csv'
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByAge.csv'
 
 # reading the url as a dataframe
 by_age_bothsex <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
@@ -714,7 +714,7 @@ Refugee_estimates <- write.table(by_refugee_pop, file = "refugeeEstimates.csv", 
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
 ```{r  message=FALSE, warning=FALSE}
-file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition&management_607/week_6/project_2/refugeeEstimates.csv")
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_6/project_2/refugeeEstimates.csv")
 ```
 
 ### open the file from local machine
@@ -730,7 +730,7 @@ refugeeEstimates
 We can open the file from the GitHub
 
 ```{r}
-url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/refugeeEstimates.csv'
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/refugeeEstimates.csv'
 
 # reading the url as a dataframe
 ref_estimates <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
@@ -773,15 +773,15 @@ The analysis gave a basic idea on average migration populations on different are
 
 ## Important links 
 
-+ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition%26management_607/week_6/project_2)
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_6/project_2)
 + [Rpubs link](http://rpubs.com/salmaeng/UN_internation_migration_analysis)
-+ [RMD file - includes all the code](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/Project_2_607.Rmd)
++ [RMD file - includes all the code](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/week_6/project_2/Project_2_607.Rmd)
 + [UN Dataset for international migration - before tidy ](https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp)
-  + [DataSet by origin and destination - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByOriginAndDestination_2019/Table%201-Table%201.csv)
-  + [DataSet by age - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockByAgeAndSex_2019/Table%201-Table%201.csv)
-  + [DataSet estimation - table-6"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition%26management_607/week_6/project_2/UN_MigrantStockTotal_2019/Table%206-Table%201.csv) 
+  + [DataSet by origin and destination - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/week_6/project_2/UN_MigrantStockByOriginAndDestination_2019/Table%201-Table%201.csv)
+  + [DataSet by age - table-1"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/week_6/project_2/UN_MigrantStockByAgeAndSex_2019/Table%201-Table%201.csv)
+  + [DataSet estimation - table-6"before tidy"GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/week_6/project_2/UN_MigrantStockTotal_2019/Table%206-Table%201.csv) 
 
-  + [DataSet by origin and destination - table-1"after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByOriginDestination.csv)
-  + [DataSet by age - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/migrantByAge.csv)
-  + [DataSet estimation - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition%26management_607/week_6/project_2/refugeeEstimates.csv) 
+  + [DataSet by origin and destination - table-1"after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByOriginDestination.csv)
+  + [DataSet by age - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByAge.csv)
+  + [DataSet estimation - after tidy"GitHub](https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/refugeeEstimates.csv) 
   

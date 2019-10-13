@@ -202,28 +202,31 @@ file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/project_
 library(readr)
 job_details_df <- read.csv(file = "jobs_detailsInfo.csv", header = TRUE, sep = ",")
 
-job_details_df   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+head(job_details_df, 2)   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
-we need to change the details column into a corpus for analysis
+we need to change the get_details column into a corpus for analysis
 
 ```{r}
 
-job_desc_corpus <- VCorpus(VectorSource(jobs_data$details))
+job_desc_corpus <- VCorpus(VectorSource(job_details_df$get_description))
 
 #summary(job_desc_corpus)
 
+
 ```
 
+also used regex to remove ASCII characters
+
 ```{r}
-for (j in seq(job_desc)) {
-    job_desc[[j]] <- gsub("/", " ", job_desc[[j]])
-    job_desc[[j]] <- gsub("@", " ", job_desc[[j]])
-    job_desc[[j]] <- gsub("\\|", " ", job_desc[[j]])
-    job_desc[[j]] <- gsub("\u2028", " ", job_desc[[j]])  # This is an ascii character that did not translate, so it had to be removed.
+for (j in seq(job_desc_corpus)) {
+    job_desc_corpus[[j]] <- gsub("/", "  ", job_desc_corpus[[j]])
+    job_desc_corpus[[j]] <- gsub("@", "  ", job_desc_corpus[[j]])
+    job_desc_corpus[[j]] <- gsub("\\|", "  ", job_desc_corpus[[j]])
+    job_desc_corpus[[j]] <- gsub("\u2028", "  ", job_desc_corpus[[j]])  # This is an ascii character that did not translate, so it had to be removed.
 }
-#writeLines(as.character(job_desc[[1]]))
+writeLines(as.character(job_desc_corpus[[1]]))
 ```
 
 
@@ -254,7 +257,18 @@ job_desc <- tm_map(job_desc, removeWords, c("syllogism", "tautology"))
 # These words don't actually exist in these texts. But this is how you would remove them if they had.
 ```
 
+Removing common word endings (e.g., “ing”, “es”, “s”)
+This is referred to as “stemming” documents. We stem the documents so that a word will be recognizable to the computer, despite whether or not it may have a variety of possible endings in the original text.
 
+Note: The “stem completion” function is currently problemmatic, and stemmed words are often annoying to read. For now, I have this section commented out. But you are welcome to try these functions (by removing the hashmark from the beginning of the line) if they interest you. Just don’t expect them to operate smoothly.
+
+This procedure has been a little hanky in the recent past, so I change the name of the data object when I do this to keep from overwriting what I have done to this point.
+
+```{r}
+jobs_st <- tm_map(jobs_desc, stemDocument)   
+jobs_st <- tm_map(jobs_desc, PlainTextDocument)
+writeLines(as.character(jobs_st[1])) # Check to see if it worked.
+```
 
 
 
