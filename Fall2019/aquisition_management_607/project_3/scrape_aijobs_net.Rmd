@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Best Data scientist skills analysis from ai-job.net"
 author: "Salma Elshahawy"
 date: "10/11/2019"
 output: 
@@ -15,9 +15,11 @@ output:
     toc_float: yes
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+## Loading necessary libraries
 
 ```{r loading package, message=FALSE, warning=FALSE}
 library(stringr)
@@ -36,13 +38,21 @@ library(beepr)
 library(DT)
 ```
 
+## Introduction
 
+It is required to scrape a job-board website to extract the most required skills for Data Scientist. I decided to scrape [ai-jobs](https://www.ai-jobs.net) which is a job board that specifically serves the artificial intelligence (AI) and data science community. Whether you’re looking for something permanent or a contract role, there’s an option for everyone. The jobs listed on the website can also be found on their
+
+## Convert javascript rendered HTML into HTML only
+
+ai-jobs uses javascript language to render the HTML page using asynchronous request. If you use an asynchronous XMLHttpRequest, you receive a callback when the data has been received. This lets the browser continue to work as normal while your request is being handled.
+
+rvest and httr doesn't work for that site, so I had to write javascript code insode of R to be able to scrape the page.I wrote the JavaScript code to a js file called scrape.js using *Phantomjs.*.I used PhantomJS to convert the website into HTML. I wrapped this in a system() call inside R Studio.
 
 ```{r message=FALSE, warning=FALSE}
 
-writeLines("var url = 'https://ai-jobs.net/';
-var page = new WebPage();
-var fs = require('fs');
+writeLines("const url = 'https://ai-jobs.net/';
+const page = new WebPage();
+const fs = require('fs');
 
 page.open(url, function (status) {
         just_wait();
@@ -60,7 +70,6 @@ js_scrape <- function(url = "https://ai-jobs.net/",
                       js_path = "scrape_ai.js", 
                       phantompath = "/usr/local/bin/phantomjs"){
   
-  # this section will replace the url in scrape.js to whatever you want 
   lines <- readLines(js_path)
   lines[1] <- paste0("var url ='", url ,"';")
   writeLines(lines, js_path)
@@ -78,12 +87,13 @@ summary_html
 ```
 
 
-cleaning up the string from special characters
+## Pulling down the data 
 
+I constructed a matrix as a data frame structured in 5 columns to hold the pulled data.
 
 ```{r}
 jobs_data <- data.frame(matrix(ncol = 5, nrow = 0))
-n <- c("position","company","location","details_link","details")
+#n <- c("position","company","location","details_link","details")
 colnames(jobs_data)
 ```
 
@@ -140,6 +150,8 @@ get_location
     html_attr("href") 
 ```
 
+For the job full description, I got the link for each job posting **(href attribute)** and iterate over those hrefs and scrape them to get the full description information. 
+
 ```{r}
   # get detailed description 
   get_description <- as.character()
@@ -162,12 +174,14 @@ get_location
 
 ```{r}
 #fill in the job data #create a structure to hold our full summaries
-  position <- rep(get_position,length(job_details))
-  company <- rep(get_company,length(job_details))
-  location <- rep(get_location,length(job_details))
-  details_link <- rep(job_details,length(job_details))
-  details <- rep(get_description, length(job_details))
+  #position <- rep(get_position,length(job_details))
+  #company <- rep(get_company,length(job_details))
+  #location <- rep(get_location,length(job_details))
+  #details_link <- rep(job_details,length(job_details))
+  #details <- rep(get_description, length(job_details))
 ```
+
+## Final Dataframe
 
 ```{r}
   jobs_data <- rbind(jobs_data,data.frame(get_position,
@@ -182,6 +196,7 @@ jobs_data %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover"
 dim(jobs_data)
 ```
 
+## Exporting to csv file
 
 ```{r}
 # write the resulted data into a csv table ---> transformation 
@@ -205,6 +220,31 @@ job_details_df <- read.csv(file = "jobs_detailsInfo.csv", header = TRUE, sep = "
 head(job_details_df, 2)   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
+
+## Open the file from GitHub account
+
+```{r}
+url <- "https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/project_3/jobs_detailsInfo.csv"
+
+jobs_df <- read.csv(url, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+jobs_df
+```
+
+_________
+
+## Important links 
+
++ [GitHub link for the final csv file](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/project_3/jobs_detailsInfo.csv)
+
++ [GitHub link for the RMD file](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/project_3)
+
++ [Rpubs link]()
+
++ [ai-jobs.net](https://www.ai-jobs.net)
+
+__________
+
+## Extra text analysis using bag of words
 
 we need to change the get_details column into a corpus for analysis
 
@@ -236,9 +276,9 @@ job_desc <- tm_map(job_desc_corpus,removePunctuation)
 writeLines(as.character(job_desc[[1]]))
 
 # remove numbers
-job_desc <- tm_map(job_desc_corpus,removeNumbers) 
+job_desc <- tm_map(job_desc,removeNumbers) 
 # remove ascii characters
-#writeLines(as.character(job_desc[[1]]))
+writeLines(as.character(job_desc[[1]]))
 
 ```
 
@@ -265,8 +305,8 @@ Note: The “stem completion” function is currently problemmatic, and stemmed 
 This procedure has been a little hanky in the recent past, so I change the name of the data object when I do this to keep from overwriting what I have done to this point.
 
 ```{r}
-jobs_st <- tm_map(jobs_desc, stemDocument)   
-jobs_st <- tm_map(jobs_desc, PlainTextDocument)
+jobs_st <- tm_map(job_desc, stemDocument)   
+jobs_st <- tm_map(job_desc, PlainTextDocument)
 writeLines(as.character(jobs_st[1])) # Check to see if it worked.
 ```
 

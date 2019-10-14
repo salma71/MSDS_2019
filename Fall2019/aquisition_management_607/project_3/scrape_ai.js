@@ -1,6 +1,6 @@
 var url ='https://ai-jobs.net/';
-var page = new WebPage();
-var fs = require('fs');
+const page = new WebPage();
+const fs = require('fs');
 
 page.open(url, function (status) {
         just_wait();
