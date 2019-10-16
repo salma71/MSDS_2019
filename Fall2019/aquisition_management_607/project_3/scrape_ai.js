@@ -1,4 +1,4 @@
-var url ='https://ai-jobs.net/';
+const url ='https://ai-jobs.net/';
 const page = new WebPage();
 const fs = require('fs');
 

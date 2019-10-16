@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/539119/f70f1c4a88eb479ba42d8ab7248e7b27
+bundleId: https://api.rpubs.com/api/v1/document/539119/f70f1c4a88eb479ba42d8ab7248e7b27
+url: http://rpubs.com/salmaeng/539119
+when: 1571077438.02713

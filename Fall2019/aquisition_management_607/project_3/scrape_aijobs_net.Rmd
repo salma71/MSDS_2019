@@ -71,7 +71,7 @@ js_scrape <- function(url = "https://ai-jobs.net/",
                       phantompath = "/usr/local/bin/phantomjs"){
   
   lines <- readLines(js_path)
-  lines[1] <- paste0("var url ='", url ,"';")
+  lines[1] <- paste0("const url ='", url ,"';")
   writeLines(lines, js_path)
   
   command = paste(phantompath, js_path, sep = " ")
@@ -91,14 +91,12 @@ summary_html
 
 I constructed a matrix as a data frame structured in 5 columns to hold the pulled data.
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 jobs_data <- data.frame(matrix(ncol = 5, nrow = 0))
-#n <- c("position","company","location","details_link","details")
-colnames(jobs_data)
 ```
 
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   
   #position name
   get_position <- summary_html %>% 
@@ -114,7 +112,7 @@ colnames(jobs_data)
 get_position
 ```
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   # get the company name
   get_company <- summary_html %>% 
     html_nodes("div") %>% 
@@ -127,7 +125,7 @@ get_position
 get_company
 ```
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   # get the position - location
   get_location <- summary_html %>% 
     html_nodes("div") %>% 
@@ -140,7 +138,7 @@ get_company
 get_location
 ```
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   # get detailed url 
   job_details <- summary_html %>% 
     html_nodes("div") %>% 
@@ -152,7 +150,7 @@ get_location
 
 For the job full description, I got the link for each job posting **(href attribute)** and iterate over those hrefs and scrape them to get the full description information. 
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   # get detailed description 
   get_description <- as.character()
     for ( n in 1:length(job_details) ){
@@ -167,23 +165,13 @@ For the job full description, I got the link for each job posting **(href attrib
        html_text(trim = TRUE)
       
       }
-  get_description
+  get_description[1]
 ```
 
-
-
-```{r}
-#fill in the job data #create a structure to hold our full summaries
-  #position <- rep(get_position,length(job_details))
-  #company <- rep(get_company,length(job_details))
-  #location <- rep(get_location,length(job_details))
-  #details_link <- rep(job_details,length(job_details))
-  #details <- rep(get_description, length(job_details))
-```
 
 ## Final Dataframe
 
-```{r}
+```{r message = FALSE, warning = FALSE}
   jobs_data <- rbind(jobs_data,data.frame(get_position,
                                             get_company,
                                             get_location,
@@ -192,13 +180,13 @@ For the job full description, I got the link for each job posting **(href attrib
 jobs_data %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 ```
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 dim(jobs_data)
 ```
 
 ## Exporting to csv file
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 # write the resulted data into a csv table ---> transformation 
 job_scrape_df <- write.table(jobs_data, file = "jobs_detailsInfo.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
 ```
@@ -207,14 +195,13 @@ job_scrape_df <- write.table(jobs_data, file = "jobs_detailsInfo.csv", row.names
 
 *Please be sure that you set working directory in Rstudio to the current working directory.*
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/project_3/jobs_detailsInfo.csv")
 ```
 
 ## open the file from local machine
 
-```{r}
-library(readr)
+```{r message = FALSE, warning = FALSE}
 job_details_df <- read.csv(file = "jobs_detailsInfo.csv", header = TRUE, sep = ",")
 
 head(job_details_df, 2)   %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
@@ -223,7 +210,7 @@ head(job_details_df, 2)   %>% kable() %>% kable_styling(bootstrap_options = c("s
 
 ## Open the file from GitHub account
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 url <- "https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/project_3/jobs_detailsInfo.csv"
 
 jobs_df <- read.csv(url, header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -238,7 +225,7 @@ _________
 
 + [GitHub link for the RMD file](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/project_3)
 
-+ [Rpubs link]()
++ [Rpubs link](http://rpubs.com/salmaeng/ds_skills_607)
 
 + [ai-jobs.net](https://www.ai-jobs.net)
 
@@ -248,7 +235,7 @@ __________
 
 we need to change the get_details column into a corpus for analysis
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 
 job_desc_corpus <- VCorpus(VectorSource(job_details_df$get_description))
 
@@ -259,7 +246,7 @@ job_desc_corpus <- VCorpus(VectorSource(job_details_df$get_description))
 
 also used regex to remove ASCII characters
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 for (j in seq(job_desc_corpus)) {
     job_desc_corpus[[j]] <- gsub("/", "  ", job_desc_corpus[[j]])
     job_desc_corpus[[j]] <- gsub("@", "  ", job_desc_corpus[[j]])
@@ -270,7 +257,7 @@ writeLines(as.character(job_desc_corpus[[1]]))
 ```
 
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 # remove puncituation 
 job_desc <- tm_map(job_desc_corpus,removePunctuation) 
 writeLines(as.character(job_desc[[1]]))
@@ -282,7 +269,7 @@ writeLines(as.character(job_desc[[1]]))
 
 ```
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 # For a list of the stopwords, see:   
 # length(stopwords("english"))   
 # stopwords("english")   
@@ -291,7 +278,7 @@ job_desc <- tm_map(job_desc, PlainTextDocument)
 #writeLines(as.character(job_desc[[1]]))
 
 ```
-```{r}
+```{r message = FALSE, warning = FALSE}
 job_desc <- tm_map(job_desc, removeWords, c("syllogism", "tautology"))   
 # Just remove the words "syllogism" and "tautology". 
 # These words don't actually exist in these texts. But this is how you would remove them if they had.
@@ -304,7 +291,7 @@ Note: The “stem completion” function is currently problemmatic, and stemmed 
 
 This procedure has been a little hanky in the recent past, so I change the name of the data object when I do this to keep from overwriting what I have done to this point.
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 jobs_st <- tm_map(job_desc, stemDocument)   
 jobs_st <- tm_map(job_desc, PlainTextDocument)
 writeLines(as.character(jobs_st[1])) # Check to see if it worked.
