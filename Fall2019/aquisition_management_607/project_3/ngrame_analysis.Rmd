@@ -1,0 +1,196 @@
+---
+title: "Untitled"
+author: "Salma Elshahawy"
+date: "10/16/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(RCurl)
+library(readr)
+library(kableExtra)
+
+salma_url <- "https://raw.githubusercontent.com/salma71/DataScience_skills/master/jobs_detailsInfo%20copy.csv"
+## I used the encoding UTF-8 to remove any multibyte string 87 issues
+ai_jobs_df <- read.csv(salma_url, header = TRUE, sep = ",", stringsAsFactors = FALSE, encoding = "UTF-8", 'ASCII')
+## we have to take only job_title, location, and description
+ai_jobs_df <- ai_jobs_df[,-c(2,4)]
+colnames(ai_jobs_df,1)
+colnames(ai_jobs_df) <- c("position", "location","description")
+head(ai_jobs_df,1)
+#colnames(ai_jobs_df)
+```
+
+```{r}
+sufian_url <- "https://raw.githubusercontent.com/salma71/DataScience_skills/master/monsterjobs.csv"
+monester_jobs_df <- read.csv(sufian_url, header = TRUE, sep = ",", stringsAsFactors = FALSE, encoding = "UTF-8")
+
+monester_jobs_df <- monester_jobs_df[,-c(2,4,5)]
+colnames(monester_jobs_df,1)
+colnames(monester_jobs_df) <- c("position", "location","description")
+head(monester_jobs_df,1)
+```
+
+```{r}
+leticia_url <- "https://raw.githubusercontent.com/ltcancel/Project3/master/SimplyHiredJobs.csv"
+simply_jobs_df <- read.csv(leticia_url, header = TRUE, sep = ",", stringsAsFactors = FALSE, encoding = "UTF-8")
+
+simply_jobs_df <- simply_jobs_df[,-c(2,4,5)]
+colnames(simply_jobs_df,1)
+colnames(simply_jobs_df) <- c("position", "location","description")
+head(simply_jobs_df,1)
+```
+
+The first thing we have to do is to merge the three datasets, then take a subset on job description only. To merge them we can do a cross join
+
+```{r}
+merged_dataframes <- Reduce(function(...) merge(..., all=TRUE, sort = FALSE), list(ai_jobs_df, monester_jobs_df, simply_jobs_df))
+merged_dataframes
+```
+
+Now we need to have to create a control list 
+
+```{r}
+library(stringi)
+# we need to make all our job titles as a lower case 
+merged_dataframes$position <- tolower(merged_dataframes$position)
+head(merged_dataframes)
+
+# create a control list to be used for the corpus
+control_list <- list(removePunctuation = TRUE, stopwords = TRUE, tolower = TRUE, weighting = weightTfIdf)
+```
+
+```{r}
+#cleaning first 
+library(tm)
+clean_text <- sapply(merged_dataframes$description, function(x) iconv(enc2utf8(x), sub = "byte"))
+docs <- VCorpus(VectorSource(clean_text))
+#summary(docs)
+
+##writeLines(as.character(docs[1])) worked fine
+
+docs <- tm_map(docs, removePunctuation)
+  for (j in seq(docs)) {
+      docs[[j]] <- gsub("\\/", " ", docs[[j]])
+      docs[[j]] <- gsub("@", " ", docs[[j]])
+      docs[[j]] <- gsub("\\|", " ", docs[[j]])
+      docs[[j]] <- gsub("\u2028", " ", docs[[j]])  # This is an ascii character that did not translate, so it had to be removed.
+      docs[[j]] <- gsub("[^[:alnum:]]", " ", docs[[j]])
+      docs[[j]] <- gsub("[[:punct:]]", " ", docs[[j]])
+      docs[[j]] <- gsub("[[:alnum:]]", " ", docs[[j]])
+  }
+#writeLines(as.character(docs[200]))
+```
+```{r}
+docs <- tm_map(docs, removeNumbers)
+docs <- tm_map(docs, tolower)
+docs <- tm_map(docs, PlainTextDocument)
+
+#writeLines(as.character(docs[200]))
+```
+```{r}
+## removing stop words
+docs <- tm_map(docs_plain, removeWords, stopwords("english"))
+extraStopwords <- c(setdiff(stopwords('english'), c("r", "big")),"used", "will", "time", "can", "sex", "role", "new","can", "job", "etc", "one", "looking", "well","use","best","also", "high", "real", "please", "key", "able", "must", "like", "full", "include", "good", "non", "need","plus","day","year", "com", "want", "age","using","sexual", "help","apply", "race", "orientation")
+
+docs <- tm_map(docs, removeWords, extraStopwords)
+docs <- tm_map(docs, PlainTextDocument)
+#writeLines(as.character(docs[200]))
+
+#writeLines(as.character(docs_st[200])) # Check to see if it worked.
+```
+
+
+```{r}
+docs <- tm_map(docs, stripWhitespace)
+docs <- tm_map(docs, PlainTextDocument)
+#writeLines(as.character(docs[200]))
+```
+
+
+```{r}
+dtm <- DocumentTermMatrix(docs)
+dtm
+```
+```{r}
+freq <- colSums(as.matrix(dtm))
+head(table(freq), 100)
+```
+
+
+```{r}
+sparsewords <- removeSparseTerms(dtm,0.9)
+freq <- colSums(as.matrix(sparsewords))
+freq
+```
+
+```{r}
+freq <- sort(colSums(as.matrix(sparsewords)), decreasing=TRUE)   
+head(freq, 100)
+```
+
+```{r}
+findFreqTerms(dtm, lowfreq=50)   
+```
+
+```{r}
+wf <- data.frame(word=names(freq), freq=freq)   
+wf
+```
+
+```{r}
+library(ggplot2)
+p <- ggplot(subset(wf, freq>=200), aes(x = reorder(word, -freq), y = freq)) +
+          geom_bar(stat = "identity", fill = "#FF6666") + 
+          theme(axis.text.x=element_text(angle=45, hjust=1))
+p   
+```
+
+```{r}
+library(wordcloud)
+
+set.seed(142) 
+
+wordcloud(names(freq), freq, min.freq=25, scale = c(4, 0.2))   
+
+```
+
+```{r}
+library(kableExtra)
+softskills <- merged_dataframes %>%
+    mutate(workingremote = grepl("working remote", description, ignore.case=TRUE)) %>%
+    mutate(communication = grepl("communicate", description, ignore.case=TRUE)) %>%
+    mutate(collaborative = grepl("collaborate", description, ignore.case=TRUE)) %>%
+    mutate(creative = grepl("creative", description, ignore.case=TRUE)) %>%
+    mutate(critical = grepl("critical", description, ignore.case=TRUE)) %>%
+    mutate(problemsolving = grepl("problem solving", description, ignore.case=TRUE)) %>%
+    mutate(activelearning = grepl("active learning", description, ignore.case=TRUE)) %>%
+    mutate(hypothesis = grepl("hypothesis", description, ignore.case=TRUE)) %>%
+    mutate(organized = grepl("organize", description, ignore.case=TRUE)) %>%
+    mutate(judgement = grepl("judgement", description, ignore.case=TRUE)) %>%
+    mutate(selfstarter = grepl("self Starter", description, ignore.case=TRUE)) %>%
+    mutate(interpersonalskills = grepl("interpersonal skills", description, ignore.case=TRUE)) %>%
+    mutate(atttodetail = grepl("attention to detail", description, ignore.case=TRUE)) %>%
+    mutate(visualization = grepl("visualization", description, ignore.case=TRUE)) %>%
+    mutate(leadership = grepl("leadership", description, ignore.case=TRUE)) %>%
+
+select(position, location, description, workingremote, communication, collaborative, creative, critical, problemsolving,activelearning, hypothesis, organized, judgement, selfstarter, interpersonalskills, atttodetail, visualization, leadership)
+    
+summary(softskills) 
+```
+
+```{r}
+softskills2 <- softskills %>% 
+               select(-(1:2)) %>% 
+               summarise_all(sum) %>%
+               gather(variable, value)
+```
+
+
+
+
