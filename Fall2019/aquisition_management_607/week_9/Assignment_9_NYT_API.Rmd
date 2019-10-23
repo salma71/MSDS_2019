@@ -1,0 +1,175 @@
+---
+title: "Assignment_9 DATA607"
+author: "Salma Elshahawy"
+date: "10/22/2019"
+output: 
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment overview
+
+The New York Times web site provides a rich set of APIs, as described here: https://developer.nytimes.com/apis You’ll need to start by signing up for an API key.
+Your task is to choose one of the New York Times APIs, construct an interface in Python to read in the JSON data, and transform it into a pandas DataFrame.
+
+## Methodology 
+
+I decided to pick the books API to see what is the best selling books according to New York Times ranking. After reading the API documentation, I picked the sample call endpoint and call GET method into that endpoint. 
+
+## Load the necessary libraries
+
+```{r warning=FALSE, message=FALSE}
+library(httr)
+library(rjson)
+library(jsonlite)
+library(dplyr)
+```
+
+
+## Get NYT book list
+
+First, I signed up for a NYT API, and create an app which leads to generate an API key for me. Second, I used this API inside of the GET from the httr package to retrieve the data from the site - Best selling books for this week. After that, I stored the resulted json into a variable called response.
+
+```{r}
+key <- 'BRnDpUYaARf4t6wEHdpdRQQQw7s48bMf'
+key
+
+nyt_book_list <- GET("https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=BRnDpUYaARf4t6wEHdpdRQQQw7s48bMf")
+nyt_book_list
+
+response <- content(nyt_book_list)
+http_status(nyt_book_list)
+
+```
+
+## Pulling out the main attributes
+
+```{r}
+books <- fromJSON(nyt_book_list$url) 
+
+books
+typeof(books) # list 
+```
+
+## Convert to a dataframe
+
+The resulted output is a list of list names(book genre) and books details nested inside the books attributes. To pull out the book details - which I need to this assignment, I constructed a for-loop to extract title, author, publisher, and book rank. Finally, store the extracted data into a new dataframe ready for further analysis.
+
+```{r}
+author <- vector()
+publisher <- vector()
+title <- vector()
+rank <- vector()
+list_name <- vector()
+#Loop through books on the best sellers list
+for ( i in 1: 18) {
+  for (j in 1:5) {
+      list_name <- c(response$results$lists[[i]]$list_name, list_name)
+      title <- c( response$results$lists[[i]]$books[[j]]$title, title) 
+      author <- c( response$results$lists[[i]]$books[[j]]$author, author) 
+      publisher <- c( response$results$lists[[i]]$books[[j]]$publisher, publisher) 
+      rank <- c(  as.numeric  (response$results$lists[[i]]$books[[j]]$rank, rank   ))
+  }
+
+}
+
+#Create a dataframe
+books_df = data.frame(
+  list_name = list_name,
+  title = title,
+  author = author,
+  publisher = publisher,
+  rank = rank
+  )
+
+books_df
+```
+
+```{r}
+is.data.frame(books_df)
+```
+
+### Export to csv file
+
+```{r  message=FALSE, warning=FALSE}
+NYT_books_df <- write.table(books_df, file = "bestNYTbooks.csv", row.names = FALSE, na="", col.names = TRUE, sep = ",")
+
+```
+
+### Test that the file is already created. 
+
+*Please be sure that you set working directory in Rstudio to the current working directory.*
+
+```{r  message=FALSE, warning=FALSE}
+file_test("-f", "~/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_9/bestNYTbooks.csv")
+```
+
+### open the file from local machine
+
+```{r  message=FALSE, warning=FALSE}
+bestNYT_books <- read.csv(file = "bestNYTbooks.csv", header = TRUE, sep = ",")
+
+bestNYT_books
+```
+
+
+### Read from GitHub 
+
+We can open the file from the GitHub
+
+```{r}
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByOriginDestination.csv'
+
+# reading the url as a dataframe
+by_origin_destination <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
+head(by_origin_destination)
+```
+
+## Basic analysis
+
+I had a curiousity to find out what is the most frequent publisher according to NYT best selling books. 
+
+```{r}
+by_publisher <- books_df %>%
+  group_by(publisher) %>%
+  select(title, publisher) %>%
+  summarize(total = n()) # how many books per publisher
+
+by_publisher
+```
+
+## Visualization 
+
+```{r}
+library(ggplot2)
+freq_publisher <- by_publisher %>%
+  filter(total > 2)
+
+ggplot( data = freq_publisher, aes  (x = publisher, y=total )) + 
+   geom_bar(stat="identity") + 
+   xlab("Publisher Name") + 
+   ylab("Number of top books per publisher") +
+   ggtitle ("NY Times Best Seller book publisher") +
+   theme(legend.position="bottom")
+```
+
+## Conclusion 
+
+It seems that the top publishers are Little Brown with 8 books per week followed by Scholastic with 6 books. However, Putnam and Random House have have the same number of books of 5 while Random House Audio has only 4 books per week. 
+
+## Links 
+
+
+
