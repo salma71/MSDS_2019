@@ -15,7 +15,7 @@ output:
     toc_float: yes
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -23,6 +23,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The New York Times web site provides a rich set of APIs, as described here: https://developer.nytimes.com/apis You’ll need to start by signing up for an API key.
 Your task is to choose one of the New York Times APIs, construct an interface in Python to read in the JSON data, and transform it into a pandas DataFrame.
+
+**Important Note: **
+
+This assignment done using R
 
 ## Methodology 
 
@@ -49,7 +53,7 @@ key
 nyt_book_list <- GET("https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=BRnDpUYaARf4t6wEHdpdRQQQw7s48bMf")
 nyt_book_list
 
-response <- content(nyt_book_list)
+response <- content(nyt_book_list) #view all the content structure
 http_status(nyt_book_list)
 
 ```
@@ -59,7 +63,6 @@ http_status(nyt_book_list)
 ```{r}
 books <- fromJSON(nyt_book_list$url) 
 
-books
 typeof(books) # list 
 ```
 
@@ -68,6 +71,7 @@ typeof(books) # list
 The resulted output is a list of list names(book genre) and books details nested inside the books attributes. To pull out the book details - which I need to this assignment, I constructed a for-loop to extract title, author, publisher, and book rank. Finally, store the extracted data into a new dataframe ready for further analysis.
 
 ```{r}
+
 author <- vector()
 publisher <- vector()
 title <- vector()
@@ -130,11 +134,11 @@ bestNYT_books
 We can open the file from the GitHub
 
 ```{r}
-url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_6/project_2/migrantByOriginDestination.csv'
+url <- 'https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_9/bestNYTbooks.csv'
 
 # reading the url as a dataframe
-by_origin_destination <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
-head(by_origin_destination)
+bestNYT_books_df <- read.csv(url, header = TRUE, stringsAsFactors = FALSE)
+bestNYT_books_df
 ```
 
 ## Basic analysis
@@ -171,5 +175,6 @@ It seems that the top publishers are Little Brown with 8 books per week followed
 
 ## Links 
 
-
++ [GitHub Repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_9)
++ [Final csv file on GitHub](https://github.com/salma71/MSDS_2019/blob/master/Fall2019/aquisition_management_607/week_9/bestNYTbooks.csv)
 
