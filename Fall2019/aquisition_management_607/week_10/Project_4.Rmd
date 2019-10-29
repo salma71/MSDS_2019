@@ -1,0 +1,91 @@
+---
+title: "DATA607_Project 4_Document classification"
+author: "Salma Elshahawy"
+date: "10/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment statement
+
+It can be useful to be able to classify new "test" documents using already classified "training" documents.  A common example is using a corpus of labeled spam and ham (non-spam) e-mails to predict whether or not a new document is spam.  
+
+For this project, you can start with a spam/ham dataset, then predict the class of new documents (either withheld from the training dataset or from another source such as your own spam folder). [One example corpus:](https://spamassassin.apache.org/old/publiccorpus/)
+
+## Introduction 
+
+A common task in social science involves hand-labeling sets of documents for specific variables (e.g. manual coding). In previous years, this required hiring a set of research assistants and training them to read and evaluate text by hand. It was expensive, prone to error, required extensive data quality checks, and was infeasible if you had an extremely large corpus of text that required classification.
+
+Alternatively, we can now use statistical learning models to classify text into specific sets of categories. This is known as supervised learning. The basic process is:
+
++ Hand-code a small set of documents (say 1000) for whatever variable(s) you care about
+
++ Train a statistical learning model on the hand-coded data, using the variable as the outcome of interest and the text features of the documents as the predictors
+
++ Evaluate the effectiveness of the statistical learning model via cross-validation
+
++ Once you have trained a model with sufficient predictive accuracy, apply the model to the remaining set of documents that have never been hand-coded (say 1000000)
+
+## Loading necessary libraries
+
+```{r message=FALSE, warning=FALSE}
+library(R.utils)
+library(tidyverse)
+library(tidytext)
+library(stringr)
+library(tm)
+```
+
+## Download the dataset into local machine
+
+```{r}
+base_url_spam <- "https://spamassassin.apache.org/old/publiccorpus/20030228_spam_2.tar.bz2"
+spam_folder <- "20030228_spam_2.tar.bz2"
+spam_files <- "20030228_spam_2.tar"
+
+base_url_ham <- "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham_2.tar.bz2"
+ham_folder <- "20030228_easy_ham_2.tar.bz2"
+ham_files <- "20030228_easy_ham_2.tar"
+
+  if(!file.exists(spam_files)){
+    res <- tryCatch(download.file(base_url_spam,
+                                  destfile= spam_folder,
+                                  method="auto"),
+                error=function(e) 1)
+    bunzip2(spam_folder)
+    untar(spam_files, exdir="spam_ham_documents")
+  } else if(!file.exists(ham_files)){
+    res <- tryCatch(download.file(base_url_ham,
+                                  destfile= ham_folder,
+                                  method="auto"),
+                error=function(e) 1)
+    bunzip2(ham_folder)
+    untar(ham_files, exdir = "spam_ham_documents")
+
+  } else {
+    paste("The file is already exists!")
+  }
+```
+
+## Converting into corpus
+
+Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
+
+```{r message=FALSE, warning=FALSE}
+getwd()
+setwd('/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents')
+spam_docs <- list.files('spam_2')
+ham_docs <- list.files('easy_ham_2')
+```
+
+
+
+
+
+
+
+
+
