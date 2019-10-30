@@ -35,54 +35,171 @@ Alternatively, we can now use statistical learning models to classify text into 
 library(R.utils)
 library(tidyverse)
 library(tidytext)
+library(readtext)
 library(stringr)
 library(tm)
 ```
 
 ## Download the dataset into local machine
 
+
 ```{r}
 base_url_spam <- "https://spamassassin.apache.org/old/publiccorpus/20030228_spam_2.tar.bz2"
-spam_folder <- "20030228_spam_2.tar.bz2"
-spam_files <- "20030228_spam_2.tar"
+spam_zip <- "20030228_spam_2.tar.bz2"
+spam_tar <- "20030228_spam_2.tar"
 
 base_url_ham <- "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham_2.tar.bz2"
-ham_folder <- "20030228_easy_ham_2.tar.bz2"
-ham_files <- "20030228_easy_ham_2.tar"
-
-  if(!file.exists(spam_files)){
-    res <- tryCatch(download.file(base_url_spam,
+ham_zip <- "20030228_easy_ham_2.tar.bz2"
+ham_tar <- "20030228_easy_ham_2.tar"
+  if(!file.exists(spam_tar)){
+    res_spam <- tryCatch(download.file(base_url_spam,
                                   destfile= spam_folder,
                                   method="auto"),
                 error=function(e) 1)
-    bunzip2(spam_folder)
-    untar(spam_files, exdir="spam_ham_documents")
-  } else if(!file.exists(ham_files)){
-    res <- tryCatch(download.file(base_url_ham,
+    bunzip2(spam_zip)
+    untar(spam_tar, exdir="spam_ham_documents")
+    
+  } 
+
+  if(!file.exists(ham_tar)){
+    res_ham <- tryCatch(download.file(base_url_ham,
                                   destfile= ham_folder,
                                   method="auto"),
                 error=function(e) 1)
-    bunzip2(ham_folder)
-    untar(ham_files, exdir = "spam_ham_documents")
-
+    bunzip2(ham_zip)
+    untar(ham_tar, exdir = "spam_ham_documents")
+    
   } else {
     paste("The file is already exists!")
   }
 ```
 
+## Read content of each file
+
+```{r}
+dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
+
+spam_files <- list.files("././spam_ham_documents/spam_2")
+ham_files <- list.files("././spam_ham_documents/easy_ham_2")
+
+get_content <- function(type, file_names) {
+  if(type == "spam_2"){
+    working_dir <- paste(dir, type, file_names, sep = "/")
+  } else if(type == "easy_ham_2"){
+    working_dir <- paste(dir, type, file_names, sep = "/")
+  }
+  
+  temp <- data.frame(stringsAsFactors = FALSE)
+  mydata <- matrix()
+
+  for (file in 1:length(working_dir)) {
+    connection <- file(working_dir[file], "r", blocking = FALSE)
+    temp <- readLines(connection)
+    close(connection)    
+    temp <- str_c(temp, collapse = "")
+    temp <- as.data.frame(temp, stringsAsFactors = FALSE)
+    names(temp) <- "Content"
+    mydata[[file]] <- temp
+  }
+  return(mydata)
+}
+
+spam <- get_content("spam_2", spam_files)
+ham <- get_content("easy_ham_2", ham_files)
+```
+
+
 ## Converting into corpus
 
 Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
 
-```{r message=FALSE, warning=FALSE}
-getwd()
-setwd('/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents')
-spam_docs <- list.files('spam_2')
-ham_docs <- list.files('easy_ham_2')
+```{r}
+# for the spam folder
+spam_files <- list.files("././spam_ham_documents/spam_2")
+spam_path <- file.path("././spam_ham_documents/spam_2")
+spam_corpus <- VCorpus(DirSource(spam_path))
+#summary(spam_corpus)
+
+##############
+
+# for the ham folder
+ham_files <- list.files("././spam_ham_documents/easy_ham_2")
+ham_path <- file.path("././spam_ham_documents/easy_ham_2")
+ham_corpus <- VCorpus(DirSource(ham_path))
+#summary(spam_corpus)
+
+```
+
+## Cleaning up the corpus using the tm package
+
+For this purpose, I constructed a function that takes the corpus as an argument and use **tm** package from R to clean up the corpus.
+
+```{r}
+readContent <- function(content){
+  msge <- str_split(content,"\n\n") %>% unlist()
+  body <- paste(msge[2:length(msge)], collapse=' ' )
+  return(body)
+}
+
+```
+
+```{r}
+dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents/spam_2/"
+
+files <- list.files(dir)
+content <- NA
+for (file in 1:length(files)) {
+  file_path <- paste0(dir, files[1])
+  email <- readtext(file_path)
+  msg <- readContent(email)
+  msg <- gsub("<.*?>", " ", msg)
+  each_msg <- list(paste(msg,collapse = "\n"))
+  content = c(content, each_msg)
+}
 ```
 
 
+```{r}
+cleanDoc <- function(corpus) {
+    corpus <- corpus %>%
+    tm_map(removeNumbers) %>%                       # Remove numbers
+    tm_map(removePunctuation) %>%                   # Remove punctuation symbols 
+    tm_map(tolower) %>%                             # Transform  to lowercase
+    tm_map(PlainTextDocument) %>%                   # Transform back to PlainTextDocument
+    tm_map(removeWords, stopwords("en")) %>%        # Remove stopwords
+    tm_map(stripWhitespace) %>%                     # Remove white spaces
+    tm_map(stemDocument)                            # Reduce to stems
+    
+  return(corpus)
+}
+```
 
+```{r}
+
+addTag <- function(corpus, tag, value){
+  for (i in 1:length(corpus)){
+    meta(corpus[[i]], tag) <- value                    # Add the value to the specified tag
+  }
+  return(corpus)
+}
+```
+
+
+```{r}
+# Create spam corpus
+spam_corpus <- spam_2%>%
+   toCorpus %>% 
+   cleanDoc  %>% 
+   addTag(tag = "spam_ham", value = "spam")
+
+
+
+# Create ham corpus
+ham_corpus <- easy_ham_2 %>%
+  toCorpus %>%
+  cleanDoc %>%
+  addTag(tag = "spam_ham", value = "ham")
+```
 
 
 
