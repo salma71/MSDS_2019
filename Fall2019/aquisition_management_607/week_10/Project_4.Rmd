@@ -77,49 +77,101 @@ ham_tar <- "20030228_easy_ham_2.tar"
 ## Read content of each file
 
 ```{r}
-dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
-
-spam_files <- list.files("././spam_ham_documents/spam_2")
-ham_files <- list.files("././spam_ham_documents/easy_ham_2")
-
-get_content <- function(type, file_names) {
-  if(type == "spam_2"){
-    working_dir <- paste(dir, type, file_names, sep = "/")
-  } else if(type == "easy_ham_2"){
-    working_dir <- paste(dir, type, file_names, sep = "/")
-  }
-  
-  temp <- data.frame(stringsAsFactors = FALSE)
-  mydata <- matrix()
-
-  for (file in 1:length(working_dir)) {
-    connection <- file(working_dir[file], "r", blocking = FALSE)
-    temp <- readLines(connection)
-    close(connection)    
-    temp <- str_c(temp, collapse = "")
-    temp <- as.data.frame(temp, stringsAsFactors = FALSE)
-    names(temp) <- "Content"
-    mydata[[file]] <- temp
-  }
-  return(mydata)
+get_email_body <- function(email_content){
+  msge <- str_split(email_content,"\n\n") %>% unlist()
+  body <- paste(msge[2:length(msge)], collapse=' ' )
+  return(body)
 }
-
-spam <- get_content("spam_2", spam_files)
-ham <- get_content("easy_ham_2", ham_files)
 ```
 
+```{r}
+base_dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
+
+email_content <- NA
+
+get_content <- function(type) {
+  files_path <- paste(base_dir,type, sep = "/")
+  files_name <- list.files(files_path)
+    for (file in 1:length(files_name)) {
+      file_path <- paste(files_path, files_name[file], sep = "/")
+      content_per_file <- file_path %>%
+        lapply(readLines)
+      email_content <- c(email_content, content_per_file)
+    }
+  return(email_content)
+}
+```
+
+```{r}
+spam_test <- get_content("spam_2")
+ham_test <- get_content("easy_ham_2")
+```
 
 ## Converting into corpus
 
 Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
 
 ```{r}
-# for the spam folder
-spam_files <- list.files("././spam_ham_documents/spam_2")
-spam_path <- file.path("././spam_ham_documents/spam_2")
-spam_corpus <- VCorpus(DirSource(spam_path))
-#summary(spam_corpus)
+to_corpus <- function(doc) {
+  corpus_name <- doc %>%
+    VectorSource() %>%
+    VCorpus() 
+  
+  cleaned_corpus <- corpus_name %>%
+    tm_map(removeNumbers) %>%
+    tm_map(removePunctuation) %>%
+    tm_map(tolower) %>%
+    tm_map(PlainTextDocument) %>%
+    tm_map(removeWords, stopwords("en")) %>%
+    tm_map(stripWhitespace)
+  return(cleaned_corpus)
+}
+```
 
+```{r}
+spam_corpus <- to_corpus(spam_test)
+summary(spam_corpus)
+```
+
+## Convert the results into a dataframe
+
+```{r}
+make_df <- function(content) {
+  df <- data.frame(matrix(unlist(content), 
+                          nrow=length(content), 
+                          byrow=T),
+                   stringsAsFactors=FALSE)
+  return(df)
+}
+
+spam_df <- make_df(spam_test)
+ham_df <- make_df(ham_test)
+View(spam_df)
+View(ham_df)
+```
+
+```{r}
+# adding tag to each document either spam or ham
+get_class <- function(corpus, value){
+  for (doc in 1:length(corpus)){
+      if(value == "spam"){
+      meta(corpus[[doc]]) <- "spam"                
+      } else {
+      meta(corpus[[doc]]) <- "ham"
+    }
+  }
+  return(corpus)
+}
+
+```
+
+
+
+```{r}
+# for the spam folder
+spam_corpus <- VCorpus(DirSource(spam_df))
+#summary(spam_corpus)
+```
 ##############
 
 # for the ham folder
