@@ -101,18 +101,19 @@ spam_test <- get_content("spam_2") #list
 ham_test <- get_content("easy_ham_2") #list
 ```
 
-## change the encoding
+## create a datafram for the nested list
 
 ```{r}
-get_vector <- function(list_name) {
+get_inside_df <- function(list_name) {
+    df <- data.frame()
   for (i in 1:length(list_name)) {
-    unlist(list_name[[i]], use.names = FALSE)
+    df <- rbind(df, list_name[[i]])
   }
-  return(list_name)
+  return(df)
 }
 
-spam_vector <- get_vector(spam_test)
-ham_vector <- get_vector(ham_test)
+spam_df <- get_inside_df(spam_test)
+ham_df <- get_inside_df(ham_test)
 ```
 
 ## Converting into corpus
