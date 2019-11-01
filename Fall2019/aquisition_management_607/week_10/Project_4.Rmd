@@ -76,13 +76,6 @@ ham_tar <- "20030228_easy_ham_2.tar"
 
 ## Read content of each file
 
-```{r}
-get_email_body <- function(email_content){
-  msge <- str_split(email_content,"\n\n") %>% unlist()
-  body <- paste(msge[2:length(msge)], collapse=' ' )
-  return(body)
-}
-```
 
 ```{r}
 base_dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
@@ -96,6 +89,7 @@ get_content <- function(type) {
       file_path <- paste(files_path, files_name[file], sep = "/")
       content_per_file <- file_path %>%
         lapply(readLines)
+      
       email_content <- c(email_content, content_per_file)
     }
   return(email_content)
@@ -103,8 +97,22 @@ get_content <- function(type) {
 ```
 
 ```{r}
-spam_test <- get_content("spam_2")
-ham_test <- get_content("easy_ham_2")
+spam_test <- get_content("spam_2") #list
+ham_test <- get_content("easy_ham_2") #list
+```
+
+## change the encoding
+
+```{r}
+get_vector <- function(list_name) {
+  for (i in 1:length(list_name)) {
+    unlist(list_name[[i]], use.names = FALSE)
+  }
+  return(list_name)
+}
+
+spam_vector <- get_vector(spam_test)
+ham_vector <- get_vector(ham_test)
 ```
 
 ## Converting into corpus
@@ -116,21 +124,53 @@ to_corpus <- function(doc) {
   corpus_name <- doc %>%
     VectorSource() %>%
     VCorpus() 
-  
+  return(corpus_name)
+}
+```
+
+
+```{r}
+spam_corpus <- to_corpus(spam_test)
+#summary(spam_corpus)
+ham_corpus <- to_corpus(ham_test)
+#summary(ham_corpus)
+```
+
+## Create a lable for spam/ham document category label
+
+```{r}
+add_tag <- function(corpus, tag, value){
+  for (i in 1:length(corpus)){
+    meta(corpus[[i]], tag) <- value                    # Add the value to the specified tag
+  }
+  return(corpus)
+}
+```
+
+```{r}
+spam_class <- add_tag(spam_corpus,"document_type","spam")
+ham_class <- add_tag(ham_corpus, "document_type","ham")
+```
+
+## Clean the corpus using **tm** package
+
+```{r}
+get_clean <- function(corpus_name){
   cleaned_corpus <- corpus_name %>%
     tm_map(removeNumbers) %>%
     tm_map(removePunctuation) %>%
     tm_map(tolower) %>%
     tm_map(PlainTextDocument) %>%
-    tm_map(removeWords, stopwords("en")) %>%
-    tm_map(stripWhitespace)
+    tm_map(removeWords, stopwords(c("en", "br"))) %>%
+    tm_map(stripWhitespace) %>%
+    tm_map(stemDocument)
+  
   return(cleaned_corpus)
 }
 ```
 
-```{r}
-spam_corpus <- to_corpus(spam_test)
-summary(spam_corpus)
+```{r} 
+cleaned_spam <- get_clean(spam_class)
 ```
 
 ## Convert the results into a dataframe
@@ -150,20 +190,7 @@ View(spam_df)
 View(ham_df)
 ```
 
-```{r}
-# adding tag to each document either spam or ham
-get_class <- function(corpus, value){
-  for (doc in 1:length(corpus)){
-      if(value == "spam"){
-      meta(corpus[[doc]]) <- "spam"                
-      } else {
-      meta(corpus[[doc]]) <- "ham"
-    }
-  }
-  return(corpus)
-}
 
-```
 
 
 
@@ -185,76 +212,3 @@ ham_corpus <- VCorpus(DirSource(ham_path))
 ## Cleaning up the corpus using the tm package
 
 For this purpose, I constructed a function that takes the corpus as an argument and use **tm** package from R to clean up the corpus.
-
-```{r}
-readContent <- function(content){
-  msge <- str_split(content,"\n\n") %>% unlist()
-  body <- paste(msge[2:length(msge)], collapse=' ' )
-  return(body)
-}
-
-```
-
-```{r}
-dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents/spam_2/"
-
-files <- list.files(dir)
-content <- NA
-for (file in 1:length(files)) {
-  file_path <- paste0(dir, files[1])
-  email <- readtext(file_path)
-  msg <- readContent(email)
-  msg <- gsub("<.*?>", " ", msg)
-  each_msg <- list(paste(msg,collapse = "\n"))
-  content = c(content, each_msg)
-}
-```
-
-
-```{r}
-cleanDoc <- function(corpus) {
-    corpus <- corpus %>%
-    tm_map(removeNumbers) %>%                       # Remove numbers
-    tm_map(removePunctuation) %>%                   # Remove punctuation symbols 
-    tm_map(tolower) %>%                             # Transform  to lowercase
-    tm_map(PlainTextDocument) %>%                   # Transform back to PlainTextDocument
-    tm_map(removeWords, stopwords("en")) %>%        # Remove stopwords
-    tm_map(stripWhitespace) %>%                     # Remove white spaces
-    tm_map(stemDocument)                            # Reduce to stems
-    
-  return(corpus)
-}
-```
-
-```{r}
-
-addTag <- function(corpus, tag, value){
-  for (i in 1:length(corpus)){
-    meta(corpus[[i]], tag) <- value                    # Add the value to the specified tag
-  }
-  return(corpus)
-}
-```
-
-
-```{r}
-# Create spam corpus
-spam_corpus <- spam_2%>%
-   toCorpus %>% 
-   cleanDoc  %>% 
-   addTag(tag = "spam_ham", value = "spam")
-
-
-
-# Create ham corpus
-ham_corpus <- easy_ham_2 %>%
-  toCorpus %>%
-  cleanDoc %>%
-  addTag(tag = "spam_ham", value = "ham")
-```
-
-
-
-
-
-
