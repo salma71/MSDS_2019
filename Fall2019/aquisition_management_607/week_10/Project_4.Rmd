@@ -54,17 +54,16 @@ ham_tar <- "20030228_easy_ham_2.tar"
   if(!file.exists(spam_tar)){
     res_spam <- tryCatch(download.file(base_url_spam,
                                   destfile= spam_folder,
-                                  method="auto"),
+                                  method="curl"),
                 error=function(e) 1)
     bunzip2(spam_zip)
     untar(spam_tar, exdir="spam_ham_documents")
-    
   } 
 
   if(!file.exists(ham_tar)){
     res_ham <- tryCatch(download.file(base_url_ham,
                                   destfile= ham_folder,
-                                  method="auto"),
+                                  method="curl"),
                 error=function(e) 1)
     bunzip2(ham_zip)
     untar(ham_tar, exdir = "spam_ham_documents")
@@ -101,19 +100,58 @@ spam_test <- get_content("spam_2") #list
 ham_test <- get_content("easy_ham_2") #list
 ```
 
+
+```{r}
+get_nested_content <- function(list_name) {
+  nested_value <- NA
+  for (value in 2:length(list_name)) {
+    value_per_row <- list_name[[value]]
+    nested_value <- c(nested_value, value_per_row)
+  }
+  return(nested_value)
+}
+```
+
+```{r}
+spam_content <- get_nested_content(spam_test)
+ham_content <- get_nested_content(ham_test)
+```
+
 ## create a datafram for the nested list
 
 ```{r}
-get_inside_df <- function(list_name) {
-    df <- data.frame()
-  for (i in 1:length(list_name)) {
-    df <- rbind(df, list_name[[i]])
-  }
-  return(df)
+make_df <- function(list_name, type) {
+    df <- data.frame(stringsAsFactors = FALSE)
+    df <- rbind(df, list_name) %>%
+      mutate(class = type) 
+    names(df)[1] <- "texts"
 }
 
-spam_df <- get_inside_df(spam_test)
-ham_df <- get_inside_df(ham_test)
+
+```
+
+```{r}
+spam_df <- as.data.frame(spam_content) %>%
+  mutate(class = "spam") %>% #adding a class tag 
+  na.omit(spam_df)
+names(spam_df) <- c("text", "class")
+spam_df
+```
+```{r}
+ham_df <- as.data.frame(ham_content) %>%
+  mutate(class = "ham") %>% #adding a class tag 
+  na.omit(ham_df) 
+names(ham_df) <- c("text", "class")
+ham_df
+```
+
+```{r}
+data_df <- rbind(spam_df, ham_df)
+data_df
+```
+
+```{r}
+table(data_df$class)
 ```
 
 ## Converting into corpus
@@ -121,20 +159,8 @@ ham_df <- get_inside_df(ham_test)
 Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
 
 ```{r}
-to_corpus <- function(doc) {
-  corpus_name <- doc %>%
-    VectorSource() %>%
-    VCorpus() 
-  return(corpus_name)
-}
-```
-
-
-```{r}
-spam_corpus <- to_corpus(spam_test)
-#summary(spam_corpus)
-ham_corpus <- to_corpus(ham_test)
-#summary(ham_corpus)
+corpus_data = VCorpus(VectorSource(data_df$text))
+as.character(corpus_data[[1]])
 ```
 
 ## Create a lable for spam/ham document category label
@@ -149,8 +175,20 @@ add_tag <- function(corpus, tag, value){
 ```
 
 ```{r}
-spam_class <- add_tag(spam_corpus,"document_type","spam")
-ham_class <- add_tag(ham_corpus, "document_type","ham")
+to_corpus <- function(doc, type) {
+  corpus_name <- VCorpus(VectorSource(data_df)) %>%
+    add_tag(tag = "document type", value = type)
+  return(corpus_name)
+}
+```
+
+
+```{r}
+spam_corpus <- to_corpus(spam_test,"spam")
+#summary(spam_corpus)
+#str(spam_corpus)
+ham_corpus <- to_corpus(ham_test, "ham")
+#summary(ham_corpus)
 ```
 
 ## Clean the corpus using **tm** package
@@ -160,37 +198,16 @@ get_clean <- function(corpus_name){
   cleaned_corpus <- corpus_name %>%
     tm_map(removeNumbers) %>%
     tm_map(removePunctuation) %>%
-    tm_map(tolower) %>%
-    tm_map(PlainTextDocument) %>%
-    tm_map(removeWords, stopwords(c("en", "br"))) %>%
-    tm_map(stripWhitespace) %>%
-    tm_map(stemDocument)
+    tm_map(content_transformer(stringi::stri_trans_tolower)) %>%
+    tm_map(PlainTextDocument)
   
   return(cleaned_corpus)
 }
 ```
 
 ```{r} 
-cleaned_spam <- get_clean(spam_class)
+cleaned_spam <- get_clean(spam_corpus)
 ```
-
-## Convert the results into a dataframe
-
-```{r}
-make_df <- function(content) {
-  df <- data.frame(matrix(unlist(content), 
-                          nrow=length(content), 
-                          byrow=T),
-                   stringsAsFactors=FALSE)
-  return(df)
-}
-
-spam_df <- make_df(spam_test)
-ham_df <- make_df(ham_test)
-View(spam_df)
-View(ham_df)
-```
-
 
 
 
