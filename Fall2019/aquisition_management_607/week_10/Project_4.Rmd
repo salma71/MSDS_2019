@@ -146,8 +146,9 @@ ham_df
 ```
 
 ```{r}
-data_df <- rbind(spam_df, ham_df)
-data_df
+data_df <- rbind(spam_df, ham_df) %>%
+  mutate_all(funs(gsub("[^[:alnum:][:blank:]+\\s+?&-]", "",.)))
+data_df 
 ```
 
 ```{r}
@@ -160,8 +161,35 @@ Convert the resulting documents from downloading into corpus. To do so, I wrote 
 
 ```{r}
 corpus_data = VCorpus(VectorSource(data_df$text))
-as.character(corpus_data[[1]])
 ```
+
+## cleaning up
+
+```{r}
+corpus_data = tm_map(corpus_data, content_transformer(stringi::stri_trans_tolower))
+corpus_data = tm_map(corpus_data, removeNumbers)
+corpus_data = tm_map(corpus_data, removePunctuation)
+corpus_data = tm_map(corpus_data, stripWhitespace)
+corpus_data = tm_map(corpus_data, removeWords, stopwords("english"))
+corpus_data = tm_map(corpus_data, stemDocument)
+
+#as.character(corpus[[1]])
+```
+
+## Creating bag of words using Document tearm matrix
+
+```{r}
+dtm <- DocumentTermMatrix(corpus_data)
+dtm
+```
+
+
+
+
+
+
+
+
 
 ## Create a lable for spam/ham document category label
 
