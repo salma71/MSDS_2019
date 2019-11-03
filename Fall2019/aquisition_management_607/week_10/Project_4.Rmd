@@ -346,102 +346,24 @@ svm_classifier <- svm(class~., data=train_set)
 svm_classifier
 ```
 
+Our model employs a total of 8092 support vectors while building this classification model.
 
-
-
-## Partitioning the Data
-Next, we create 75:25 partitions of the dataframe, corpus and document term matrix for training and testing purposes.
+4.2.3.1 Making Predictions and evaluating the Support Vector Machine Classifier
 ```{r}
-## 75% of the sample size
-smp_size <- floor(0.75 * nrow(data_df))
+svm_pred = predict(svm_classifier,test_set)
 
-## set the seed to make your partition reproducible
-set.seed(200)
-train_ind <- sample(seq_len(nrow(data_df)), size = smp_size)
-
-df.train <- data_df[train_ind, ]
-df.test <- data_df[-train_ind, ]
-
-dtm.train <- dtm[train_ind, ]
-dtm.test <- dtm[-train_ind, ]
-
-corpus_data.train <- corpus_data[1: 19000]
-corpus_data.test <- corpus_data[19001:25998]
-
+confusionMatrix(svm_pred,test_set$class)
 ```
 
-```{r}
-dim(dtm.train)
-```
+The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 69.85%, we may be tempted to think the performance is good but a closer look at specificity rate of 0% suggest our model is not doing good.
 
-The DTM contains 38957 features but not all of them will be useful for classification. We reduce the number of features by ignoring words which appear in less than five reviews. To do this, we use ‘findFreqTerms’ function to indentify the frequent words, we then restrict the DTM to use only the frequent words using the ‘dictionary’ option.
+Part V Conclusion and Validity
+5.1 Explaining the validity of the model
 
-{r}
-convert_count <- function(x) {
-  y <- ifelse(x > 0, 1,0)
-  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
-  y
-}
+The essence of building a spam classifier is for the model to be able to effectively categorise an incoming email as either spam or ham. A model will not be doing very well if it is unable to categorise both categories effectively. As much as we can expect some element errors in our predictions, we are also expecting our model to do a nice job. The Random Forest and Naive Bayes performed exceptionally well in this project.
 
-# Apply the convert_count function to get final training and testing DTMs
-datasetNB <- apply(dtm, 2, convert_count)
-
-dataset = as.data.frame(as.matrix(datasetNB))
-
-
-```{r}
-fivefreq <- findFreqTerms(dtm.train, 10)
-length((fivefreq))
-## [1] 12144
-
-# Use only 10 most frequent words (fivefreq) to build the DTM
-
-dtm.train.nb <- DocumentTermMatrix(corpus_data.train, control=list(dictionary = fivefreq))
-
-dim(dtm.train.nb)
-## [1]  1500 12144
-
-dtm.test.nb <- DocumentTermMatrix(corpus_data.test, control=list(dictionary = fivefreq))
-
-dim(dtm.train.nb)
-```
-
-## The Naive Bayes algorithm
-
-```{r}
-# Function to convert the word frequencies to yes (presence) and no (absence) labels
-convert_count <- function(x) {
-  y <- ifelse(x > 0, 1,0)
-  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
-  y
-}
-```
-
-## Boolean feature Multinomial Naive Bayes
-
-```{r}
-# Apply the convert_count function to get final training and testing DTMs
-trainNB <- apply(dtm.train.nb, 2, convert_count)
-testNB <- apply(dtm.test.nb, 2, convert_count)
-```
-
-## Training the Naive Bayes Model
-To train the model we use the naiveBayes function from the ‘e1071’ package. Since Naive Bayes evaluates products of probabilities, we need some way of assigning non-zero probabilities to words which do not occur in the sample. We use Laplace 1 smoothing to this end.
-
-```{r}
-# Train the classifier
-system.time( classifier <- naiveBayes(trainNB, df.train$class, laplace = 1) )
-```
-
-```{r}
-# Use the NB classifier we built to make predictions on the test set.
-system.time( pred <- predict(classifier, newdata=testNB) )
-```
-
-```{r}
-# Create a truth table by tabulating the predicted class labels with the actual class labels 
-table("Predictions"= pred,  "Actual" = df.test$class )
-```
+5.2 Conclusion.
+This spam classifier was built just for academic purposes and as such suggestion on what to improve on or what was not properly done are
 
 
 
