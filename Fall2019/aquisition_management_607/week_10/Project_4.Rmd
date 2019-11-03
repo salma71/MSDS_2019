@@ -321,11 +321,30 @@ confusionMatrix(table(rf_pred,test_set$class))
 ```
 The Random Forest Classifier(rf_classifier) performed exceptionally well on this data set as the model accuracy is 100%. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
 
+Naive Bayes Classifier is a Machine Learning model that is based upon the assumptions of conditional probability as proposed by Bayes’ Theorem. It is fast and easy.
 
+```{r}
+library(e1071)
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+system.time( classifier_nb <- naiveBayes(train_set, train_set$class, laplace = 1,
+                                         trControl = control,tuneLength = 7) )
+```
+4.2.2.1 Making Predictions and evaluating the Naive Bayes Classifier.
 
+```{r}
+nb_pred = predict(classifier_nb, type = 'class', newdata = test_set)
 
+confusionMatrix(nb_pred,test_set$class)
+```
+The Naive Bayes Classifier also performed very well on the training set by achieving 99.49% accuracy which means we have got 7 misclassifications out a possible 1209 observation. While the model has a 100% sensitivity rate; the proportion of the positive class predicted as positive, it was able to achieve about 96.32% on specificity rate which is the proportion of the negative class predicted accurately i.e 183 out of 190.
 
+4.2.3 Support Vector Machine
+The Support Vector Machine is another algorithm that finds the hyperplane that differentiates the two classes to be predicted, ham and spam in this case; very well. SVM can perform both linear and non-linear classification problems.
 
+```{r}
+svm_classifier <- svm(class~., data=train_set)
+svm_classifier
+```
 
 
 
