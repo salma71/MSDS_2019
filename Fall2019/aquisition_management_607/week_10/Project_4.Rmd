@@ -162,23 +162,6 @@ data_df$class <- as.factor(data_df$class)
 prop.table(table(data_df$class))
 ```
 
-
-
-to_corpus <- function(df, type) {
-  corpus_name <- VCorpus(VectorSource(df)) %>%
-    add_tag(tag = "document type", value = type)
-  return(corpus_name)
-}
-
-
-add_tag <- function(corpus, tag, value){
-  for (i in 1:length(corpus)){
-    meta(corpus[[i]], tag) <- value                    # Add the value to the specified tag
-  }
-  return(corpus)
-}
-
-
 ## Converting into corpus
 
 Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
@@ -209,10 +192,11 @@ We represent the bag of words tokens with a document term matrix (DTM). The rows
 #we need our data in a one-row-per-document format. That is, a document-term matrix.
 dtm <- DocumentTermMatrix(corpus_data)
 dtm
+dim(dtm)
 ```
 
 ```{r}
-dtm <- removeSparseTerms(dtm, 0.99)
+dtm <- removeSparseTerms(dtm, 0.999)
 dim(dtm)
 inspect(dtm[40:50, 10:15])
 ```
@@ -262,7 +246,7 @@ library("wordcloud")
 library("RColorBrewer")
 set.seed(1234)
 wordcloud(words = wf$word, freq = wf$freq, min.freq = 1,
-          max.words=200, random.order=FALSE, rot.per=0.35, 
+          max.words=150, random.order=FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Dark2"))
 ```
 
@@ -305,7 +289,9 @@ rf_classifier = randomForest(x = train_set[-1210],
 
 rf_classifier
 ```
-The rf_classifier was able to accurately classify the text messages as ham and spam respectively with the class error of 0 which suggest that there is 100% accuracy of the model on the training set of observations. This is expected as the model was exposed to this set of data. ## 4.2.1.1 Making Predictions and evaluating the Random Forest Classifier.
+The rf_classifier was able to accurately classify the text messages as ham and spam respectively with the class error of 0 which suggest that there is 100% accuracy of the model on the training set of observations. This is expected as the model was exposed to this set of data. 
+
+## 4.2.1.1 Making Predictions and evaluating the Random Forest Classifier.
 
 We want to evaluate the model using the test_set and see if our model can match the 100% accuracy on this new set of data in comparison to the one obtained from the training set.
 
@@ -319,7 +305,7 @@ library(lattice)
 library(ggplot2)
 confusionMatrix(table(rf_pred,test_set$class))
 ```
-The Random Forest Classifier(rf_classifier) performed exceptionally well on this data set as the model accuracy is 100%. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
+The Random Forest Classifier(rf_classifier) performed exceptionally well on this data set as the model accuracy is 0.9986. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
 
 Naive Bayes Classifier is a Machine Learning model that is based upon the assumptions of conditional probability as proposed by Bayes’ Theorem. It is fast and easy.
 
@@ -336,7 +322,7 @@ nb_pred = predict(classifier_nb, type = 'class', newdata = test_set)
 
 confusionMatrix(nb_pred,test_set$class)
 ```
-The Naive Bayes Classifier also performed very well on the training set by achieving 99.49% accuracy which means we have got 7 misclassifications out a possible 1209 observation. While the model has a 100% sensitivity rate; the proportion of the positive class predicted as positive, it was able to achieve about 96.32% on specificity rate which is the proportion of the negative class predicted accurately i.e 183 out of 190.
+The Naive Bayes Classifier also performed very well on the training set by achieving 0.9995 accuracy which means we have got 2 misclassifications out a possible 1209 observation. While the model has a 100% sensitivity rate; the proportion of the positive class predicted as positive, it was able to achieve about 0.9992 on specificity rate which is the proportion of the negative class predicted accurately i.e 2470 out of 2472.
 
 4.2.3 Support Vector Machine
 The Support Vector Machine is another algorithm that finds the hyperplane that differentiates the two classes to be predicted, ham and spam in this case; very well. SVM can perform both linear and non-linear classification problems.
@@ -346,16 +332,17 @@ svm_classifier <- svm(class~., data=train_set)
 svm_classifier
 ```
 
-Our model employs a total of 8092 support vectors while building this classification model.
+Our model employs a total of 10101 support vectors while building this classification model.
 
 4.2.3.1 Making Predictions and evaluating the Support Vector Machine Classifier
+
 ```{r}
 svm_pred = predict(svm_classifier,test_set)
 
 confusionMatrix(svm_pred,test_set$class)
 ```
 
-The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 69.85%, we may be tempted to think the performance is good but a closer look at specificity rate of 0% suggest our model is not doing good.
+The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 0.6693, we may be tempted to think the performance is good but a closer look at specificity rate of 0.991 suggest our model is not doing good.
 
 Part V Conclusion and Validity
 5.1 Explaining the validity of the model
