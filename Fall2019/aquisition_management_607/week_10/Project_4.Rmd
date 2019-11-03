@@ -133,7 +133,7 @@ ham_content <- get_nested_content(ham_test)
 spam_df_1 <- as.data.frame(spam_content) %>%
   mutate(class = "spam") %>% #adding a class tag 
   na.omit(spam_df_1)
-spam_df <- spam_df_1[c(2:13000), c(1:2)]
+spam_df <- spam_df_1[c(2:10000), c(1:2)]
 names(spam_df) <- c("text", "class")
 spam_df
 ```
@@ -141,7 +141,7 @@ spam_df
 ham_df_1 <- as.data.frame(ham_content) %>%
   mutate(class = "ham") %>% #adding a class tag 
   na.omit(ham_df_1) 
-ham_df <- ham_df_1[c(2:13000), c(1:2)]
+ham_df <- ham_df_1[c(2:6800), c(1:2)]
 names(ham_df) <- c("text", "class")
 ham_df
 ```
@@ -159,6 +159,7 @@ table(data_df$class)
 
 ```{r}
 data_df$class <- as.factor(data_df$class)
+prop.table(table(data_df$class))
 ```
 
 
@@ -209,6 +210,125 @@ We represent the bag of words tokens with a document term matrix (DTM). The rows
 dtm <- DocumentTermMatrix(corpus_data)
 dtm
 ```
+
+```{r}
+dtm <- removeSparseTerms(dtm, 0.99)
+dim(dtm)
+inspect(dtm[40:50, 10:15])
+```
+
+```{r}
+convert_count <- function(x) {
+  y <- ifelse(x > 0, 1,0)
+  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
+  y
+}
+
+# Apply the convert_count function to get final training and testing DTMs
+datasetNB <- apply(dtm, 2, convert_count)
+
+dataset = as.data.frame(as.matrix(datasetNB))
+```
+
+
+3.1 Building Word Frequency
+We want to words that frequently appeared in the dataset. Due to the number of words in the dataset, we are keeping words that appeared more than 60 times.
+
+```{r}
+freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+tail(freq, 10)
+```
+
+```{r}
+findFreqTerms(dtm, lowfreq=60) #identifying terms that appears frequently
+
+```
+
+```{r}
+wf<- data.frame(word=names(freq), freq=freq)
+head(wf)
+```
+
+
+```{r}
+pp <- ggplot(subset(wf, freq>100), aes(x=reorder(word, -freq), y =freq)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+pp
+```
+
+```{r}
+library("wordcloud")
+library("RColorBrewer")
+set.seed(1234)
+wordcloud(words = wf$word, freq = wf$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+```{r}
+dataset$class = data_df$class
+str(dataset$class)
+```
+
+4.1 Splitting the dataset into the Training set and Test set
+The usual practice in Machine Learning is to split the dataset into both training and test set. While the model is built on the training set; the model is evaluated on the test set which the model has not been exposed to before.
+
+In order to ensure that the samples; both train and test, are the true representation of the dataset, we check the proportion of the data split.
+
+```{r}
+set.seed(222)
+split = sample(2,nrow(dataset),prob = c(0.75,0.25),replace = TRUE)
+train_set = dataset[split == 1,]
+test_set = dataset[split == 2,] 
+
+prop.table(table(train_set$class))
+```
+
+```{r}
+prop.table(table(test_set$class))
+```
+
+
+4.2 Model Fitting
+We will be building our model on 3 different Machine Learning algorithms which are Random Forest, Naive Bayes and Support Vector Machine for the purpose of deciding which perform the best.
+
+4.2.1 Random Forest Classifier.
+The Random Forest Model is an ensemble method of Machine Learning with which 300 decision trees were used to build this model with the mode of the outcomes of each individual trees taken as the final output.
+
+
+```{r}
+library(randomForest)
+rf_classifier = randomForest(x = train_set[-1210],
+                          y = train_set$class,
+                          ntree = 300)
+
+rf_classifier
+```
+The rf_classifier was able to accurately classify the text messages as ham and spam respectively with the class error of 0 which suggest that there is 100% accuracy of the model on the training set of observations. This is expected as the model was exposed to this set of data. ## 4.2.1.1 Making Predictions and evaluating the Random Forest Classifier.
+
+We want to evaluate the model using the test_set and see if our model can match the 100% accuracy on this new set of data in comparison to the one obtained from the training set.
+
+```{r}
+# Predicting the Test set results
+rf_pred = predict(rf_classifier, newdata = test_set[-1210])
+
+# Making the Confusion Matrix
+library(caret)
+library(lattice)
+library(ggplot2)
+confusionMatrix(table(rf_pred,test_set$class))
+```
+The Random Forest Classifier(rf_classifier) performed exceptionally well on this data set as the model accuracy is 100%. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
+
+
+
+
+
+
+
+
+
 
 ## Partitioning the Data
 Next, we create 75:25 partitions of the dataframe, corpus and document term matrix for training and testing purposes.
