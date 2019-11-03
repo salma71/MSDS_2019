@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
 ## Assignment statement
@@ -38,7 +38,18 @@ library(tidytext)
 library(readtext)
 library(stringr)
 library(tm)
+library(rpart)
+library(rpart.plot)
+library(e1071)
+library(dplyr)
+library(caret)
+# Library for parallel processing
+library(doMC)
+registerDoMC(cores=detectCores())
+library(R.cache)
+library(knitr)
 ```
+
 
 ## Download the dataset into local machine
 
@@ -71,6 +82,7 @@ ham_tar <- "20030228_easy_ham_2.tar"
   } else {
     paste("The file is already exists!")
   }
+clean_cache(clean = TRUE)
 ```
 
 ## Read content of each file
@@ -120,17 +132,6 @@ ham_content <- get_nested_content(ham_test)
 ## create a datafram for the nested list
 
 ```{r}
-make_df <- function(list_name, type) {
-    df <- data.frame(stringsAsFactors = FALSE)
-    df <- rbind(df, list_name) %>%
-      mutate(class = type) 
-    names(df)[1] <- "texts"
-}
-
-
-```
-
-```{r}
 spam_df <- as.data.frame(spam_content) %>%
   mutate(class = "spam") %>% #adding a class tag 
   na.omit(spam_df)
@@ -154,6 +155,28 @@ data_df
 ```{r}
 table(data_df$class)
 ```
+## Convert the 'class' variable from character to factor.
+
+```{r}
+data_df$class <- as.factor(data_df$class)
+```
+
+
+
+to_corpus <- function(df, type) {
+  corpus_name <- VCorpus(VectorSource(df)) %>%
+    add_tag(tag = "document type", value = type)
+  return(corpus_name)
+}
+
+
+add_tag <- function(corpus, tag, value){
+  for (i in 1:length(corpus)){
+    meta(corpus[[i]], tag) <- value                    # Add the value to the specified tag
+  }
+  return(corpus)
+}
+
 
 ## Converting into corpus
 
@@ -161,6 +184,7 @@ Convert the resulting documents from downloading into corpus. To do so, I wrote 
 
 ```{r}
 corpus_data = VCorpus(VectorSource(data_df$text))
+inspect(corpus_data[1:3])
 ```
 
 ## cleaning up
@@ -177,10 +201,107 @@ corpus_data = tm_map(corpus_data, stemDocument)
 ```
 
 ## Creating bag of words using Document tearm matrix
+Matrix representation of Bag of Words : The Document Term Matrix
+We represent the bag of words tokens with a document term matrix (DTM). The rows of the DTM correspond to documents in the collection, columns correspond to terms, and its elements are the term frequencies. We use a built-in function from the ‘tm’ package to create the DTM.
 
 ```{r}
+#we need our data in a one-row-per-document format. That is, a document-term matrix.
 dtm <- DocumentTermMatrix(corpus_data)
 dtm
+```
+
+## Partitioning the Data
+Next, we create 75:25 partitions of the dataframe, corpus and document term matrix for training and testing purposes.
+```{r}
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(data_df))
+
+## set the seed to make your partition reproducible
+set.seed(200)
+train_ind <- sample(seq_len(nrow(data_df)), size = smp_size)
+
+df.train <- data_df[train_ind, ]
+df.test <- data_df[-train_ind, ]
+
+dtm.train <- dtm[train_ind, ]
+dtm.test <- dtm[-train_ind, ]
+
+corpus_data.train <- corpus_data[1: 250000]
+corpus_data.test <- corpus_data[251000:331773]
+
+```
+
+```{r}
+dim(dtm.train)
+```
+
+The DTM contains 38957 features but not all of them will be useful for classification. We reduce the number of features by ignoring words which appear in less than five reviews. To do this, we use ‘findFreqTerms’ function to indentify the frequent words, we then restrict the DTM to use only the frequent words using the ‘dictionary’ option.
+
+{r}
+convert_count <- function(x) {
+  y <- ifelse(x > 0, 1,0)
+  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
+  y
+}
+
+# Apply the convert_count function to get final training and testing DTMs
+datasetNB <- apply(dtm, 2, convert_count)
+
+dataset = as.data.frame(as.matrix(datasetNB))
+
+
+```{r}
+fivefreq <- findFreqTerms(dtm.train, 10)
+length((fivefreq))
+## [1] 12144
+
+# Use only 10 most frequent words (fivefreq) to build the DTM
+
+dtm.train.nb <- DocumentTermMatrix(corpus_data.train, control=list(dictionary = fivefreq))
+
+dim(dtm.train.nb)
+## [1]  1500 12144
+
+dtm.test.nb <- DocumentTermMatrix(corpus_data.test, control=list(dictionary = fivefreq))
+
+dim(dtm.train.nb)
+```
+
+## The Naive Bayes algorithm
+
+```{r}
+# Function to convert the word frequencies to yes (presence) and no (absence) labels
+convert_count <- function(x) {
+  y <- ifelse(x > 0, 1,0)
+  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
+  y
+}
+```
+
+## Boolean feature Multinomial Naive Bayes
+
+```{r}
+# Apply the convert_count function to get final training and testing DTMs
+trainNB <- apply(dtm.train.nb, 2, convert_count)
+testNB <- apply(dtm.test.nb, 2, convert_count)
+```
+
+## Training the Naive Bayes Model
+To train the model we use the naiveBayes function from the ‘e1071’ package. Since Naive Bayes evaluates products of probabilities, we need some way of assigning non-zero probabilities to words which do not occur in the sample. We use Laplace 1 smoothing to this end.
+
+```{r}
+# Train the classifier
+system.time( classifier <- naiveBayes(trainNB, df.train$class, laplace = 1) )
+```
+
+```{r}
+# Use the NB classifier we built to make predictions on the test set.
+system.time( pred <- predict(classifier, newdata=testNB) )
+```
+
+```{r}
+# Create a truth table by tabulating the predicted class labels with the actual class labels 
+table("Predictions"= pred,  "Actual" = df.test$class )
 ```
 
 
@@ -188,6 +309,75 @@ dtm
 
 
 
+
+```{r}
+dtm = removeSparseTerms(dtm, 0.999)
+
+dtm 
+```
+
+```{r}
+freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+tail(freq, 10)
+```
+```{r}
+findFreqTerms(dtm, lowfreq=100)
+```
+
+```{r}
+wf<- data.frame(word=names(freq), freq=freq)
+head(wf)
+mean(wf$freq)
+pp <- ggplot(subset(wf, freq>1200), aes(x=reorder(word, -freq), y =freq)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+pp
+```
+
+```{r}
+convert_count <- function(x) {
+  y <- ifelse(x > 0, 1,0)
+  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
+  y
+}
+
+# Apply the convert_count function to get final training and testing DTMs
+datasetNB <- apply(dtm, 2, convert_count)
+
+dataset = as.data.frame(as.matrix(datasetNB))
+```
+
+To obtain a more reasonable number of terms, limit dtm to contain terms appearing in at least 5% of documents.
+```{r}
+# Remove sparse terms (that don't appear very often)
+spdtm = removeSparseTerms(dtm, 0.99)
+spdtm
+```
+
+```{r}
+emailsSparse = as.data.frame(as.matrix(spdtm))
+# make variable names of emailsSparse valid i.e. R-friendly (to convert variables names starting with numbers)
+
+colnames(emailsSparse) = make.names(colnames(emailsSparse))
+# word stem that shows up most frequently across all the emails:
+sort(colSums(emailsSparse))
+# Add dependent variable to this dataset
+emailsSparse$spam = email$spam
+# most frequent words in ham:
+sort(colSums(subset(emailsSparse, spam == 0)))
+```
+
+```{r}
+emailsSparse$spam = as.factor(emailsSparse$spam)
+library(caTools)
+set.seed(123)
+spl <- sample.split(emailsSparse$spam, 0.7)
+train <- subset(emailsSparse, spl == TRUE)
+test <- subset(emailsSparse, spl == FALSE)
+
+# Build a logistic regression model
+spamLog <- glm(spam~., data=train, family="binomial")
+```
 
 
 
@@ -202,22 +392,7 @@ add_tag <- function(corpus, tag, value){
 }
 ```
 
-```{r}
-to_corpus <- function(doc, type) {
-  corpus_name <- VCorpus(VectorSource(data_df)) %>%
-    add_tag(tag = "document type", value = type)
-  return(corpus_name)
-}
-```
 
-
-```{r}
-spam_corpus <- to_corpus(spam_test,"spam")
-#summary(spam_corpus)
-#str(spam_corpus)
-ham_corpus <- to_corpus(ham_test, "ham")
-#summary(ham_corpus)
-```
 
 ## Clean the corpus using **tm** package
 
