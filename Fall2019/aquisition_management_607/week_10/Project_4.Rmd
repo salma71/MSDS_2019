@@ -2,7 +2,17 @@
 title: "DATA607_Project 4_Document classification"
 author: "Salma Elshahawy"
 date: "10/28/2019"
-output: html_document
+output: 
+  html_document:
+    rmarkdown::html_document:
+    code_folding: show
+    df_print: paged
+    highlight: pygments
+    number_sections: no
+    pdf_document: default
+    theme: cosmo
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning=FALSE}
@@ -15,19 +25,23 @@ It can be useful to be able to classify new "test" documents using already class
 
 For this project, you can start with a spam/ham dataset, then predict the class of new documents (either withheld from the training dataset or from another source such as your own spam folder). [One example corpus:](https://spamassassin.apache.org/old/publiccorpus/)
 
-## Introduction 
+## Problem scope 
 
-A common task in social science involves hand-labeling sets of documents for specific variables (e.g. manual coding). In previous years, this required hiring a set of research assistants and training them to read and evaluate text by hand. It was expensive, prone to error, required extensive data quality checks, and was infeasible if you had an extremely large corpus of text that required classification.
+Email spam, also known as junk email, is a type of electronic spam where unsolicited messages are sent by email.
 
-Alternatively, we can now use statistical learning models to classify text into specific sets of categories. This is known as supervised learning. The basic process is:
+As a result of the huge number of spam emails being sent across the Internet each day, most email providers offer a spam filter that automatically flags likely spam messages and separates them from the ham. Although these filters use a number of techniques, most rely heavily on the analysis of the contents of an email via text analytics.
 
-+ Hand-code a small set of documents (say 1000) for whatever variable(s) you care about
+The fact that an email box can be flooded with unsolicited emails makes it possible for the account holder to miss an important message; thereby defeating the purpose of having an email address for effective communication. These junk emails from online marketing campaigns, online fraudsters among others is one of the reasons for this model.
 
-+ Train a statistical learning model on the hand-coded data, using the variable as the outcome of interest and the text features of the documents as the predictors
+## Gools and objectives
 
-+ Evaluate the effectiveness of the statistical learning model via cross-validation
+The goal of this project is to build a spam filter that can effectively categorise an incoming mail or text message as either **spam** or **ham**. I will use a dataset from this [apache](https://spamassassin.apache.org/old/publiccorpus/) of public corpus.
 
-+ Once you have trained a model with sufficient predictive accuracy, apply the model to the remaining set of documents that have never been hand-coded (say 1000000)
+## Dataset description
+
+I picked the [20030228_spam_2.tar.bz2](https://spamassassin.apache.org/old/publiccorpus/20030228_spam_2.tar.bz2) for spam, and [20030228_easy_ham_2.tar](https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham_2.tar.bz2). This dataset is a group of emails in a document type. Each folder more than 1200 document file need to be processed, cleaned up, converted to a dataframe and tidying it up.
+
+# Section_1: Dataset preparation
 
 ## Loading necessary libraries
 
@@ -43,14 +57,21 @@ library(rpart.plot)
 library(e1071)
 library(dplyr)
 library(caret)
+library(lattice)
+library(ggplot2)
+library(randomForest)
+library(wordcloud)
+library(rpart.plot)
+library(RColorBrewer)
 # Library for parallel processing
 library(doMC)
 registerDoMC(cores=detectCores())
 library(knitr)
 ```
 
+##  Download the required folders
 
-## Download the dataset into local machine
+The first step, we need to download the both folders to  be able to read the data from inside of it. So, I used both `unzip()` and `untar()` to unzip the files inside a `try-catch` block 
 
 
 ```{r}
@@ -85,9 +106,10 @@ ham_tar <- "20030228_easy_ham_2.tar"
 
 ## Read content of each file
 
+After fetching files, I wrote a function `get_content()` to pull out the content of each file as a list vector
 
 ```{r}
-base_dir <- "/Users/salma_elshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
+base_dir <- "/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_10/spam_ham_documents"
 
 email_content <- NA
 
@@ -110,6 +132,10 @@ spam_test <- get_content("spam_2") #list
 ham_test <- get_content("easy_ham_2") #list
 ```
 
+## Convert into a dataframe 
+
+Then, I managed to extract the content of each list and push it to a dataframe.
+
 
 ```{r}
 get_nested_content <- function(list_name) {
@@ -127,7 +153,10 @@ spam_content <- get_nested_content(spam_test)
 ham_content <- get_nested_content(ham_test)
 ```
 
-## create a datafram for the nested list
+> Note: we took a sample of 10% of each generated dataset. 
+
+I also added a class column to each dataframe designated to document type, either **spam** or **ham**
+The resulting dataframes consist of observations of 2 variables. The first variable is the content of the emails per line and the second variable the target variable, which is the class to be predicted. 
 
 ```{r}
 spam_df_1 <- as.data.frame(spam_content) %>%
@@ -146,6 +175,10 @@ names(ham_df) <- c("text", "class")
 ham_df
 ```
 
+# Section_2: Data processing 
+
+## Merging the two dataframes
+
 ```{r}
 data_df <- rbind(spam_df, ham_df) %>%
   mutate_all(funs(gsub("[^[:alnum:][:blank:]+\\s+?&-]", "",.)))
@@ -155,6 +188,7 @@ data_df
 ```{r}
 table(data_df$class)
 ```
+
 ## Convert the 'class' variable from character to factor.
 
 ```{r}
@@ -164,14 +198,14 @@ prop.table(table(data_df$class))
 
 ## Converting into corpus
 
-Convert the resulting documents from downloading into corpus. To do so, I wrote a function as the following 
+Convert the resulting dataset into corpus.
 
 ```{r}
 corpus_data = VCorpus(VectorSource(data_df$text))
 inspect(corpus_data[1:3])
 ```
 
-## cleaning up
+## Corpus clean-up
 
 ```{r}
 corpus_data = tm_map(corpus_data, content_transformer(stringi::stri_trans_tolower))
@@ -184,12 +218,16 @@ corpus_data = tm_map(corpus_data, stemDocument)
 #as.character(corpus[[1]])
 ```
 
+# Section_3: Word frequencies
+
 ## Creating bag of words using Document tearm matrix
-Matrix representation of Bag of Words : The Document Term Matrix
-We represent the bag of words tokens with a document term matrix (DTM). The rows of the DTM correspond to documents in the collection, columns correspond to terms, and its elements are the term frequencies. We use a built-in function from the ‘tm’ package to create the DTM.
+
+In text mining, it is important to get a feel of words that describes if a text message will be regarded as **spam** or **ham**. What is the frequency of each of these words? Which word appears the most? In order to answer this question; we are creating a DocumentTermMatrix to keep all these words.
+
+The rows of the `DTM` correspond to documents in the collection, columns correspond to terms, and its elements are the term frequencies. I used a built-in function from the `tm` package to create the `DTM`.
 
 ```{r}
-#we need our data in a one-row-per-document format. That is, a document-term matrix.
+#I need the data in a one-row-per-document format. That is, a document-term matrix.
 dtm <- DocumentTermMatrix(corpus_data)
 dtm
 dim(dtm)
@@ -198,8 +236,61 @@ dim(dtm)
 ```{r}
 dtm <- removeSparseTerms(dtm, 0.999)
 dim(dtm)
-inspect(dtm[40:50, 10:15])
+inspect(dtm[40:100, 10:20])
 ```
+
+
+# Section_4: Descriptive analysis
+## Building Word Frequency
+
+We want to words that frequently appeared in the dataset. Due to the number of words in the dataset, we are keeping words that appeared more than 60 times.
+
+```{r}
+freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+tail(freq, 10) # this is the least 
+```
+
+```{r}
+findFreqTerms(dtm, lowfreq=60) #identifying terms that appears frequently 
+
+```
+
+## Visualizing
+
+We will like to plot those words that appeared more than 60 times in our dataset.
+
+```{r}
+word_freq<- data.frame(word=names(freq), freq=freq)
+head(word_freq)
+```
+
+### Bar-chart
+
+```{r}
+pp <- ggplot(subset(word_freq, freq > 100), aes(x=reorder(word, -freq), y =freq)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+pp
+```
+
+From the plot it appeares that receiv  is the most frequent word in our dataset.
+
+### Wordcloud
+
+```{r}
+set.seed(1234)
+wordcloud(words = word_freq$word, freq = word_freq$freq, min.freq = 1,
+          max.words=150, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+## Add class variable to the dataset
+
+The data has been cleaned and now ready to be added to the response variable **“class”** for the purpose of predictive analytics.
+
+## Convert word frequency into logical value.
+
+The multinomial Naive Bayes algorithm known as [binarized (boolean feature)](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) Naive Bayes due to Dan Jurafsky. In this method, the term frequencies are replaced by Boolean presence/absence features. The logic behind this being that for sentiment classification, word occurrence matters more than word frequency.
 
 ```{r}
 convert_count <- function(x) {
@@ -215,50 +306,18 @@ dataset = as.data.frame(as.matrix(datasetNB))
 ```
 
 
-3.1 Building Word Frequency
-We want to words that frequently appeared in the dataset. Due to the number of words in the dataset, we are keeping words that appeared more than 60 times.
-
-```{r}
-freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
-tail(freq, 10)
-```
-
-```{r}
-findFreqTerms(dtm, lowfreq=60) #identifying terms that appears frequently
-
-```
-
-```{r}
-wf<- data.frame(word=names(freq), freq=freq)
-head(wf)
-```
-
-
-```{r}
-pp <- ggplot(subset(wf, freq>100), aes(x=reorder(word, -freq), y =freq)) +
-  geom_bar(stat = "identity") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))
-pp
-```
-
-```{r}
-library("wordcloud")
-library("RColorBrewer")
-set.seed(1234)
-wordcloud(words = wf$word, freq = wf$freq, min.freq = 1,
-          max.words=150, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
-```
-
 ```{r}
 dataset$class = data_df$class
 str(dataset$class)
 ```
 
-4.1 Splitting the dataset into the Training set and Test set
-The usual practice in Machine Learning is to split the dataset into both training and test set. While the model is built on the training set; the model is evaluated on the test set which the model has not been exposed to before.
+# Section_5: Model Building
 
-In order to ensure that the samples; both train and test, are the true representation of the dataset, we check the proportion of the data split.
+## Splitting the dataset into the Training set and Test set
+
+The usual practice in **Machine Learning** is to split the dataset into both training and test set. While the model is built on the training set; the model is evaluated on the test set which the model has not been exposed to before.
+
+In order to ensure that the samples; both train and test, are the true representation of the dataset, we check the proportion of the data split. I followed the approach of 75% for the train and 25% for the test.
 
 ```{r}
 set.seed(222)
@@ -273,25 +332,26 @@ prop.table(table(train_set$class))
 prop.table(table(test_set$class))
 ```
 
+## Model Fitting
 
-4.2 Model Fitting
-We will be building our model on 3 different Machine Learning algorithms which are Random Forest, Naive Bayes and Support Vector Machine for the purpose of deciding which perform the best.
+We will be building our model on **3 different** Machine Learning algorithms which are `Random Forest`, `Naive Bayes` and `Support Vector Machine` for the purpose of deciding which perform the best and teach my self the three.
 
-4.2.1 Random Forest Classifier.
-The Random Forest Model is an ensemble method of Machine Learning with which 300 decision trees were used to build this model with the mode of the outcomes of each individual trees taken as the final output.
+## Random Forest Classifier.
+
+Random forest, like its name implies, consists of a large number of individual decision trees that operate as an ensemble. Each individual tree in the random forest spits out a class prediction and the class with the most votes becomes our model’s prediction.
 
 
 ```{r}
-library(randomForest)
 rf_classifier = randomForest(x = train_set[-1210],
                           y = train_set$class,
                           ntree = 300)
 
 rf_classifier
 ```
-The rf_classifier was able to accurately classify the text messages as ham and spam respectively with the class error of 0 which suggest that there is 100% accuracy of the model on the training set of observations. This is expected as the model was exposed to this set of data. 
 
-## 4.2.1.1 Making Predictions and evaluating the Random Forest Classifier.
+The rf_classifier was able to accurately classify the text messages as **ham** and **spam** respectively with the class error of `0` which suggest that there is 100% accuracy of the model on the training set of observations. This is expected as the model was exposed to this set of data. 
+
+### Making Predictions and evaluating the Random Forest Classifier.
 
 We want to evaluate the model using the test_set and see if our model can match the 100% accuracy on this new set of data in comparison to the one obtained from the training set.
 
@@ -300,32 +360,34 @@ We want to evaluate the model using the test_set and see if our model can match 
 rf_pred = predict(rf_classifier, newdata = test_set[-1210])
 
 # Making the Confusion Matrix
-library(caret)
-library(lattice)
-library(ggplot2)
 confusionMatrix(table(rf_pred,test_set$class))
 ```
-The Random Forest Classifier(rf_classifier) performed exceptionally well on this data set as the model accuracy is 0.9986. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
 
-Naive Bayes Classifier is a Machine Learning model that is based upon the assumptions of conditional probability as proposed by Bayes’ Theorem. It is fast and easy.
+**The Random Forest Classifier** `(rf_classifier)` performed well on this data set as the model accuracy is 0.9986. Again, we need not be too excited as there is the possibility of Random Forest to overfit.
+
+## Naive Bayes Classifier
+
+It is a Machine Learning model that is based upon the assumptions of conditional probability as proposed by Bayes’ Theorem. It is fast and easy.
 
 ```{r}
-library(e1071)
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 system.time( classifier_nb <- naiveBayes(train_set, train_set$class, laplace = 1,
                                          trControl = control,tuneLength = 7) )
 ```
-4.2.2.1 Making Predictions and evaluating the Naive Bayes Classifier.
+
+### Making Predictions and evaluating the Naive Bayes Classifier.
 
 ```{r}
 nb_pred = predict(classifier_nb, type = 'class', newdata = test_set)
 
 confusionMatrix(nb_pred,test_set$class)
 ```
-The Naive Bayes Classifier also performed very well on the training set by achieving 0.9995 accuracy which means we have got 2 misclassifications out a possible 1209 observation. While the model has a 100% sensitivity rate; the proportion of the positive class predicted as positive, it was able to achieve about 0.9992 on specificity rate which is the proportion of the negative class predicted accurately i.e 2470 out of 2472.
 
-4.2.3 Support Vector Machine
-The Support Vector Machine is another algorithm that finds the hyperplane that differentiates the two classes to be predicted, ham and spam in this case; very well. SVM can perform both linear and non-linear classification problems.
+**The Naive Bayes Classifier** also performed very well on the training set by achieving **0.9995** accuracy which means we have got 2 misclassifications out a possible 1209 observation. While the model has a 100% sensitivity rate; the proportion of the positive class predicted as positive, it was able to achieve about 0.9992 on specificity rate which is the proportion of the negative class predicted accurately i.e 2470 out of 2472.
+
+## Support Vector Machine
+
+The Support Vector Machine is another algorithm that finds the hyperplane that differentiates the two classes to be predicted, ham and spam in this case. SVM can perform both linear and non-linear classification problems.
 
 ```{r}
 svm_classifier <- svm(class~., data=train_set)
@@ -334,7 +396,7 @@ svm_classifier
 
 Our model employs a total of 10101 support vectors while building this classification model.
 
-4.2.3.1 Making Predictions and evaluating the Support Vector Machine Classifier
+### Making Predictions and evaluating the Support Vector Machine Classifier
 
 ```{r}
 svm_pred = predict(svm_classifier,test_set)
@@ -342,16 +404,19 @@ svm_pred = predict(svm_classifier,test_set)
 confusionMatrix(svm_pred,test_set$class)
 ```
 
-The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 0.6693, we may be tempted to think the performance is good but a closer look at specificity rate of 0.991 suggest our model is not doing good.
+The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 0.6693, we may be tempted to think the performance is bad where the classifier missed 20 emails out of 2472.
 
-Part V Conclusion and Validity
-5.1 Explaining the validity of the model
+# Section_6: Conclusion and Validity
 
-The essence of building a spam classifier is for the model to be able to effectively categorise an incoming email as either spam or ham. A model will not be doing very well if it is unable to categorise both categories effectively. As much as we can expect some element errors in our predictions, we are also expecting our model to do a nice job. The Random Forest and Naive Bayes performed exceptionally well in this project.
+## Conclusion
 
-5.2 Conclusion.
-This spam classifier was built just for academic purposes and as such suggestion on what to improve on or what was not properly done are
+The essence of building a spam classifier is for the model to be able to effectively categorise an incoming email as either spam or ham. A model will not be doing very well if it is unable to categorise both categories effectively. As much as we can expect some element errors in our predictions, we are also expecting our model to do a nice job. The Random Forest and Naive Bayes performed exceptionally well in this project. However, Support Vector Machine was not a good choice for this case as a classifier.
 
+# References and important links
+
++ [Stanford NLPCoursera Lectures](https://web.stanford.edu/~jurafsky/NLPCourseraSlides.html)
++ [GitHub Repository](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_10)
++ []
 
 
 
