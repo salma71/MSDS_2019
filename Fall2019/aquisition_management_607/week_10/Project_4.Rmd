@@ -10,7 +10,7 @@ output:
     highlight: pygments
     number_sections: no
     pdf_document: default
-    theme: cosmo
+    theme: lumen
     toc: yes
     toc_float: yes
 ---
@@ -45,7 +45,7 @@ I picked the [20030228_spam_2.tar.bz2](https://spamassassin.apache.org/old/publi
 
 ## Loading necessary libraries
 
-```{r Loading Libraries, warning=FALSE, load libraries message=FALSE}
+```{r Loading Libraries, warning=FALSE, message=FALSE}
 library(R.utils)
 library(tidyverse)
 library(tidytext)
@@ -182,7 +182,7 @@ ham_df
 ```{r merge two dataframes, message=FALSE, warning=FALSE, paged.print=TRUE}
 data_df <- rbind(spam_df, ham_df) %>%
   mutate_all(funs(gsub("[^[:alnum:][:blank:]+\\s+?&-]", "",.)))
-data_df 
+data_df
 ```
 
 ```{r count class, message=FALSE, warning=FALSE}
@@ -248,7 +248,7 @@ We want to words that frequently appeared in the dataset. Due to the number of w
 
 ```{r get word frequency-dec, message=FALSE, warning=FALSE, paged.print=TRUE}
 freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
-tail(freq, 10) # this is the least 
+kable(tail(freq, 10)) # this is the least 
 ```
 
 ```{r find most freq. term, message=FALSE, warning=FALSE, paged.print=TRUE}
@@ -262,16 +262,16 @@ We will like to plot those words that appeared more than 60 times in our dataset
 
 ```{r get freq per word, message=FALSE, warning=FALSE, paged.print=TRUE}
 word_freq<- data.frame(word=names(freq), freq=freq)
-head(word_freq)
+kable(word_freq)
 ```
 
 ### Bar-chart
 
 ```{r bar_chart word freq, message=FALSE, warning=FALSE}
-pp <- ggplot(subset(word_freq, freq > 100), aes(x=reorder(word, -freq), y =freq)) +
+word_freq_bp <- ggplot(subset(word_freq, freq > 100), aes(x=reorder(word, -freq), y =freq)) +
   geom_bar(stat = "identity") +
   theme(axis.text.x=element_text(angle=45, hjust=1))
-pp
+word_freq_bp
 ```
 
 From the plot it appeares that receiv  is the most frequent word in our dataset.
@@ -335,7 +335,7 @@ prop.table(table(test_set$class))
 
 ## Model Fitting
 
-We will be building our model on **3 different** Machine Learning algorithms which are `Random Forest`, `Naive Bayes` and `Support Vector Machine` for the purpose of deciding which perform the best and teach my self the three.
+We will be building our model on **3 different** Machine Learning algorithms which are `Random Forest`, `Naive Bayes` and `Support Vector Machine` for the purpose of deciding which perform the best.
 
 ## Random Forest Classifier.
 
@@ -343,7 +343,7 @@ Random forest, like its name implies, consists of a large number of individual d
 
 
 ```{r rf_classifier, message=FALSE, warning=FALSE}
-rf_classifier = randomForest(x = train_set[-1210],
+rf_classifier = randomForest(x = train_set,
                           y = train_set$class,
                           ntree = 300)
 
@@ -358,7 +358,7 @@ We want to evaluate the model using the test_set and see if our model can match 
 
 ```{r rf_predictor, message=FALSE, warning=FALSE}
 # Predicting the Test set results
-rf_pred = predict(rf_classifier, newdata = test_set[-1210])
+rf_pred = predict(rf_classifier, newdata = test_set)
 
 # Making the Confusion Matrix
 confusionMatrix(table(rf_pred,test_set$class))
@@ -405,7 +405,7 @@ svm_pred = predict(svm_classifier,test_set)
 confusionMatrix(svm_pred,test_set$class)
 ```
 
-The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 0.6693, we may be tempted to think the performance is bad where the classifier missed 20 emails out of 2472.
+The Support Vector Machine model performed badly on this dataset as the model performed exactly as a mere guess. With the accuracy of 0.6693, we may be tempted to think the performance is bad where the classifier classify 1351 emails as ham while they should be spam.
 
 # Section_6: Conclusion and Validity
 
