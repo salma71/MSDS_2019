@@ -2,17 +2,14 @@
 title: "DATA607_Project 4_Document classification"
 author: "Salma Elshahawy"
 date: "10/28/2019"
-output: 
+output:
   html_document:
-    rmarkdown::html_document:
-    code_folding: show
-    df_print: paged
     highlight: pygments
-    number_sections: no
-    pdf_document: default
-    theme: lumen
-    toc: yes
-    toc_float: yes
+    df_print: paged
+    theme: united
+    toc: true
+    toc_float: true
+    code_folding: show
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning=FALSE}
@@ -153,7 +150,7 @@ spam_content <- get_nested_content(spam_test)
 ham_content <- get_nested_content(ham_test)
 ```
 
-> Note: we took a sample of 10% of each generated dataset, my computer Ram processor was running very slow. 
+> Note: we took a sample of 10% of each generated dataset.
 
 I also added a class column to each dataframe designated to document type, either **spam** or **ham**
 The resulting dataframes consist of observations of 2 variables. The first variable is the content of the emails per line and the second variable the target variable, which is the class to be predicted. 
@@ -248,7 +245,7 @@ We want to words that frequently appeared in the dataset. Due to the number of w
 
 ```{r get word frequency-dec, message=FALSE, warning=FALSE, paged.print=TRUE}
 freq<- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
-kable(tail(freq, 10)) # this is the least 
+tail(freq, 10) # this is the least 
 ```
 
 ```{r find most freq. term, message=FALSE, warning=FALSE, paged.print=TRUE}
@@ -262,7 +259,7 @@ We will like to plot those words that appeared more than 60 times in our dataset
 
 ```{r get freq per word, message=FALSE, warning=FALSE, paged.print=TRUE}
 word_freq<- data.frame(word=names(freq), freq=freq)
-kable(word_freq)
+head(word_freq)
 ```
 
 ### Bar-chart
