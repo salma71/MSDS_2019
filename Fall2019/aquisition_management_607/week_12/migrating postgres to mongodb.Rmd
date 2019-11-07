@@ -1,0 +1,56 @@
+---
+title: "Untitled"
+author: "Salma Elshahawy"
+date: "11/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{R}
+if(!'RPostgres' %in% installed.packages()){
+  install.packages("RPostgres")
+}
+library(RPostgres)
+con <- dbConnect(RPostgres::Postgres(), host="localhost", dbname="dvdrental")
+```
+
+```{r}
+dbListTables(con, "dvdrental")
+dbListFields(con, "film_list")
+```
+
+```{r}
+film_df <- dbGetQuery(con, "select * from film_list")
+film_df
+```
+```{r}
+library(mongolite)
+mdb <- mongo(collection = "film_list", db = "dvdrental", url = "mongodb://127.0.0.1:27017")
+```
+
+```{r}
+mdb$insert(film_df)
+```
+
+```{r}
+mdb$count() == nrow(film_df)
+```
+
+```{r}
+results <- mdb$find('{"rating":"PG-13", "length": {"$in": [100, 120]}}', limit = 10) %>%
+  select(title, price, category, length, rating) %>%
+  group_by(category)
+results
+```
+
+
+
+
+
+
+

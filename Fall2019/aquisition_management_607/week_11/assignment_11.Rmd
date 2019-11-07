@@ -1,8 +1,15 @@
 ---
-title: "assignment_11"
+title: "Analyzing Youtube recommender"
 author: "Salma Elshahawy"
 date: "11/6/2019"
-output: html_document
+output:
+  html_document:
+    highlight: pygments
+    df_print: paged
+    theme: united
+    toc: true
+    toc_float: true
+    code_folding: show
 ---
 
 # Deep Neural Networks for YouTube Recommendations
@@ -23,11 +30,11 @@ YouTube recommender was a very interesting project for me to get deep into. Wher
 The system is comprised of two neural networks: one for _candidate generation_ and one for _ranking_. The __candidate generation__ network takes events from the user’s YouTube activity history as input and retrieves a small subset (hundreds) of videos from a large corpus. 
 
 
-# CANDIDATE GENERATION
+## CANDIDATE GENERATION
 
 The candidate generation network only provides broad personalization via collaborative filtering.The similarity between users is expressed in terms of coarse features such as IDs of video watches, search query tokens and demographics. Presenting a few “best” recommendations in a list requires a fine-level representation to distinguish relative importance among candidates with high recall. The ranking network accomplishes this task by assigning a score to each video according to a desired objective function using a rich set of features describing the video and user. The highest scoring videos are presented to the user, ranked by their score.
 
-## Recommendation as Classification
+### Recommendation as Classification
 
 Recommendation considered as extreme multiclass classification where the prediction problem becomes accurately classifying a specific video watch $wt$ at time $t$ among millions
 of videos $i$ (classes) from a corpus $V$ based on a user $U$ and context $C$
@@ -36,39 +43,39 @@ of videos $i$ (classes) from a corpus $V$ based on a user $U$ and context $C$
 
 The task of the deep neural network is to learn user embeddings u as a function of the user’s history and context that are useful for discriminating among videos with a softmax classifier.
 
-## Model Architecture
+### Model Architecture
 
 Inspired by continuous bag of words language models, we learn high dimensional embeddings for each video in a fixed vocabulary and feed these embeddings into a feedforward neural network. A user’s watch history is represented by a variable-length sequence of sparse video IDs which is mapped to a dense vector representation via the embeddings. 
 
-## Heterogeneous Signals
+### Heterogeneous Signals
 
 A key advantage of using deep neural networks as a generalization of matrix factorization is that arbitrary continuous and categorical features can be easily added to the model. Search history is treated similarly to watch history - each query is tokenized into unigrams and bigrams and each token is embedded. Once averaged, the user’s tokenized, embedded queries represent a summarized dense search history. Demographic features are important for providing priors so that the recommendations behave reasonably for new users. The user’s geographic region and device are embedded and concatenated. Simple binary and continuous features such as the user’s gender, logged-in state and age are input directly into the network as real values normalized to [0, 1].
 
-## Label and Context Selection
+### Label and Context Selection
 
 It is important to emphasize that recommendation often involves solving a surrogate problem and transferring the result to a particular context. It is important to emphasize that recommendation often involves solving a surrogate problem and transferring the result to a particular context. We have found that the choice of this surrogate learning problem has an outsized importance on performance in A/B testing but is very difficult to measure with offline experiments. Training examples are generated from all YouTube watches (even those embedded on other sites) rather than just watches on the recommendations we produce. Otherwise, it would be very difficult for new content to surface and the recommender would be overly biased towards exploitation. If users are discovering videos through means other than our recommendations, we want to be able to quickly propagate this discovery to others via collaborative filtering. Another key insight that improved live metrics was to generate a fixed number of training examples per user, effectively weighting our users equally in the loss function. 
 
 ![label](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_11/label.png)
 
-## Experiments with Features and Depth
+### Experiments with Features and Depth
 
 Adding features and depth significantly improves precision on holdout data. In these experiments, a vocabulary of 1M videos and 1M search tokens were embedded with 256 floats each in a maximum bag size of 50 recent watches and 50 recent searches. The softmax layer outputs a multinomial distribution over the same __1M__ video classes with a dimension of 256 (which can be thought of as a separate output video embedding). These models were trained until convergence over all YouTube users, corresponding to several epochs over the data.
 ![experiments](/Users/salmaelshahawy/Desktop/MSDS_2019/Fall2019/aquisition_management_607/week_11/experiments.png)
 
-# RANKING
+## RANKING
 
 The primary role of ranking is to use impression data to specialize and calibrate candidate predictions for the particular user interface. For example, a user may watch a given
 video with high probability generally but is unlikely to click on the specific homepage impression due to the choice of thumbnail image. The list of videos is then sorted by this score and returned to the user. Our final ranking objective is constantly being tuned based on live A/B testing results but is generally a simple function of expected watch time per impression. Ranking by click-through rate often promotes deceptive videos that the user does not complete (“clickbait”) whereas watch time better captures engagement. 
 
-##  Feature Representation
+###  Feature Representation
 
 Typically hundreds of features in our ranking models, roughly split evenly between categorical and continuous. Despite the promise of deep learning to alleviate theburden of engineering features by hand, the nature of the raw data does not easily lend itself to be input directly into feedforward neural networks.
 
-##  Modeling Expected Watch Time
+###  Modeling Expected Watch Time
 
 Our goal is to predict expected watch time given training examples that are either positive\ (the video impression was clicked) or negative (the impression was not clicked). Positive examples are annotated with the amount of time the user spent watching the video. To predict expected watch time we use the technique of weighted logistic regression, which was developed for this purpose. The model is trained with logistic regression under crossentropy loss. However, the positive (clicked) impressions are weighted by the observed watch time on the video. Negative (unclicked) impressions all receive unit weight.
 
-## Experiments with Hidden Layers
+### Experiments with Hidden Layers
 
 The value shown for each configuration (“weighted, per-user loss”) was obtained by considering both positive (clicked) and negative (unclicked) impressions shown to a user on a single page.
 
@@ -84,5 +91,5 @@ Logistic regression was modified by weighting training examples with watch time 
 
 # References
 
-+ [Deep Neural Networks for YouTube Recommendations](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf)
-+ [GitHub repo]()
++ [Deep Neural Networks for YouTube Recommendations by Paul Covington, Jay Adams, Emre Sargin ,Google, Mountain View, CA](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf)
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_11)
