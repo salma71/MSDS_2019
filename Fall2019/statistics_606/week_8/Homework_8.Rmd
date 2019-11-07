@@ -4,6 +4,8 @@ author: "Salma Elshahawy"
 output:
     pdf_document:
         extra_dependencies: ["geometry", "multicol", "multirow", "xcolor"]
+        latex_engine: xelatex
+        keep_tex:  true
 ---
 
 ```{r setup, include=FALSE}
@@ -109,20 +111,18 @@ plot(bdims$hgt ~ bdims$sho.gi,
 **Body measurements, Part III.** (8.24, p. 326) Exercise above introduces data on shoulder girth and height of a group of individuals. The mean shoulder girth is 107.20 cm with a standard deviation of 10.37 cm. The mean height is 171.14 cm with a standard deviation of 9.41 cm. The correlation between height and shoulder girth is 0.67.
 
 (a) Write the equation of the regression line for predicting height.
-\[
-  \hat { x } =\quad 107.2\\ \hat { y } =\quad 171.14\\ { s }_{ \hat { x }  }=\quad 10.37\\ { s }_{ \hat { y }  }=\quad 9.41\\ { R } =\quad 0.67 \\
-  
-  b1\quad =\quad \frac { { s }_{ \hat { y }  } }{ { s }_{ \hat { x }  } } *{ R } \\
-  b1\quad =\quad \frac { 9.41 }{ 10.37 } *\quad 0.67 \\
-  (y-\hat { y } )\quad =\quad b1(x-\hat { x } )\\
-  (y-171.14)\quad =\quad 6.9479*(x-107.2)
-\]
+
+$\widehat{ x } =\quad 107.2\\ \bar{ y } =\quad 171.14\\ { s }_{ \bar{ x }  }=\quad 10.37\\ { s }_{ \bar{ y }  }=\quad 9.41\\ { R } =\quad 0.67$
+  $b1\quad =\quad \frac { { s }_{ \bar{ y }  } }{ { s }_{ \bar{ x }  } } *{ R }$
+  $b1\quad =\quad \frac { 9.41 }{ 10.37 } *\quad 0.67$
+  $(y-\bar{ y } )\quad =\quad b1(x-\bar{ x } )$
+  $(y-171.14)\quad =\quad 6.9479*(x-107.2)$
 
 _The equation of regression will be:_
-\[
-  y\quad =\quad 105.965\quad +\quad 0.607*x \\
-  height\quad =\quad 105.965\quad +\quad 0.607*shoulder\quad length
-\]
+
+  $y\quad =\quad 105.965\quad +\quad 0.607*x$
+  $height\quad =\quad 105.965\quad +\quad 0.607*shoulder\quad girth$
+
 
 (b) Interpret the slope and the intercept in this context.
 
@@ -131,25 +131,24 @@ _The intercept: for a shoulder girth of 0 cm, the average height increases by 10
 
 (c) Calculate $R^2$ of the regression line for predicting height from shoulder girth, and interpret it in the context of the application.
 
-\[
-{ { R } }^{ 2 }\quad =\quad { 0.67 }^{ 2 }\\ { { R } }^{ 2 }\quad =\quad 0.4489
-\]
+
+${ { R } }^{ 2 }\quad =\quad { 0.67 }^{ 2 }\\ { { R } }^{ 2 }\quad =\quad 0.4489$
+
 
 _44.89% of the variation in height is explained by shoulder girth_
 
 (d) A randomly selected student from your class has a shoulder girth of 100 cm. Predict the height of this student using the model.
 
-\[
-height\quad =\quad 105.965\quad +\quad 0.607*100\\
-height\quad =\quad 166.762
-\]
+
+$height\quad =\quad 105.965\quad +\quad 0.607*100$
+$height\quad =\quad 166.762$
+
 _The height should be 166.76_
 
 (e) The student from part (d) is 160 cm tall. Calculate the residual, and explain what this residual means.
 
-\[
-{ e }_{ i }\quad =\quad { y }_{ i }-\hat { y } \\ { e }_{ i }\quad =\quad 160\quad -\quad 166.76\\ { e }_{ i }\quad =\quad -6.76
-\]
+
+${ e }_{ i }\quad =\quad { y }_{ i }-\bar{ y } \\ { e }_{ i }\quad =\quad 160\quad -\quad 166.76\\ { e }_{ i }\quad =\quad -6.76$
 
 _This means by a negative sign that the model overestimated the height by 6.76_
 
@@ -273,10 +272,19 @@ box()
 
 (a) Given that the average standardized beauty score is -0.0883 and average teaching evaluation score is 3.9983, calculate the slope. Alternatively, the slope may be computed using just the information provided in the model summary table.
 
+_considered that both x-hat and y-hat both located on the regression line, we can have the following equation of the regression line_
 
+```{r}
+slope <- (3.9983 - 4.010)/(-0.0883)
+slope
+```
 
 (b) Do these data provide convincing evidence that the slope of the relationship between teaching evaluation and beauty is positive? Explain your reasoning.
-(c) List the conditions required for linear regression and check if each one is satisfied for this model based on the following diagnostic plots.
+
+_Since the slope is positive the relationship is positive. If we set up a hypothesis test with
+${ H }_{ 0 }\quad :\quad { \beta  }_{ 1 }\quad =\quad 0\quad and\quad \\ { H }_{ A }\quad :\quad { \beta  }_{ 1 }\quad >\quad 0$, 
+then based on the summary table the p−value is nearly 0. And this is for a two-sided test, so it’ll be even closer to 0 for a one-sided test. We reject the null hypothesis. There is convincing evidence that the relationship between teaching evluation and beauty is positive._
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%", fig.height=4}
 # residuals plot ----------------------------------------------------
@@ -316,6 +324,9 @@ box()
 abline(h = 0, lty = 3)
 ```
 
+(c) List the conditions required for linear regression and check if each one is satisfied for this model based on the following diagnostic plots.
+
+_Linearity: Based on the scatterplot, there may be a weak linear relationship. There is no evident pattern in the residual plot. Nearly normal residuals: The histogram of the residuals exhibits a left skew. Additionally, the points seem to move away from the normal probability line on each end. However, the bulk of the data is very close to the line. I would conclude that the distribution of residuals is nearly normal. Constant variability: Based on residual plot, there appears to be constant variability in the data. Independent observations: Observations are not a time series, and can be assumed to be independent (unless there is evidence that students copied each other’s evaluations). I believe all conditions are satisfied for this linear model._
 
 
 
