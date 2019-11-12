@@ -2,7 +2,14 @@
 title: "Untitled"
 author: "Salma Elshahawy"
 date: "11/7/2019"
-output: html_document
+output:
+  html_document:
+    highlight: pygments
+    df_print: paged
+    theme: united
+    toc: true
+    toc_float: true
+    code_folding: show
 ---
 
 ```{r setup, include=FALSE}
@@ -12,39 +19,39 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 
 ```{R}
+
 if(!'RPostgres' %in% installed.packages()){
   install.packages("RPostgres")
 }
 library(RPostgres)
-con <- dbConnect(RPostgres::Postgres(), host="localhost", dbname="dvdrental")
+con <- dbConnect(RPostgres::Postgres(), user="postgres", password="yahia2010", host="localhost", dbname="dvdrental")
 ```
 
 ```{r}
 dbListTables(con, "dvdrental")
 dbListFields(con, "film_list")
+film_list <- dbReadTable(con, "film_list")
+film_list
+dbDisconnect(con)
 ```
 
-```{r}
-film_df <- dbGetQuery(con, "select * from film_list")
-film_df
-```
+
 ```{r}
 library(mongolite)
-mdb <- mongo(collection = "film_list", db = "dvdrental", url = "mongodb://127.0.0.1:27017")
+mdb <- mongo(collection = "film_list", db = "dvdrental")
 ```
 
 ```{r}
-mdb$insert(film_df)
+mdb$insert(film_list)
 ```
 
-```{r}
-mdb$count() == nrow(film_df)
-```
 
 ```{r}
+library(dplyr)
 results <- mdb$find('{"rating":"PG-13", "length": {"$in": [100, 120]}}', limit = 10) %>%
   select(title, price, category, length, rating) %>%
-  group_by(category)
+  group_by(category) %>%
+  arrange(desc(price))
 results
 ```
 
