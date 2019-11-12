@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Database Migration and comparasion"
 author: "Salma Elshahawy"
 date: "11/7/2019"
 output:
@@ -85,13 +85,12 @@ As a data scientist, to pick up a tool to work with, you have to conduct a thour
 In this section, I collected those aspects that I could think about and compared postgres to mongodb according to those criterion.
 
 ```{r compare in dataframe, warning=FALSE, message=FALSE}
-library(RCurl)
 
 url <- "https://raw.githubusercontent.com/salma71/MSDS_2019/master/Fall2019/aquisition_management_607/week_12/postgres%20vs.mongodb.csv"
 
 postgres_vs_mongodb <- read.csv(url, head = TRUE)
 # postgres_vs_mongodb <- read_csv("postgres vs.mongodb.csv")
-postgres_vs_mongodb %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+postgres_vs_mongodb %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="600px")
 
 ```
 
