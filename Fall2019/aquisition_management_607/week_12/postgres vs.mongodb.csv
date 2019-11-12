@@ -1,0 +1,24 @@
+Aspect,Postgres,Mongodb
+Who Uses These Databases,"Apple, BioPharm, Etsy, IMDB, Macworld, Debian, Fujitsu, Red Hat, Sun Microsystem, Cisco, Skype","Google, UPS, Facebook, Cisco, eBay, BOSH, Adobe, SAP, Forbes, and more"
+Database Structure,"an object-relational database management system (ORDBMS) with an emphasis on extensibility and standards compliance. PostgreSQL is ACID-compliant, transactional, has updatable and materialized views, triggers, and foreign keys. It also supports functions and stored procedures.
+
+Uses tables, constraints, triggers, roles, stored procedures and views as the core components that you work with. A table consists of rows, and each row contains a same set of columns. Uses primary keys to uniquely identify each row (a.k.a record) in a table, and foreign keys to assure the referential integrity between two related tables.
+
+Supports many NoSQL features as well.","Uses JSON-like documents to store schema-free data. The collections of documents do not require a predefined structure and columns can vary for different documents.
+
+Has many of the features of a relational database, including an expressive query language and strong consistency. However, since it is schema-free MongoDB allows you to create documents without having to create the structure for the document first.
+
+A useful comparison with relational database management systems (RDBMS). Documents can easily be modified by adding or deleting fields without having to restructure the entire document."
+Are Indexes Needed?,"includes built-in support for regular B-tree and hash indexes. Indexes in PostgreSQL also support the following features:
+
+Expression indexes - created with an index of the result of an expression or function, instead of simply the value of a column
+Partial indexes - index only a part of a table","Indexes are preferred in MongoDB. If an index is missing, every document within the collection must be searched to select the documents that were requested in the query. This can slow down read times."
+Where (And How) Are These Databases Deployed?,"was written in C, with support for the following programming languages: C++, Delphi, Perl, Java, Lua, .NET, Node.js, Python, PHP, Lisp, Go, R, D, and Erlang. This is the REST API for any Postgres database.","MongoDB was written in C++, with support for the following programming languages: Actionscript, C, C#, C++, Clojure, ColdFusion, D, Dart, Delphi, Erlang, Go, Groovy, Haskell, Java, JavaScript, Lisp, Lua, MatLab, Perl, PHP, PowerShell, Prolog, Python, R, Ruby, Scala, and Smalltalk."
+What Types Of Replication / Clustering Are Available?,"PostgreSQL replication is synchronous (called 2-safe replication), so that it utilizes two database instances running simultaneously where your master database is synchronized with a slave database. Unless both databases crash simultaneously, data won't be lost.
+
+
+With synchronous replication, each write waits until confirmation is received from both master and slave","A replica set in MongoDB is a group of mongod processes that maintain the same data set. Replica sets provide redundancy and high availability, and are the basis for all production deployments."
+Who's Currently Behind The Databases,PostgreSQL is an open-source project maintained by PostgreSQL Global Development Group and their prolific community.,"MongoDB was started in 2007 by 10gen, which created the product based on the word “humongous”. In 2009, it was released and 10gen later changed their company name to MongoDB, Inc. MongoDB, Inc. provides development of the software and sells their enterprise solution."
+Who Provides Support and is There a Community?,PostgreSQL has a wide variety of community and commercial support options available for users.,"MongoDB offers the Community Support Forum, ServerFault, and StackOverflow. Users can also get enterprise support 24x7 via Enterprise grade support."
+Who Maintains The Documentation?,There is a wealth of PostgreSQL information available.,"MongoDB maintains the MongoDB documentation. From there, you can find information about the MongoDB Server, Atlas (database-as-a-service), cloud manager for hosted MongoDB, and Ops Manager."
+Which Database Is Right For Your Business?,"PostgreSQL seems to be gaining more popularity. If you're looking for a solution that is standard compliant, transactional and ACID compliant out of the box and has wide support for NoSQL features, then you should check out PostgreSQL.","MongoDB can be a great choice if you need scalability and caching for real-time analytics; however, it is not built for transactional data (accounting systems, etc.). MongoDB is frequently used for mobile apps, content management, real-time analytics, and applications involving the Internet of Things. If you have no clear schema definition, MongoDB can be a good choice."

@@ -16,38 +16,61 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Assignment abstract 
 
-```{R}
+For this assignment, you should take information from a relational database and migrate it to a NoSQL database of your own choosing.
 
-if(!'RPostgres' %in% installed.packages()){
-  install.packages("RPostgres")
-}
-library(RPostgres)
-con <- dbConnect(RPostgres::Postgres(), user="postgres", password="yahia2010", host="localhost", dbname="dvdrental")
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+
+For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
+
+Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+## Methodology 
+
+For this assignment, I choosed **Postgres** database, and used dvdrental dataset _attached to this submmission_ to convert from relational database to **MongoDB** using mongolite library. 
+
+## Load required libraries
+
+```{r load libraries, message=FALSE, warning=FALSE}
+if (!require('dplyr')) install.packages ('dplyr')
+if (!require('RPostgres')) install.packages ('RPostgres')
+if (!require('mongolite')) install.packages ('mongolite')
+if (!require('DT')) install.packages ('DT')
+if (!require('kableExtra')) install.packages ("kableExtra")
+if (!require('readr')) install.packages ('readr')
+if (!require('htmlTable')) install.packages ("htmlTable")
 ```
 
-```{r}
+## Build the db connection
+
+```{r database connection, message=FALSE, warning=FALSE}
+con <- dbConnect(RPostgres::Postgres(), user="postgres", password="yahia2010", host="localhost", dbname="dvdrental")
+con
+```
+
+## Explore the dataset 
+
+```{r list dvdrentals/disconnect db, message=FALSE, warning=FALSE}
 dbListTables(con, "dvdrental")
 dbListFields(con, "film_list")
 film_list <- dbReadTable(con, "film_list")
-film_list
+datatable(film_list, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX=T) )
 dbDisconnect(con)
 ```
 
+## Convert into Mongodb structure
 
-```{r}
-library(mongolite)
+```{r build mongodb structure for db, message=FALSE, warning=FALSE}
 mdb <- mongo(collection = "film_list", db = "dvdrental")
 ```
 
-```{r}
+```{r insert content intomongodb, message=FALSE, warning=FALSE}
 mdb$insert(film_list)
 ```
 
 
-```{r}
-library(dplyr)
+```{r test the mongodb, warning=FALSE, message=FALSE}
 results <- mdb$find('{"rating":"PG-13", "length": {"$in": [100, 120]}}', limit = 10) %>%
   select(title, price, category, length, rating) %>%
   group_by(category) %>%
@@ -55,8 +78,27 @@ results <- mdb$find('{"rating":"PG-13", "length": {"$in": [100, 120]}}', limit =
 results
 ```
 
+## The differences
 
+As a data scientist, to pick up a tool to work with, you have to conduct a thourogh research to figure out if this tool will worth the money and time to learn. There are some common aspects you have to consider before taking the decision, for instance, does this tool provides a well written documentation that will increase your learning curve? Does the new tool provide a sustainable customer support for their issues, how maintainable it is?
 
+In this section, I collected those aspects that I could think about and compared postgres to mongodb according to those criterion.
+
+```{r compare in dataframe, warning=FALSE, message=FALSE}
+postgres_vs_mongodb <- read_csv("postgres vs.mongodb.csv")
+postgres_vs_mongodb %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+## References
+
++ [GitHub repo](https://github.com/salma71/MSDS_2019/tree/master/Fall2019/aquisition_management_607/week_12)
++ [Mongolite manual](https://jeroen.github.io/mongolite/query-data.html)
++ [Mongodb documentation](https://docs.mongodb.com/)
++ [Replication, Clustering, and Connection Pooling](https://wiki.postgresql.org/wiki/Replication,_Clustering,_and_Connection_Pooling)
++ [Postgres documentation](https://postgrest.org/en/v6.0/)
++ [Who uses mongo](https://www.mongodb.com/who-uses-mongodb)
++ [Who uses postgres](https://enlyft.com/tech/products/postgresql?gclid=CjwKCAiAzanuBRAZEiwA5yf4usxBdmbJCE4WdWJGZu0oL0tUb72m-bGDqOG2VZsivCItLXqf_6ezNBoCv5oQAvD_BwE)
 
 
 
