@@ -1,5 +1,5 @@
 ---
-title: "Elshahawy-project"
+title: "Applying linear regression to study flights delay"
 author: "Salma Elshahawy"
 date: "10/12/2019"
 output:
@@ -8,7 +8,6 @@ output:
     df_print: paged
     highlight: pygments
     number_sections: yes
-    pdf_document: default
     rmarkdown::html_document: null
     theme: cosmo
     toc: yes
@@ -51,7 +50,7 @@ HA(alternative hypotithes) -> There are associations between departure delay and
 
 ## Part 3 - Exploratory data analysis
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 library(RCurl)
 library(dplyr)
 library(ggplot2)
@@ -62,13 +61,13 @@ flights
 ```
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 summary(flights)
 ```
 
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 
 # taking a subset
 sub_set <- flights[c(6,9,10,16)]
@@ -77,7 +76,7 @@ sub_set
 summary(sub_set)
 ```
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 ## get statistical analysis for the whole population 
 theme_set(theme_bw())  # pre-set the bw theme.
 g <- ggplot(sub_set, aes(dep_delay, arr_delay)) + 
@@ -88,7 +87,7 @@ ggMarginal(g, type = "histogram", fill="transparent")
 ```
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 
 ## sampling, get summary plots --> statistics for only sample of 100
 
@@ -107,7 +106,7 @@ ggMarginal(g, type = "histogram", fill="transparent")
 Both dep_delay and arr_delap are right skewed distribution. 
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 
 theme_set(theme_bw())  # pre-set the bw theme.
 ggplot(sample_100, aes(dep_delay, arr_delay)) + 
@@ -134,7 +133,7 @@ ggpairs(data = sample_100, title = "title")
 
 The correlation between arr_delay and dep_delay is very strong as it close to 1 - strong correlation. However, relation doesn't mean causation. Now, let's build the linear regression model.
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 linearMod <- lm(arr_delay ~ dep_delay, data=sample_100)  # build linear regression model on full data
 summary(linearMod)
 ```
@@ -144,14 +143,14 @@ summary(linearMod)
 This plot shows if residuals are normally distributed. Do residuals follow a straight line well or do they deviate severely? It’s good if residuals are lined well on the straight dashed line. 
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 library(DATA606)
 plot_ss(sample_100$dep_delay, sample_100$arr_delay)
 ```
 
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 fit <- linearMod
 d <- sample_100
 d$predicted <- predict(fit)   # Save the predicted values
@@ -175,13 +174,13 @@ When we look at the plot above, we see that the data does not have any obvious d
 This is a good indication it is not a non-linear relationship.
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 plot(fit, which=2, col=c("blue")) # qqplot
 ```
 
 For our model, the Q-Q plot shows pretty good alignment to the the line with a few points at the top slightly offset. Probably not significant and a reasonable alignment.
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 plot(fit, which=3, col=c("blue"))  # Scale-Location Plot
 ```
 
@@ -202,7 +201,8 @@ arr_delay = -5.899 + 1.02*dep_delay
 
 as a conclusion, I would go with refusing the Null hypotethis that there is no associations between arrival delay and departure delay. However, We need to consider other attributes that has a confounding effects on the arrival times.
 
-### References
+## References
 
-[Flights database](http://blog.rstudio.org/2014/07/23/new-data-packages/)
-[University of Virginia Library](http://data.library.virginia.edu/diagnostic-plots/)
++ [Flights database](http://blog.rstudio.org/2014/07/23/new-data-packages/)
+
++ [University of Virginia Library](http://data.library.virginia.edu/diagnostic-plots/)
