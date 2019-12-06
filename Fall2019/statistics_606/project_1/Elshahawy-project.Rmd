@@ -3,27 +3,26 @@ title: "Elshahawy-project"
 author: "Salma Elshahawy"
 date: "10/12/2019"
 output:
-  pdf_document:
-    latex_engine: xelatex
-    toc: yes
   html_document:
     code_folding: show
     df_print: paged
     highlight: pygments
-    mathjax: local
-    number_sections: no
+    number_sections: yes
     pdf_document: default
     rmarkdown::html_document: null
     theme: cosmo
     toc: yes
     toc_float: yes
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
 ---
 
 ```{r setup, include=FALSE, warning=FALSE, message=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Part 1 - Introduction
+## Part 1 - Introduction
 
 I decided to use the dataset of nycflights13::flights: package included with R. This package contains information about all flights that departed from NYC (i.e., EWR, JFK and LGA) in 2013: 336,776 flights with 16 variables. To help understand what causes delays, it also includes a number of other useful datasets: weather, planes, airports, airlines. [Source: Bureau of transportation statistics](http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236)
 
@@ -37,7 +36,7 @@ HA(alternative hypotithes) -> There are associations between departure delay and
 
 
 
-### Part 2 - Data
+## Part 2 - Data
 
 + Variables:
 
@@ -50,7 +49,7 @@ HA(alternative hypotithes) -> There are associations between departure delay and
 + This is an observational study. I will draw my conclusions based on analyzing the existing data.
 
 
-### Part 3 - Exploratory data analysis
+## Part 3 - Exploratory data analysis
 
 ```{r}
 library(RCurl)
@@ -59,7 +58,7 @@ library(ggplot2)
 library(ggExtra)
 
 library(nycflights13)
-head(flights) 
+flights
 ```
 
 
@@ -81,7 +80,7 @@ summary(sub_set)
 ```{r}
 ## get statistical analysis for the whole population 
 theme_set(theme_bw())  # pre-set the bw theme.
-g <- ggplot(sub_set, aes(arr_delay, dep_delay)) + 
+g <- ggplot(sub_set, aes(dep_delay, arr_delay)) + 
   geom_count() + 
   geom_smooth(method="lm", se=F)
 
@@ -98,7 +97,7 @@ sample_100 <- sample_n(sub_set, 100)
 summary(sample_100)
 
 theme_set(theme_bw())  # pre-set the bw theme.
-g <- ggplot(sample_100, aes(arr_delay, dep_delay)) + 
+g <- ggplot(sample_100, aes(dep_delay, arr_delay)) + 
   geom_count() + 
   geom_smooth(method="lm", se=F)
 
@@ -112,43 +111,98 @@ Both dep_delay and arr_delap are right skewed distribution.
 
 theme_set(theme_bw())  # pre-set the bw theme.
 ggplot(sample_100, aes(dep_delay, arr_delay)) + 
-  geom_jitter(aes(colour = dep_delay, size = arr_delay), na.rm = TRUE) +
-  coord_flip()
+  geom_jitter(aes(colour = dep_delay, size = arr_delay), na.rm = TRUE) 
   
 ```
 
 
 
-### Part 4 - Inference
+## Part 4 - Inference
 
 
 This dataset doesn't follow the normal distribution. Since n = 100 => which is more than 25 we can do a linear regression model. Let's begin with the correlation which is a statistical tool to measure the level of linear dependence between two variables, that occur in pair  
 
-```{r}
-cor(sub_set$arr_delay, sub_set$dep_delay, use = "complete.obs")
+```{r message=FALSE, warning=FALSE}
+library(GGally)
+sample_100 <- sample_100 %>%
+  na.omit() %>%
+  select(dep_delay, arr_delay, distance)
+
+ggpairs(data = sample_100, title = "title")
+# cor(sub_set$arr_delay, sub_set$dep_delay, use = "complete.obs")
 ```
 
-The correlation is very strong as it close to 1 - strong correlation. Now, let's build the linear regression model.
+The correlation between arr_delay and dep_delay is very strong as it close to 1 - strong correlation. However, relation doesn't mean causation. Now, let's build the linear regression model.
 
 ```{r}
-linearMod <- lm(arr_delay ~ dep_delay, data=sub_set)  # build linear regression model on full data
-print(linearMod)
+linearMod <- lm(arr_delay ~ dep_delay, data=sample_100)  # build linear regression model on full data
+summary(linearMod)
 ```
 
-Now that we have built the linear model, we also have established the relationship between the predictor and response in the form of a mathematical formula for arrival delay (arr_delay) as a function for distance. For the above output, you can notice the ‘Coefficients’ part having two components: Intercept: -5.899, distance: 1.019 These are also called the beta coefficients. In other words,
+### Check residuals distribution
+
+This plot shows if residuals are normally distributed. Do residuals follow a straight line well or do they deviate severely? It’s good if residuals are lined well on the straight dashed line. 
+
+
+```{r}
+library(DATA606)
+plot_ss(sample_100$dep_delay, sample_100$arr_delay)
+```
+
+
+
+```{r}
+fit <- linearMod
+d <- sample_100
+d$predicted <- predict(fit)   # Save the predicted values
+d$residuals <- residuals(fit) # Save the residual values
+ggplot(d, aes(x = dep_delay, y = arr_delay)) +
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey") +     # regression line  
+  geom_segment(aes(xend = dep_delay, yend = predicted), alpha = .2) +      # draw line from point to line
+  geom_point(aes(color = abs(residuals), size = abs(residuals))) +  # size of the points
+  scale_color_continuous(low = "green", high = "red") +             # colour of the points mapped to residual size - green smaller, red larger
+  guides(color = FALSE, size = FALSE) +                             # Size legend removed
+  geom_point(aes(y = predicted), shape = 1) +
+  theme_bw()
+```
+
+```{r }
+plot(fit, which=1, col=c("blue"))
+```
+
+When we look at the plot above, we see that the data does not have any obvious distinct pattern. While it is slightly curved, it has equally spread residuals around the horizontal line without a distinct pattern.
+
+This is a good indication it is not a non-linear relationship.
+
+
+```{r}
+plot(fit, which=2, col=c("blue")) # qqplot
+```
+
+For our model, the Q-Q plot shows pretty good alignment to the the line with a few points at the top slightly offset. Probably not significant and a reasonable alignment.
+
+```{r}
+plot(fit, which=3, col=c("blue"))  # Scale-Location Plot
+```
+
+The residuals are reasonably well spread above and below a pretty horizontal line however the beginning of the line does have more points so has less variance there.
+
+Residual analysis plots are a very useful tool for assessing aspects of veracity of a linear regression model on a particular dataset and testing that the attributes of a dataset meet the requirements for linear regression. 
+
+******************************
+
+Now that we have built the linear model, we also have established the relationship between the predictor and response in the form of a mathematical formula for arrival delay (arr_delay) as a function for departure delay. For the above output, we can notice the ‘Coefficients’ part having two components: Intercept: -6.94, distance: 1.019 These are also called the beta coefficients. In other words,
 
 arr_delay = Intercept + (beta ∗ dep_delay)
 
-```{r}
-summary(linearMod)  # model summary
-```
+arr_delay = -5.899 + 1.02*dep_delay
 
-  arr_delay = -5.899 + 1*dep_delay
 
-### Part 5 - Conclusion
+## Part 5 - Conclusion
 
-as a conclusion, I would go with refusing the Null hypotethis that there is no associations between arrival delay and departure delay. 
+as a conclusion, I would go with refusing the Null hypotethis that there is no associations between arrival delay and departure delay. However, We need to consider other attributes that has a confounding effects on the arrival times.
 
 ### References
 
 [Flights database](http://blog.rstudio.org/2014/07/23/new-data-packages/)
+[University of Virginia Library](http://data.library.virginia.edu/diagnostic-plots/)
