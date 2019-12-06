@@ -3,6 +3,9 @@ title: "Applying linear regression to study flights delay"
 author: "Salma Elshahawy"
 date: "10/12/2019"
 output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
   html_document:
     code_folding: show
     df_print: paged
@@ -12,9 +15,6 @@ output:
     theme: cosmo
     toc: yes
     toc_float: yes
-  pdf_document:
-    latex_engine: xelatex
-    toc: yes
 ---
 
 ```{r setup, include=FALSE, warning=FALSE, message=TRUE}
