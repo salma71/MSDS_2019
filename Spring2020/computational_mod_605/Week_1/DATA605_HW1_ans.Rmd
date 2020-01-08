@@ -1,0 +1,63 @@
+---
+title: ""
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+```{r loading package, message=FALSE, warning=FALSE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(knitr, rmdformats, REdaS)
+```
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Problem set-1
+### 1. Calculate the dot product u.v where u = [0.5, 0.5] and v = [3, -4]
+
+```{r problem_1_1}
+u <- c(0.5, 0.5)
+v <- c(3, -4)
+dot_prod = u %*% v
+dot_prod
+```
+
+### 2. What are the lengths of u and v? Please note that the mathematical notion of the
+length of a vector is not the same as a computer science definition.
+
+```{r}
+v_length <- sqrt((v[1])*(v[1]) + (v[2])*(v[2]))
+v_length
+
+u_length <- sqrt((u[1])*(u[1]) + (u[2])*(u[2]))
+u_length
+```
+
+### 3. What is the linear combination: 3u - 2v?
+
+```{r}
+linear_comb <- (3 * u) - (2 * v)
+linear_comb
+```
+
+### 4. What is the angle between u and v?
+
+```{r}
+cos_theta <- dot_prod / (u_length*v_length)
+rad2deg(acos(cos_theta))
+```
+
+********************
+# Problem set-2
