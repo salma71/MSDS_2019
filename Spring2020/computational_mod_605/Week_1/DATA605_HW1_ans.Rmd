@@ -14,7 +14,7 @@ pacman::p_load(knitr, rmdformats, REdaS)
 ```{r knitr_init, echo=FALSE, cache=FALSE}
 ## Global options
 options(max.print="75")
-opts_chunk$set(echo=FALSE,
+opts_chunk$set(echo=TRUE,
 	             cache=TRUE,
                prompt=FALSE,
                tidy=TRUE,
@@ -61,3 +61,48 @@ rad2deg(acos(cos_theta))
 
 ********************
 # Problem set-2
+
+```{r}
+calculate_gauss <- function(a, b) {
+  n <- nrow(a)
+  # search for the position of the maximum element in the matrix for each column diagonally.
+  for (i in seq_len(n - 1)) {
+    j <- which.max(a[i:n, i]) + i - 1 # pointer to the new index of max. element in a column
+    if (j != i) {
+      a[c(i, j), i:n] <- a[c(j, i), i:n]
+      # swap the two elements
+      b[c(i, j), ] <- b[c(j, i), ]
+    }
+  # find the multiplier to eliminate - iterate over the submatrix 
+    k <- seq(i + 1, n)
+    for (j in k) {
+      # find the multiplier
+      s <- a[[j, i]] / a[[i, i]]
+      # multiply s to the 2nd row then subtract from the first -> substitute in the second 
+      a[j, k] <- a[j, k] - s * a[i, k]
+      b[j, ] <- b[j, ] - s * b[i, ]
+    }
+  }
+  
+  # backword solve
+  for (i in seq(n, 1)) {
+    if (i < n) {
+      for (j in seq(i + 1, n)) {
+        b[i, ] <- b[i, ] - a[[i, j]] * b[j, ]
+      }
+    }
+    b[i, ] <- b[i, ] / a[[i, i]]
+  }
+  
+  return(x=b)
+}
+a <- matrix(c(1,2,-1,1,-1,-2,3,5,4), nrow = 3, ncol = 3)
+b <- matrix(c(1,2,6), nrow = 3, ncol = 1)
+
+val <- calculate_gauss(a,b)
+val
+
+```
+
+
+
